@@ -85,7 +85,11 @@ void Core::CreateSingletons()
     // check types size
     
 	options = new KeyedArchive();
+    
 	new FileSystem();
+    FileSystem::Instance()->SetDefaultDocumentsDirectory();
+    FileSystem::Instance()->CreateDirectory(FileSystem::Instance()->GetCurrentDocumentsDirectory());
+    
 	new Logger();
 	if (isConsoleMode)
 	{

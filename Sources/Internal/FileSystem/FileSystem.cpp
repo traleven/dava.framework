@@ -45,6 +45,7 @@
 #include <io.h> 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <Shlobj.h>
 #endif
 
 namespace DAVA
@@ -110,26 +111,6 @@ namespace DAVA
 		return FilepathRelativeToBundle(relativePathname.c_str());
 	}
 	
-	NSString * FilepathInDocumentsObjC(NSString * relativePathname)
-	{
-		NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-		NSString * bundlePath = [paths objectAtIndex:0];
-			//	NSString * bundlePath2 = [bundlePath stringByAppendingString:@"/"]; removed for the bundle path compatibility
-		NSString * filePath = [bundlePath stringByAppendingString: relativePathname];
-		return filePath;
-	}
-	
-	const char * FilepathInDocuments(const char * relativePathname)
-	{
-		NSString * filePath = FilepathInDocumentsObjC([NSString stringWithUTF8String: relativePathname]);
-		return [filePath UTF8String];
-	}
-	
-	const char * FilepathInDocuments(const String & relativePathname)
-	{
-		return FilepathInDocuments(relativePathname.c_str());
-	}
-	
 #endif
 	
 #if defined(__DAVAENGINE_WIN32__)
@@ -149,25 +130,14 @@ namespace DAVA
 	{
 		return FilepathRelativeToBundle(relativePathname.c_str());
 	}
-	
-	const char * FilepathInDocuments(const char * relativePathname)
-	{
-		return Format("./Documents/%s", relativePathname);
-	}
-	
-	const char * FilepathInDocuments(const String & relativePathname)
-	{
-		return FilepathInDocuments(relativePathname.c_str());
-	}
-	
 #endif
-	
-	
+    
+
 	
 FileSystem::FileSystem()
 {
 }
-
+    
 FileSystem::~FileSystem()
 {	
 	for (List<ResourceArchiveItem>::iterator ai = resourceArchiveList.begin();
@@ -178,7 +148,7 @@ FileSystem::~FileSystem()
 	}
 	resourceArchiveList.clear();
 }
-
+    
 FileSystem::eCreateDirectoryResult FileSystem::CreateDirectory(const String & filePath, bool isRecursive)
 {
 	if (!isRecursive)
@@ -385,6 +355,74 @@ bool FileSystem::SetCurrentWorkingDirectory(const String & newWorkingDirectory)
 	return false; 
 }
 	
+const String & FileSystem::GetCurrentDocumentsDirectory()
+{
+    return currentDocDirectory; 
+}
+    
+void FileSystem::SetCurrentDocumentsDirectory(const String & newDocDirectory)
+{
+    currentDocDirectory = newDocDirectory;
+}
+    
+const char * FileSystem::FilepathInDocuments(const char * relativePathname)
+{
+    //return Format("./Documents/%s", relativePathname);
+	//String s = currentDocDirectory + relativePathname;
+    return Format("%s%s", currentDocDirectory.c_str(), relativePathname);
+}
+
+const char * FileSystem::FilepathInDocuments(const String & relativePathname)
+{
+    return FilepathInDocuments(relativePathname.c_str());
+}
+    
+void FileSystem::SetDefaultDocumentsDirectory()
+{
+#if defined(__DAVAENGINE_WIN32__)
+    SetCurrentDocumentsDirectory(String(GetUserDocumentsPath()) + "DAVAProject\\");
+#elif defined(__DAVAENGINE_MACOS__) || defined(__DAVAENGINE_IPHONE__) 
+    SetCurrentDocumentsDirectory(String(GetUserDocumentsPath()) + "DAVAProject/");
+#endif
+}
+    
+#if defined(__DAVAENGINE_IPHONE__) || defined(__DAVAENGINE_MACOS__)	
+const char * FileSystem::GetUserDocumentsPath()
+{
+    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString * bundlePath = [paths objectAtIndex:0];
+    NSString * filePath = [bundlePath stringByAppendingString: @"/"];
+    return [filePath UTF8String];
+}
+
+const char * FileSystem::GetPublicDocumentsPath()
+{
+    return "/Users/Shared/";
+}
+#endif
+	
+#if defined(__DAVAENGINE_WIN32__)
+const char * FileSystem::GetUserDocumentsPath()
+{
+    char * szPath = new char[MAX_PATH];
+    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, szPath);
+	int32 n = strlen(szPath);
+	szPath[n] = '\\';
+	szPath[n+1] = 0;
+    return szPath;
+}
+    
+const char * FileSystem::GetPublicDocumentsPath()
+{
+    char * szPath = new char[MAX_PATH];
+    SHGetFolderPathA(NULL, CSIDL_COMMON_DOCUMENTS, NULL, SHGFP_TYPE_CURRENT, szPath);
+	int32 n = strlen(szPath);
+	szPath[n] = '\\';
+	szPath[n+1] = 0;
+    return szPath;
+}   
+#endif
+    
 String FileSystem::RealPath(const String & _path)
 {
 	

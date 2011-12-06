@@ -115,6 +115,48 @@ public:
 	virtual bool SetCurrentWorkingDirectory(const String & newWorkingDirectory);
 	
 	/**
+     \brief Function to retrieve current documents directory
+     \returns current documents directory
+	 */
+	virtual const String & GetCurrentDocumentsDirectory();
+    
+	/**
+     \brief Function to set current documents directory
+     \param[in] newDocDirectory new documents directory to be set
+	 */
+	virtual void SetCurrentDocumentsDirectory(const String & newDocDirectory);
+
+    /**
+     \brief Function to set current documents directory to default
+	 */
+	virtual void SetDefaultDocumentsDirectory();
+
+    /**
+     \brief Function to retrieve full path relative current documents folder
+     \returns path relative corrent documents folder
+	 */
+    virtual const char * FilepathInDocuments(const char * relativePathname);
+    
+    /**
+     \brief Function to retrieve full path relative current documents folder
+     \returns path relative corrent documents folder
+	 */
+    virtual const char * FilepathInDocuments(const String & relativePathname);
+    
+    /**
+     \brief Function to retrieve user's documents path
+     \returns user's documents path
+	 */
+    virtual const char * GetUserDocumentsPath();
+    
+    /**
+     \brief Function to retrieve public documents path
+     \returns public documents path
+	 */
+    virtual const char * GetPublicDocumentsPath();
+    
+    
+	/**
 		\brief Function to compute CRC32 
 	 */
 		
@@ -197,6 +239,7 @@ public:
 private:
 	String tempRetPath;
 	String currentWorkingDirectory;
+    String currentDocDirectory;
 
 	struct ResourceArchiveItem
 	{
