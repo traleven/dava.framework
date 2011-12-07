@@ -135,25 +135,25 @@ public:
      \brief Function to retrieve full path relative current documents folder
      \returns path relative corrent documents folder
 	 */
-    virtual const char * FilepathInDocuments(const char * relativePathname);
+    virtual const String FilepathInDocuments(const char * relativePathname);
     
     /**
      \brief Function to retrieve full path relative current documents folder
      \returns path relative corrent documents folder
 	 */
-    virtual const char * FilepathInDocuments(const String & relativePathname);
+    virtual const String FilepathInDocuments(const String & relativePathname);
     
     /**
      \brief Function to retrieve user's documents path
      \returns user's documents path
 	 */
-    virtual const char * GetUserDocumentsPath();
+    virtual const String GetUserDocumentsPath();
     
     /**
      \brief Function to retrieve public documents path
      \returns public documents path
 	 */
-    virtual const char * GetPublicDocumentsPath();
+    virtual const String GetPublicDocumentsPath();
     
     
 	/**

@@ -365,14 +365,13 @@ void FileSystem::SetCurrentDocumentsDirectory(const String & newDocDirectory)
     currentDocDirectory = newDocDirectory;
 }
     
-const char * FileSystem::FilepathInDocuments(const char * relativePathname)
+const String FileSystem::FilepathInDocuments(const char * relativePathname)
 {
     //return Format("./Documents/%s", relativePathname);
-	//String s = currentDocDirectory + relativePathname;
-    return Format("%s%s", currentDocDirectory.c_str(), relativePathname);
+    return currentDocDirectory + relativePathname;
 }
 
-const char * FileSystem::FilepathInDocuments(const String & relativePathname)
+const String FileSystem::FilepathInDocuments(const String & relativePathname)
 {
     return FilepathInDocuments(relativePathname.c_str());
 }
@@ -387,17 +386,17 @@ void FileSystem::SetDefaultDocumentsDirectory()
 }
     
 #if defined(__DAVAENGINE_IPHONE__) || defined(__DAVAENGINE_MACOS__)	
-const char * FileSystem::GetUserDocumentsPath()
+const String FileSystem::GetUserDocumentsPath()
 {
     NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString * bundlePath = [paths objectAtIndex:0];
     NSString * filePath = [bundlePath stringByAppendingString: @"/"];
-    return [filePath UTF8String];
+    return String([filePath cStringUsingEncoding: NSUTF8StringEncoding]);
 }
 
-const char * FileSystem::GetPublicDocumentsPath()
+const String FileSystem::GetPublicDocumentsPath()
 {
-    return "/Users/Shared/";
+    return String("/Users/Shared/");
 }
 #endif
 	
