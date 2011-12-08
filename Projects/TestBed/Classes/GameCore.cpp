@@ -44,6 +44,7 @@
 #include "ImageUsageScreen.h"
 #include "LandscapeTestScreen.h"
 #include "TextinputTestScreen.h"
+#include "ShadowVolumeScreen.h"
 
 using namespace DAVA;
 
@@ -80,9 +81,9 @@ void GameCore::OnAppStarted()
 // 	collisionTestScreen = new CollisionTestScreen();
 	imageUsageScreen = new ImageUsageScreen();
 	landscapeTestScreen = new LandscapeTestScreen();
-	
 	textinputTestScreen1 = new TextinputTestScreen(L"textinputTestScreen 1");
 	textinputTestScreen2 = new TextinputTestScreen(L"textinputTestScreen 2");
+	shadowVolumeScreen = new ShadowVolumeScreen();
     
 //	UIScreenManager::Instance()->RegisterScreen(SCREEN_TEST, testScreen);
 //	UIScreenManager::Instance()->RegisterScreen(SCREEN_ANIM_3D, anim3dScreen);
@@ -100,10 +101,11 @@ void GameCore::OnAppStarted()
     UIScreenManager::Instance()->RegisterScreen(SCREEN_LANDSCAPE_TEST, landscapeTestScreen);    
 	UIScreenManager::Instance()->RegisterScreen(SCREEN_TEXTINPUT_TEST_1, textinputTestScreen1);   
 	UIScreenManager::Instance()->RegisterScreen(SCREEN_TEXTINPUT_TEST_2, textinputTestScreen2);
+	UIScreenManager::Instance()->RegisterScreen(SCREEN_SHADOWVOLUME, shadowVolumeScreen);
 
-//	UIScreenManager::Instance()->SetFirst(SCREEN_TEXTINPUT_TEST_1);
+	//UIScreenManager::Instance()->SetFirst(SCREEN_TEXTINPUT_TEST_1);
     
-	UIScreenManager::Instance()->SetFirst(SCREEN_LANDSCAPE_TEST);
+	UIScreenManager::Instance()->SetFirst(SCREEN_SHADOWVOLUME);
 	cursor = 0;
 }
 

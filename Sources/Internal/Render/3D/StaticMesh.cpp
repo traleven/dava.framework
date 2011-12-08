@@ -86,7 +86,7 @@ void StaticMesh::DrawPolygonGroup(int32 index, Material * material)
     
     RenderManager::Instance()->SetRenderEffect(RenderManager::TEXTURE_MUL_FLAT_COLOR);
     RenderManager::Instance()->SetRenderData(group->renderDataObject);
-#if 1 // old material code
+#if 0 // old material code
     if (material)
 	{
 
@@ -120,7 +120,7 @@ void StaticMesh::DrawPolygonGroup(int32 index, Material * material)
         
         if (material->hasOpacity)
         {
-            RenderManager::Instance()->EnableCulling(false);
+            //RenderManager::Instance()->EnableCulling(false);
         }
 	}
 

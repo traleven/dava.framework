@@ -107,6 +107,7 @@
     <ClCompile Include="Classes\ParticleTestScreen.cpp" />
     <ClCompile Include="Classes\PropertyLineEditControl.cpp" />
     <ClCompile Include="Classes\RenderTargetTestScreen.cpp" />
+    <ClCompile Include="Classes\ShadowVolumeScreen.cpp" />
     <ClCompile Include="Classes\SpriteBasicsScreen.cpp" />
     <ClCompile Include="Classes\SpritePerfScreen.cpp" />
     <ClCompile Include="Classes\StaticTextScreen.cpp" />
@@ -126,21 +127,18 @@
     <ClInclude Include="Classes\GameCore.h" />
     <ClInclude Include="Classes\GameObjectTestScreen.h" />
     <ClInclude Include="Classes\ImageUsageScreen.h" />
-    <ClInclude Include="Classes\iPhoneProjectDelegate.h" />
     <ClInclude Include="Classes\LandscapeTestScreen.h" />
     <ClInclude Include="Classes\MainMenuScreen.h" />
     <ClInclude Include="Classes\ParticleTestScreen.h" />
     <ClInclude Include="Classes\PropertyLineEditControl.h" />
     <ClInclude Include="Classes\RenderTargetTestScreen.h" />
+    <ClInclude Include="Classes\ShadowVolumeScreen.h" />
     <ClInclude Include="Classes\SpriteBasicsScreen.h" />
     <ClInclude Include="Classes\SpritePerfScreen.h" />
     <ClInclude Include="Classes\StaticTextScreen.h" />
     <ClInclude Include="Classes\TestScreen.h" />
     <ClInclude Include="Classes\TextinputTestScreen.h" />
     <ClInclude Include="Classes\TouchEffectsControl.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Classes\iPhoneProjectDelegate.mm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

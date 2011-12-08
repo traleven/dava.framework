@@ -47,6 +47,7 @@ class CollisionTestScreen;
 class ImageUsageScreen;
 class LandscapeTestScreen;
 class TextinputTestScreen;
+class ShadowVolumeScreen;
 
 class GameCore : public DAVA::ApplicationCore
 {
@@ -83,6 +84,7 @@ private:
     LandscapeTestScreen * landscapeTestScreen;
 	TextinputTestScreen * textinputTestScreen1;
 	TextinputTestScreen * textinputTestScreen2;
+	ShadowVolumeScreen * shadowVolumeScreen;
 };
 
 

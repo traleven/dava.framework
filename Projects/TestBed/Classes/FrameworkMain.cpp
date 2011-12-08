@@ -62,9 +62,9 @@ void FrameworkDidLaunched()
 	appOptions->SetInt("fullscreen", 0);
 	appOptions->SetInt("bpp", 32); 
 
-	DAVA::Core::Instance()->SetVirtualScreenSize(920, 690);
+	DAVA::Core::Instance()->SetVirtualScreenSize(960, 690);
 //	DAVA::Core::Instance()->SetVirtualScreenSize(1280, 800);
-	DAVA::Core::Instance()->RegisterAvailableResourceSize(920, 690, "Gfx");
+	DAVA::Core::Instance()->RegisterAvailableResourceSize(960, 690, "Gfx");
 //	DAVA::Core::Instance()->RegisterAvailableResourceSize(1280, 800, "Gfx2");
 #endif 
 

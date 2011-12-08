@@ -23,34 +23,41 @@
     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-    Revision History:
-        * Created by Vitaliy Borodovsky 
 =====================================================================================*/
-#ifndef __TEMPLATE_PROJECT_MAC_OS_APP_SCREENS_H__
-#define __TEMPLATE_PROJECT_MAC_OS_APP_SCREENS_H__
+#ifndef __SHADOWVOLUME_SCREEN_H__
+#define __SHADOWVOLUME_SCREEN_H__
 
-enum
+#include "DAVAEngine.h"
+
+using namespace DAVA;
+
+class ShadowVolumeScreen : public UIScreen
 {
-	SCREEN_TEST = 1,
-	SCREEN_ANIM_3D, 
-	SCREEN_SPRITE_BASICS,
-	SCREEN_CLIP_TEST,
-	SCREEN_RENDERTARGET_TEST,
-	SCREEN_PARTICLE_TEST,
-	SCREEN_SPRITE_PERF_TEST, 
-	SCREEN_GAME_OBJECTS_TEST,
-	SCREEN_BOX2D_GAME_OBJECTS_TEST,
-	SCREEN_FONT_USAGE,
-	SCREEN_STATIC_TEXT,
-	SCREEN_COLLISION_TEST,
-	SCREEN_TEXTINPUT_TEST_1,
-	SCREEN_TEXTINPUT_TEST_2,
-	SCREEN_SHADOWVOLUME,
-
-	SCREEN_IMAGE_USAGE,
-    SCREEN_LANDSCAPE_TEST,
-};
+public:
+	virtual void LoadResources();
+	virtual void UnloadResources();
 	
+	virtual void Update(float32 timeElapsed);
+	virtual void Draw(const UIGeometricData &geometricData);
+	virtual void Input(UIEvent * touch);
+	
+	Scene * scene;
+	Camera * camera;
+    
+	bool inTouch;
+	Vector2 touchStart;
+	Vector2 touchCurrent;
+    Vector2 oldTouchPoint;
+	
+	Vector3 originalCameraPosition;
 
-#endif // __TEMPLATE_PROJECT_MAC_OS_APP_SCREENS_H__
+	UIJoypad * positionJoypad;
+    UIJoypad * angleJoypad;
+    UI3DView * scene3dView;
+    
+    Matrix4 aimUser;
+    float32 viewXAngle, viewYAngle;
+    Vector3 targetPosition;
+};
+
+#endif // __SHADOWVOLUME_SCREEN_H__
