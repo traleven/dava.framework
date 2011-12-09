@@ -57,6 +57,7 @@ public:
 		FORMAT_A8,
 		FORMAT_PVR4,
 		FORMAT_PVR2,
+        FORMAT_RGBA5551,
 		
 		FORMAT_CLOSEST = 256
 	};

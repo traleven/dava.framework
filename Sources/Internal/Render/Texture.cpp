@@ -122,6 +122,8 @@ int32 Texture::GetPixelFormatSize(PixelFormat format)
 		return 4;
 	case FORMAT_PVR2:
 		return 2;
+    case FORMAT_RGBA5551:
+        return 16;
 	default:
 		return 0;
 	};
@@ -144,6 +146,8 @@ const char * Texture::GetPixelFormatString(PixelFormat format)
             return "FORMAT_PVR4";
         case FORMAT_PVR2:
             return "FORMAT_PVR2";
+        case FORMAT_RGBA5551:
+            return "FORMAT_RGBA5551";
         default:
             return "WRONG FORMAT";
 	};
@@ -652,6 +656,12 @@ static char gPVRTexIdentifier[5] = "PVR!";
 	
 enum
 {
+    // added to support PVRs of uncompressed formats
+    kPVRTextureFlagTypeOGL_RGBA_4444= 0x10,
+    kPVRTextureFlagTypeOGL_RGBA_5551,
+    kPVRTextureFlagTypeOGL_RGBA_8888,
+    kPVRTextureFlagTypeOGL_RGB_565,
+    
 	kPVRTextureFlagTypePVRTC_2 = 24,
 	kPVRTextureFlagTypePVRTC_4
 };
@@ -719,8 +729,11 @@ Texture * Texture::UnpackPVRData(uint8 * data, uint32 fileDataSize)
 	
 	GLenum	internalFormat = 0;
 	bool hasAlpha;
+    GLenum pixeldatatype = 0;
 	
-	if (formatFlags == kPVRTextureFlagTypePVRTC_4 || formatFlags == kPVRTextureFlagTypePVRTC_2)
+	if (formatFlags == kPVRTextureFlagTypePVRTC_4 || formatFlags == kPVRTextureFlagTypePVRTC_2 || 
+        formatFlags == kPVRTextureFlagTypeOGL_RGB_565 || formatFlags == kPVRTextureFlagTypeOGL_RGBA_4444 ||
+        formatFlags == kPVRTextureFlagTypeOGL_RGBA_5551)
 	{
 		if (formatFlags == kPVRTextureFlagTypePVRTC_4)internalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 		else if (formatFlags == kPVRTextureFlagTypePVRTC_2)internalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -731,6 +744,18 @@ Texture * Texture::UnpackPVRData(uint8 * data, uint32 fileDataSize)
 		if (CFSwapInt32LittleToHost(header->bitmaskAlpha))
 		{
 			hasAlpha = true;
+            switch (formatFlags) {
+                case kPVRTextureFlagTypeOGL_RGBA_4444:
+                    internalFormat = GL_RGBA;
+                    pixeldatatype = GL_UNSIGNED_SHORT_4_4_4_4;
+                    break;
+                case kPVRTextureFlagTypeOGL_RGBA_5551:
+                    internalFormat = GL_RGBA;
+                    pixeldatatype = GL_UNSIGNED_SHORT_5_5_5_1;
+                    break;
+                default:
+                    break;
+            }
 		}
 		else
 		{
@@ -745,6 +770,12 @@ Texture * Texture::UnpackPVRData(uint8 * data, uint32 fileDataSize)
 			{
 				internalFormat = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
 			}
+            else
+                if (formatFlags == kPVRTextureFlagTypeOGL_RGB_565)
+                {
+                    internalFormat = GL_RGB;
+                    pixeldatatype = GL_UNSIGNED_SHORT_5_6_5;
+                }
 #endif
 		}
 		
@@ -788,7 +819,18 @@ Texture * Texture::UnpackPVRData(uint8 * data, uint32 fileDataSize)
 			{
 				dataSize = (Max(width, (int32)PVRTC2_MIN_TEXWIDTH) * Max(height, (int32)PVRTC2_MIN_TEXHEIGHT) * header->bpp) / 8;
 			}
-
+            else if (formatFlags == kPVRTextureFlagTypeOGL_RGB_565)
+            {
+                dataSize = width*height*2;
+            }
+            else if (formatFlags == kPVRTextureFlagTypeOGL_RGBA_4444)
+            {
+                dataSize = width*height*2;
+            }
+            else if (formatFlags == kPVRTextureFlagTypeOGL_RGBA_5551)
+            {
+                dataSize = width*height*2;
+            }
 			
 #endif
 			
@@ -819,8 +861,34 @@ Texture * Texture::UnpackPVRData(uint8 * data, uint32 fileDataSize)
 
 		texture->width = width;
 		texture->height = height;
-		if (formatFlags == kPVRTextureFlagTypePVRTC_4)texture->format = Texture::FORMAT_PVR4;
-		else if (formatFlags == kPVRTextureFlagTypePVRTC_2)texture->format = Texture::FORMAT_PVR2;
+		//if (formatFlags == kPVRTextureFlagTypePVRTC_4)texture->format = Texture::FORMAT_PVR4;
+		//else if (formatFlags == kPVRTextureFlagTypePVRTC_2)texture->format = Texture::FORMAT_PVR2;
+        bool compressedFmt = true;
+        switch(formatFlags)
+        {
+            case kPVRTextureFlagTypePVRTC_4:
+                texture->format = Texture::FORMAT_PVR4;
+                break;
+                
+            case kPVRTextureFlagTypePVRTC_2:
+                texture->format = Texture::FORMAT_PVR2;
+                break;
+                
+            case kPVRTextureFlagTypeOGL_RGB_565:
+                texture->format = Texture::FORMAT_RGB565;
+                compressedFmt = false;
+                break;
+
+            case kPVRTextureFlagTypeOGL_RGBA_4444:
+                texture->format = Texture::FORMAT_RGBA4444;
+                compressedFmt = false;
+                break;
+
+            case kPVRTextureFlagTypeOGL_RGBA_5551:
+                texture->format = Texture::FORMAT_RGBA5551;
+                compressedFmt = false;
+                break;
+        }
 		
 		RENDER_VERIFY(glGenTextures(1, &texture->id));
 		
@@ -832,7 +900,24 @@ Texture * Texture::UnpackPVRData(uint8 * data, uint32 fileDataSize)
 		for (List<TextureFrame>::iterator it = imageList.begin(); it != imageList.end(); ++it)
 		{
 			TextureFrame & frame = *it;
-			RENDER_VERIFY(glCompressedTexImage2D(GL_TEXTURE_2D, i++, internalFormat, width, height, 0, frame.size, frame.data));
+            if (compressedFmt)
+            {
+                RENDER_VERIFY(glCompressedTexImage2D(GL_TEXTURE_2D, i++, internalFormat, width, height, 0, frame.size, frame.data));
+            }
+            else
+            {
+                GLenum format = GL_RGBA;
+                
+                if (formatFlags == kPVRTextureFlagTypeOGL_RGB_565)
+                    format = GL_RGB;
+                
+                RENDER_VERIFY(glTexImage2D(GL_TEXTURE_2D, i++, internalFormat, width, height, 0, format, pixeldatatype, frame.data));
+                
+                GLenum err = glGetError();\
+                if (err != GL_NO_ERROR)
+                    Logger::Debug("cant tex image");
+                
+            }
 			width = Max(width >> 1, 1);
 			height = Max(height >> 1, 1);
 		}
