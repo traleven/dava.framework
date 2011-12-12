@@ -401,7 +401,7 @@ const String FileSystem::GetPublicDocumentsPath()
 #endif
 	
 #if defined(__DAVAENGINE_WIN32__)
-const char * FileSystem::GetUserDocumentsPath()
+const String FileSystem::GetUserDocumentsPath()
 {
     char * szPath = new char[MAX_PATH];
     SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, szPath);
@@ -411,7 +411,7 @@ const char * FileSystem::GetUserDocumentsPath()
     return szPath;
 }
     
-const char * FileSystem::GetPublicDocumentsPath()
+const String FileSystem::GetPublicDocumentsPath()
 {
     char * szPath = new char[MAX_PATH];
     SHGetFolderPathA(NULL, CSIDL_COMMON_DOCUMENTS, NULL, SHGFP_TYPE_CURRENT, szPath);
