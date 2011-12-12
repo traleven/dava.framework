@@ -16,13 +16,25 @@
 #define snprintf _snprintf
 #endif
 
-TexturePacker::TexturePacker()
+TexturePacker::TexturePacker() : reduceMode(REDUCE_NONE), dither(false)
 {
 	maxTextureSize = 1024;
 	if (CommandLineParser::Instance()->IsFlagSet("--tsize2048"))
 	{
 		maxTextureSize = 2048;
 	}
+    
+    if (CommandLineParser::Instance()->IsFlagSet("--dither"))
+        dither = true;
+    
+    if (CommandLineParser::Instance()->IsFlagSet("--rgb565"))
+        reduceMode = REDUCE_565;
+    
+    if (CommandLineParser::Instance()->IsFlagSet("--rgba5551"))
+        reduceMode = REDUCE_5551;
+    
+    if (CommandLineParser::Instance()->IsFlagSet("--rgba4444"))
+        reduceMode = REDUCE_4444;
 }
 
 bool TexturePacker::TryToPack(const Rect2i & textureRect, std::list<DefinitionFile*> & defsList)
@@ -186,10 +198,15 @@ void TexturePacker::PackToTexturesSeparate(const char * excludeFolder, const cha
 				printf("* ERROR: failed to write definition\n");
 			}
 			char textureExtension[5] = "png";
-			if (CommandLineParser::Instance()->IsFlagSet("--pvr"))strcpy(textureExtension, "pvr");
+            bool pvr = false;
+			if (CommandLineParser::Instance()->IsFlagSet("--pvr"))
+            {
+                strcpy(textureExtension, "pvr");
+                pvr = true;
+            }
 			textureName += std::string(".") + textureExtension;
 
-			finalImage.Write(textureName.c_str());
+			finalImage.Write(textureName.c_str(), reduceMode, dither, pvr);
 		}
 	}
 }
@@ -292,10 +309,15 @@ void TexturePacker::PackToTextures(const char * excludeFolder, const char* outpu
 			}
 		}
 		char textureExtension[5] = "png";
-		if (CommandLineParser::Instance()->IsFlagSet("--pvr"))strcpy(textureExtension, "pvr");
+        bool pvr = false;
+		if (CommandLineParser::Instance()->IsFlagSet("--pvr"))
+        {
+            strcpy(textureExtension, "pvr");
+            pvr = true;
+        }
 
 		textureName += std::string(".") + textureExtension;
-		finalImage.Write(textureName.c_str());
+		finalImage.Write(textureName.c_str(), reduceMode, dither, pvr);
 	}else
 	{
 		// 
@@ -484,9 +506,10 @@ void TexturePacker::PackToMultipleTextures(const char * excludeFolder, const cha
 	for (int image = 0; image < (int)packers.size(); ++image)
 	{
 		char temp[256];
-		sprintf(temp, "texture%d.png", image);
+        bool pvr = CommandLineParser::Instance()->IsFlagSet("--pvr");
+		sprintf(temp, "texture%d.%s", image, pvr ? "pvr" : "png");
 		std::string textureName = std::string(outputPath) + std::string(temp);
-		finalImages[image]->Write(textureName.c_str());
+		finalImages[image]->Write(textureName.c_str(), reduceMode, dither, pvr);
 	}	
 
 	for (std::list<DefinitionFile*>::iterator defi = defList.begin(); defi != defList.end(); ++defi)

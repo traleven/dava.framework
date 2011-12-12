@@ -14,7 +14,7 @@
 #include <vector>
 #include "DefinitionFile.h"
 #include "ImagePacker.h"
-
+#include "PngImage.h"
 
 struct SizeSortItem
 {
@@ -50,6 +50,9 @@ private:
 
 	std::vector<SizeSortItem> sortVector;
 	int32 maxTextureSize;
+    
+    ReduceBits reduceMode;
+    bool dither;
 };
 
 #endif // __DAVAENGINE_TEXTURE_PACKER_H__

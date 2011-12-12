@@ -91,6 +91,7 @@
 		C246DB371496300200CC70AB /* PropertyPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyPanel.h; sourceTree = "<group>"; };
 		C246DB381496300200CC70AB /* SceneEditorScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneEditorScreen.cpp; sourceTree = "<group>"; };
 		C246DB391496300200CC70AB /* SceneEditorScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneEditorScreen.h; sourceTree = "<group>"; };
+		C246DB8F149686F600CC70AB /* Dither.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dither.h; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* ResourceEditorConsole.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ResourceEditorConsole.1; sourceTree = "<group>"; };
 		FEC3E2A6133A946000442ADD /* AppScreens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppScreens.h; path = Classes/AppScreens.h; sourceTree = "<group>"; };
 		FEC3E2A7133A946000442ADD /* FrameworkMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameworkMain.cpp; path = Classes/FrameworkMain.cpp; sourceTree = "<group>"; };
@@ -237,6 +238,7 @@
 				FEC3E2B7133A946000442ADD /* PngImage.h */,
 				FEC3E2B8133A946000442ADD /* TexturePacker.cpp */,
 				FEC3E2B9133A946000442ADD /* TexturePacker.h */,
+				C246DB8F149686F600CC70AB /* Dither.h */,
 			);
 			name = TexturePacker;
 			path = Classes/TexturePacker;

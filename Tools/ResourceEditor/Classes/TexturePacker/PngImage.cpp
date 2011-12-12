@@ -9,6 +9,7 @@
 
 #include "PngImage.h"
 #include "CommandLineParser.h"
+#include "Dither.h"
 
 #ifndef WIN32
 	#include <unistd.h>
@@ -361,9 +362,30 @@ bool PngImageExt::Read(const char * filename)
 	return true;
 }
 
-bool PngImageExt::Write(const char * filename)
+bool PngImageExt::Write(const char * filename, ReduceBits rbits, bool dither, bool pvr)
 {
-	write_png_file(filename, width, height, data);
+    if (rbits != REDUCE_NONE)
+    {
+        static const char * reds[]= {"NONE", "4444", "565", "5551"};
+        printf("Reducing colors to %s\n", reds[rbits]);
+        if (dither)
+        {
+            printf("With Dithering...\n");
+            Dither(rbits);
+        }
+        else
+        {
+            // TODO reduce without dither
+        }
+    }
+        
+    if (!pvr)
+        write_png_file(filename, width, height, data);
+    else
+    {
+        // TODO write pvr instead of png
+        write_png_file(filename, width, height, data);
+    }
 	return true;
 }
 
@@ -517,3 +539,92 @@ void PngImageExt::DrawRect(const Rect2i & rect, uint32 color)
 	}
 	
 }*/
+
+void PngImageExt::Dither(ReduceBits rb)
+{
+    PixelWriter pw(data, (PixelWriter::PixelType) rb, width);
+    PixelWriter pread(data, (PixelWriter::PixelType)rb, width);
+    
+    int srcPixel[4];
+    int dstPixel[4];
+    int diff[4];
+    PixelReplacer preplacer;
+    
+    for (int y = 0; y < height; y++) 
+    {
+        for (int x = 0; x < width; x++) 
+        {
+            preplacer.reset();
+            
+            pread.getPixel(x, y, srcPixel);
+            pread.findClosest(srcPixel, dstPixel);
+            pw.putPixel(x, y, dstPixel);
+            
+            {
+                /////
+                // calc error
+                
+                for (int i = 0; i < 4; ++i) 
+                {
+                    diff[i] = srcPixel[i] - dstPixel[i];
+                }
+                
+                
+                ///
+                // 1
+                if (x > 0 && y < (height - 1)) 
+                {
+                    PixelReplacer::PixelReplace & pr = preplacer.getNext();
+                    pr.x = x - 1;
+                    pr.y = y + 1;
+                    pread.getPixel(pr.x, pr.y, pr.rgba);
+                    
+                }
+                
+                ///
+                // 2
+                if (y < (height - 1)) 
+                {
+                    PixelReplacer::PixelReplace & pr = preplacer.getNext();
+                    pr.x = x;
+                    pr.y = y + 1;
+                    pread.getPixel(pr.x, pr.y, pr.rgba);
+                }
+                
+                ///
+                // 3
+                if (x < (width - 1) && y < (height - 1)) 
+                {
+                    PixelReplacer::PixelReplace & pr = preplacer.getNext();
+                    pr.x = x + 1;
+                    pr.y = y + 1;
+                    pread.getPixel(pr.x, pr.y, pr.rgba);
+                }
+                
+                ///
+                // 4
+                if (x < (width - 1)) 
+                {
+                    PixelReplacer::PixelReplace & pr = preplacer.getNext();
+                    pr.x = x + 1;
+                    pr.y = y;
+                    pread.getPixel(pr.x, pr.y, pr.rgba);
+                }
+                
+                
+                ///////////////
+                // put adjusted
+                
+                for (int i = 0; i < preplacer.pixelsToReplace; ++i) 
+                {
+                    PixelReplacer::PixelReplace & pr = preplacer.pixels[i];
+                    pr.calcNew(diff);
+                    pw.putPixel(pr.x, pr.y, pr.rgba);
+                }
+                
+            } // dither
+            
+        } // for x
+    } // for y
+
+}
