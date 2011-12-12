@@ -126,7 +126,7 @@ public:
     
     void putPixel(int x, int y, int rgba[]) 
 	{
-		int pixelCoord = y * imgWidth *4 + x;
+		int pixelCoord = y * imgWidth *4 + x *4;
 		img[pixelCoord] = rgba[0]; 
 		img[pixelCoord+1] = rgba[1]; 
 		img[pixelCoord+2] = rgba[2]; 
@@ -135,7 +135,7 @@ public:
     
     void getPixel(int x, int y, int rgba[4]) 
 	{
-		int pixelCoord = y * imgWidth *4 + x;
+		int pixelCoord = y * imgWidth *4 + x *4;
 		rgba[0] = img[pixelCoord]; 
 		rgba[1] = img[pixelCoord+1]; 
 		rgba[2] = img[pixelCoord+2]; 
