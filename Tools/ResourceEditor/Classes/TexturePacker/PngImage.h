@@ -51,6 +51,7 @@ private:
 	uint8  *	data;
     
     void Dither(ReduceBits rb);
+    void SaveToPVR(const char * fn, ReduceBits rb);
 };
 
 

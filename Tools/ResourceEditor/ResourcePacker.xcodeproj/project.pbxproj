@@ -378,6 +378,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../Libs/PVRTexLib/MacOS_x86\"",
+				);
 				PRODUCT_NAME = ResourcePacker;
 			};
 			name = Debug;
@@ -389,6 +393,10 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../Libs/PVRTexLib/MacOS_x86\"",
+				);
 				PRODUCT_NAME = ResourcePacker;
 			};
 			name = Release;
@@ -407,6 +415,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
+					./../../Libs,
 					./../../Sources/Internal,
 					./../../Sources/External,
 					"./../../Libs/ImageMagick-6.6.9/include/ImageMagick",
@@ -422,8 +431,8 @@
 					"-fvisibility=hidden",
 				);
 				OTHER_LDFLAGS = (
-					"-lpng",
 					"-lMagickCore",
+					"-lpng",
 					"-lMagick++",
 					"-lMagickWand",
 				);
@@ -445,6 +454,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
+					./../../Libs,
 					./../../Sources/Internal,
 					./../../Sources/External,
 					"./../../Libs/ImageMagick-6.6.9/include/ImageMagick",
@@ -460,8 +470,8 @@
 					"-fvisibility=hidden",
 				);
 				OTHER_LDFLAGS = (
-					"-lpng",
 					"-lMagickCore",
+					"-lpng",
 					"-lMagick++",
 					"-lMagickWand",
 				);

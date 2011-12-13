@@ -25,6 +25,8 @@
 
 #define PNG_DEBUG 3
 
+//#include "PVRTexLib/PVRTexLib.h"
+
 static void abort_(const char * s, ...)
 {
 	va_list args;
@@ -383,8 +385,9 @@ bool PngImageExt::Write(const char * filename, ReduceBits rbits, bool dither, bo
         write_png_file(filename, width, height, data);
     else
     {
-        // TODO write pvr instead of png
-        write_png_file(filename, width, height, data);
+        // write pvr instead of png
+        //write_png_file(filename, width, height, data);
+        SaveToPVR(filename, rbits);
     }
 	return true;
 }
@@ -627,4 +630,56 @@ void PngImageExt::Dither(ReduceBits rb)
         } // for x
     } // for y
 
+}
+
+
+void PngImageExt::SaveToPVR(const char * fn, ReduceBits rb)
+{
+#if 0
+    using namespace pvrtexlib;
+    
+    PVRTRY {
+        // get the utilities instance
+        PVRTextureUtilities sPVRU = PVRTextureUtilities();
+        
+        // open and reads a pvr texture from the file location specified by strFilePath
+        CPVRTexture sOriginalTexture(width, height);
+        sOriginalTexture.setAlpha(rb != REDUCE_565);
+        sOriginalTexture.setData(data);
+        
+        CPVRTexture sCompressedTexture(sOriginalTexture.getHeader());
+        // set required encoded pixel type
+        pvrtexlib::PixelType pt = OGL_RGB_565;
+        
+        if (rb == REDUCE_4444)
+            pt = OGL_RGBA_4444;
+        else if (rb == REDUCE_5551)
+            pt = OGL_RGBA_5551;
+        
+        sCompressedTexture.setPixelType(pt);
+        // encode texture
+        sPVRU.CompressPVR(sOriginalTexture,sCompressedTexture);
+        // write to file specified
+        sCompressedTexture.writeToFile(fn);
+        
+        
+        //sPVRU.DecompressPVR(sOriginalTexture,sDecompressedTexture);
+    } PVRCATCH(myException) {
+        // handle any exceptions here
+        printf("Exception in example 1: %s \n",myException.what());
+    }
+#endif
+    std::string fnpng = fn;
+    fnpng += ".png";
+    write_png_file(fnpng.c_str(), width, height, data);
+    
+    char cmdl[4096];
+    const char * fmt[] = {"OGL8888", "OGL4444", "OGL565", "OGL5551"};
+
+
+    sprintf(cmdl, "./PVRTexTool -nt -yflip0 -p -premultalpha -f%s -i%s -o%s", fmt[rb], fnpng.c_str(), fn);
+    printf("%s", cmdl);
+    system(cmdl);
+    
+    remove(fnpng.c_str());
 }
