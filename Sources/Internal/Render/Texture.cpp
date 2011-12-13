@@ -631,8 +631,12 @@ Texture * Texture::CreateFromPVR(const String & pathName)
 		Logger::Error("Failed to read data from PVR texture file: %s", pathName.c_str());
 		return 0;
 	}
+    
+    RenderManager::Instance()->LockNonMain();
 	Texture * newTexture = UnpackPVRData(bytes, fileSize);
-	if (!newTexture)
+    RenderManager::Instance()->UnlockNonMain();
+	
+    if (!newTexture)
 	{
 		Logger::Error("Failed to parse PVR texture: %s", pathName.c_str());
 	}
