@@ -49,6 +49,11 @@ public:
 
 	void	AddSound(Sound * sound);
 	void	RemoveSound(Sound * sound);
+    
+    void Pause();
+    void Resume();
+    void Play();
+    void Stop();
 
 private:
 	List<Sound*> sounds;

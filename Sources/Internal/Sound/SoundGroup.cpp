@@ -78,5 +78,47 @@ float32 SoundGroup::GetVolume()
 {
 	return volume;
 }
+    
+    
+void SoundGroup::Pause()
+{
+    List<Sound*>::iterator it;
+	for(it = sounds.begin(); it != sounds.end(); ++it)
+	{
+		Sound * sound = *it;
+        sound->Pause(true);
+    }
+}
+    
+void SoundGroup::Resume()
+{
+    List<Sound*>::iterator it;
+	for(it = sounds.begin(); it != sounds.end(); ++it)
+	{
+		Sound * sound = *it;
+        sound->Pause(false);
+    }
+}
+    
+void SoundGroup::Play()
+{
+    List<Sound*>::iterator it;
+	for(it = sounds.begin(); it != sounds.end(); ++it)
+	{
+		Sound * sound = *it;
+        sound->Play();
+    }
+}
+ 
+void SoundGroup::Stop()
+{
+    List<Sound*>::iterator it;
+	for(it = sounds.begin(); it != sounds.end(); ++it)
+	{
+		Sound * sound = *it;
+        sound->Stop();
+    }
+}
+
 
 };
