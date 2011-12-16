@@ -46,6 +46,7 @@ SoundInstance::SoundInstance()
 	animatedVolume(-1.f)
 #if defined(__DAVAENGINE_IPHONE__)
     ,buddyMusic(0)
+    ,buddyChannel(0)
 #endif
 {
 	SoundSystem::Instance()->AddSoundInstance(this);
@@ -141,11 +142,11 @@ float32 SoundInstance::GetVolume()
 void SoundInstance::Stop()
 {
 #if defined(__DAVAENGINE_IPHONE__)
-    if(buddyMusic)
+    /*if(buddyMusic)
     {
         buddyMusic->Stop();
     }
-    else if(buddyChannel)
+    else*/ if(buddyChannel)
 	{
 		buddyChannel->Stop();
 	}

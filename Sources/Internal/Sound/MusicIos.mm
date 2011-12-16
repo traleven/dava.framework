@@ -158,6 +158,14 @@ SoundInstance * MusicIos::Play()
 
 void MusicIos::Stop()
 {
+	List<SoundInstance*>::iterator sit;
+	List<SoundInstance*>::iterator sitEnd = soundInstances.end();
+	for(sit = soundInstances.begin(); sit != sitEnd; ++sit)
+	{
+		(*sit)->Stop();
+	}
+	soundInstances.clear();
+    
     [(AvSound*)avSound stop];
 }
 
