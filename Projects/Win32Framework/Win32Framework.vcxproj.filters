@@ -918,6 +918,12 @@
     <ClInclude Include="..\..\Sources\Internal\Scene3D\SphereNode.h">
       <Filter>Internal\Scene3D</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Sources\Internal\Render\3D\UVUnwrapper.h">
+      <Filter>Internal\Render\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Internal\Render\3D\UVMesh.h">
+      <Filter>Internal\Render\3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\External\Box2D\Collision\b2BroadPhase.cpp">
@@ -1591,6 +1597,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Sources\Internal\Base\BaseObject.cpp">
       <Filter>Internal\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Internal\Render\3D\UVUnwrapper.cpp">
+      <Filter>Internal\Render\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Internal\Render\3D\UVMesh.cpp">
+      <Filter>Internal\Render\3D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
