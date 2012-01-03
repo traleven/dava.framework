@@ -64,8 +64,10 @@ public:
 	
 	//! Constructor
 	BaseObject()
-		: referenceCount(1)
+		//: referenceCount(1)
 	{
+        refcounter = new RefCounter(this);
+        
 #ifdef ENABLE_BASE_OBJECT_CHECKS
 		BaseObjectChecker::RegisterBaseObject(this);
 #endif 
@@ -77,6 +79,8 @@ public:
 #ifdef ENABLE_BASE_OBJECT_CHECKS
 		BaseObjectChecker::UnregisterBaseObject(this);
 #endif 
+        if (refcounter->NoRefsLeft())
+            delete refcounter;
 	}
 
 	/**
@@ -84,7 +88,8 @@ public:
 	 */
 	virtual void Retain()
 	{
-		++referenceCount;
+		//++referenceCount;
+        refcounter->IncStrong();
 	}
 	
 	/** 
@@ -100,6 +105,7 @@ public:
 		}	
 #endif		
 
+#if 0
 		--referenceCount;
 		int32 refCounter = referenceCount;
 		if (!refCounter)
@@ -107,6 +113,9 @@ public:
 			delete this;
 		}
 		return refCounter;
+#endif
+        int r = refcounter->DecStrong();
+        return r;
 	}
 
 	/** 
@@ -115,7 +124,8 @@ public:
 	 */
 	int32 GetRetainCount() const
 	{
-		return referenceCount;
+		//return referenceCount;
+        return refcounter->GetStrong();
 	}
     
     /**
@@ -148,7 +158,68 @@ protected:
 		return *this;
 	}
 	
-	int32 referenceCount;
+	//int32 referenceCount;
+    
+protected:
+    /// TODO make thread-safe
+    struct RefCounter
+    {
+        RefCounter(BaseObject*o) : obj(o), strong(1), weak(0)
+        {
+        }
+        
+        void IncWeak()
+        {
+            ++weak;
+        }
+        
+        void DecWeak()
+        {
+            --weak;
+        }
+        
+        void IncStrong()
+        {
+            ++strong;
+        }
+        
+        int DecStrong()
+        {
+            --strong;
+            int r = strong;
+            if (strong < 1)
+            {
+                delete obj;
+                obj = NULL;
+            }
+            return r;
+        }
+        
+        bool NoRefsLeft()
+        {
+            return (strong < 1) && (weak < 1);
+        }
+        
+        BaseObject * GetPtr();
+        
+        int GetStrong()
+        {
+            return strong;
+        }
+        
+        int GetWeak()
+        {
+            return weak;
+        }
+        
+    private:
+        int strong;
+        int weak;
+        BaseObject * obj;
+        
+    };
+    
+    RefCounter * refcounter;
 };
 
 
