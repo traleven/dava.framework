@@ -24,6 +24,7 @@ TexturePacker::TexturePacker() : reduceMode(REDUCE_NONE), dither(false)
 		maxTextureSize = 2048;
 	}
     
+#if 1
     if (CommandLineParser::Instance()->IsFlagSet("--dither"))
         dither = true;
     
@@ -35,6 +36,7 @@ TexturePacker::TexturePacker() : reduceMode(REDUCE_NONE), dither(false)
     
     if (CommandLineParser::Instance()->IsFlagSet("--rgba4444"))
         reduceMode = REDUCE_4444;
+#endif
 }
 
 bool TexturePacker::TryToPack(const Rect2i & textureRect, std::list<DefinitionFile*> & defsList)
