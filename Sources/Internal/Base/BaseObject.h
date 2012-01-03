@@ -148,6 +148,7 @@ public:
     
     static BaseObject * LoadFromArchive(KeyedArchive * archive);
     
+    
 protected:
 	
 	BaseObject(const BaseObject & b)
@@ -160,7 +161,7 @@ protected:
 	
 	//int32 referenceCount;
     
-protected:
+public:
     /// TODO make thread-safe
     struct RefCounter
     {
@@ -200,7 +201,10 @@ protected:
             return (strong < 1) && (weak < 1);
         }
         
-        BaseObject * GetPtr();
+        BaseObject * GetPtr()
+        {
+            return obj;
+        }
         
         int GetStrong()
         {
@@ -212,6 +216,7 @@ protected:
             return weak;
         }
         
+        
     private:
         int strong;
         int weak;
@@ -219,7 +224,15 @@ protected:
         
     };
     
+private:
     RefCounter * refcounter;
+    
+public:
+    RefCounter * GetRefCounter()
+    {
+        return refcounter;
+    }
+    
 };
 
 
