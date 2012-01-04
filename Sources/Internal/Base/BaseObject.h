@@ -79,8 +79,8 @@ public:
 #ifdef ENABLE_BASE_OBJECT_CHECKS
 		BaseObjectChecker::UnregisterBaseObject(this);
 #endif 
-        if (refcounter->NoRefsLeft())
-            delete refcounter;
+        //if (refcounter->NoRefsLeft())
+        //    delete refcounter;
 	}
 
 	/**
@@ -104,16 +104,6 @@ public:
 			DVASSERT(0 && "Attempt to delete unavailable BaseObject");
 		}	
 #endif		
-
-#if 0
-		--referenceCount;
-		int32 refCounter = referenceCount;
-		if (!refCounter)
-		{
-			delete this;
-		}
-		return refCounter;
-#endif
         int r = refcounter->DecStrong();
         return r;
 	}
@@ -177,6 +167,8 @@ public:
         void DecWeak()
         {
             --weak;
+            if (NoRefsLeft())
+                delete this;
         }
         
         void IncStrong()
@@ -193,6 +185,10 @@ public:
                 delete obj;
                 obj = NULL;
             }
+            
+            if (NoRefsLeft())
+                delete this;
+            
             return r;
         }
         

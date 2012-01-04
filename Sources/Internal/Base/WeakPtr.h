@@ -89,8 +89,8 @@ namespace DAVA
             if (refcounter)
             {
                 refcounter->DecWeak();
-                if (refcounter->NoRefsLeft())
-                    delete refcounter;
+                //if (refcounter->NoRefsLeft())
+                //    delete refcounter;
             }
         }
     };
