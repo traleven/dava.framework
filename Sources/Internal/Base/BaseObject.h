@@ -164,11 +164,17 @@ public:
             ++weak;
         }
         
-        void DecWeak()
+        /// returns true if this object was deleted
+        bool DecWeak()
         {
             --weak;
             if (NoRefsLeft())
+            {
                 delete this;
+                return true;
+            }
+            
+            return false;
         }
         
         void IncStrong()

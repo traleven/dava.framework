@@ -10,6 +10,7 @@
 #define Framework_WeakPtr_h
 
 #include "Base/BaseObject.h"
+#include "RefPtr.h"
 
 namespace DAVA
 {
@@ -23,10 +24,9 @@ namespace DAVA
             refcounter = NULL;
         }
         
-        explicit WeakPtr(T * p)
+        WeakPtr(T * p) : refcounter(NULL)
         {
-            refcounter = p->GetRefCounter();
-            refcounter->IncWeak();
+            Assign(p);
         }
         
         ~WeakPtr()
@@ -34,14 +34,30 @@ namespace DAVA
             ReleaseOldCounter();
         }
         
-        WeakPtr(const WeakPtr<T> & rp)
-        {
-            ReleaseOldCounter();
-                
-            refcounter = rp.refcounter;
-            refcounter->IncWeak();
+        WeakPtr(const WeakPtr<T> & rp) : refcounter(NULL)
+        {            
+            Assign(rp.refcounter);
         }
         
+        WeakPtr(const RefPtr<T> & p)
+        {
+            Assign(p.Get());
+        }
+        
+        RefPtr<T> GetRefPtr()
+        {
+            RefPtr<T> r;
+            r = Get();
+            return r;
+        }
+        
+        WeakPtr & operator = (const WeakPtr & rp)
+        {
+            Assign(rp.refcounter);
+            return *this;
+        }
+        
+        /// use GetRefPtr instead!
         T * Get() const
         {
             if (refcounter)
@@ -55,40 +71,55 @@ namespace DAVA
             return Get() != NULL;
         }
         
-        WeakPtr& operator = (T * ptr)
-        {
-            if (ptr == Get())
-                return *this;
-            
-            BaseObject::RefCounter * tmp_pt = refcounter;
-            refcounter = ptr->GetRefCounter();
-            
-            if (refcounter)
-            {
-                refcounter->IncWeak();
-            }
-            
-            if (tmp_pt)
-            {
-                tmp_pt->DecWeak();
-                if (tmp_pt->NoRefsLeft())
-                {
-                    delete tmp_pt;
-                }
-            }
-            
-            
-            return *this;
-        }
         
     private:
         BaseObject::RefCounter * refcounter;
         
+        void Assign(BaseObject::RefCounter * ptr)
+        {
+            if (ptr == refcounter)
+                return;
+            
+            ReleaseOldCounter();
+            refcounter = ptr;
+            refcounter->IncWeak();
+        }
+        
+        void Assign(T * ptr)
+        {            
+            if (ptr)
+            {
+                BaseObject::RefCounter * tmp_pt = refcounter;
+                refcounter = ptr->GetRefCounter();
+                
+                if (refcounter)
+                {
+                    refcounter->IncWeak();
+                }
+                
+                if (tmp_pt)
+                {
+                    ReleaseCounter(tmp_pt);
+                }
+            }
+            else
+            {
+                ReleaseOldCounter();
+                refcounter = NULL;
+            }
+        }
+        
         void ReleaseOldCounter()
+        {
+            ReleaseCounter(refcounter);
+        }
+        
+        static void ReleaseCounter(BaseObject::RefCounter * &refcounter)
         {
             if (refcounter)
             {
-                refcounter->DecWeak();
+                if (refcounter->DecWeak())
+                    refcounter = NULL;
                 //if (refcounter->NoRefsLeft())
                 //    delete refcounter;
             }
