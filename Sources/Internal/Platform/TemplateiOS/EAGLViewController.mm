@@ -31,7 +31,7 @@
 #if defined(__DAVAENGINE_IPHONE__)
 
 #import "Platform/TemplateiOS/EAGLViewController.h"
-
+#include "Core/Core.h"
 
 @implementation EAGLViewController
 
@@ -58,14 +58,42 @@
 {
     if (!glView)
     {
+        bool landscape = true;
+#if 0
+        DAVA::KeyedArchive * options = DAVA::Core::Instance()->GetOptions();
+        switch ((DAVA::Core::eScreenOrientation)options->GetInt("orientation", DAVA::Core::SCREEN_ORIENTATION_PORTRAIT))
+        {
+            case DAVA::Core::SCREEN_ORIENTATION_LANDSCAPE_LEFT:
+            case DAVA::Core::SCREEN_ORIENTATION_LANDSCAPE_RIGHT:
+                landscape = true;
+                break;
+            default:
+                landscape = false;
+        }
+#endif
+        
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
         {
-            glView = [[EAGLView alloc] initWithFrame:CGRectMake(0, 0, 768, 1024)];
+            if (landscape)
+            {
+                glView = [[EAGLView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];
+            }
+            else
+            {
+                glView = [[EAGLView alloc] initWithFrame:CGRectMake(0, 0, 768, 1024)];
+            }
         }
         else
         {
             // The device is an iPhone or iPod touch.
-            glView = [[EAGLView alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
+            if (landscape)
+            {
+                glView = [[EAGLView alloc] initWithFrame:CGRectMake(0, 0, 480, 320)];
+            }
+            else
+            {
+                glView = [[EAGLView alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
+            }
         } 
     }    
 }
@@ -88,13 +116,18 @@
     [super viewDidLoad];
 }
 */
+//- (UIInterfaceOrientation) interfaceOrientation
+//{
+//    return [[UIApplication sharedApplication] statusBarOrientation];
+//}
 
 // Override to allow orientations other than the default portrait orientation.
-/*- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft);
-}*/
+    BOOL y = (interfaceOrientation == UIInterfaceOrientationLandscapeLeft);
+    return y;
+}
 
 
 - (void)didReceiveMemoryWarning 

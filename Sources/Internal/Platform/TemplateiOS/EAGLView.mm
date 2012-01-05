@@ -89,7 +89,35 @@
                                         [NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
             
         DAVA::KeyedArchive * options = DAVA::Core::Instance()->GetOptions();
+
         DAVA::Core::eRenderer rendererRequested = (DAVA::Core::eRenderer)options->GetInt("renderer", DAVA::Core::RENDERER_OPENGL_ES_1_0);
+
+        //DAVA::Core::eRenderer rendererRequested = (DAVA::Core::eRenderer)options->GetInt32("renderer", DAVA::Core::RENDERER_OPENGL_ES_1_0);
+
+//        switch ((DAVA::Core::eScreenOrientation)options->GetInt("orientation", DAVA::Core::SCREEN_ORIENTATION_PORTRAIT)) 
+//        {
+//            case DAVA::Core::SCREEN_ORIENTATION_PORTRAIT:
+//            {
+//                [[UIApplication sharedApplication] setStatusBarOrientation: UIInterfaceOrientationPortrait animated: false];
+//            }
+//                break;
+//            case DAVA::Core::SCREEN_ORIENTATION_LANDSCAPE_LEFT:
+//            {
+//                [[UIApplication sharedApplication] setStatusBarOrientation: UIInterfaceOrientationLandscapeLeft animated: false];
+//            }
+//                break;
+//            case DAVA::Core::SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN:
+//            {
+//                [[UIApplication sharedApplication] setStatusBarOrientation: UIInterfaceOrientationPortraitUpsideDown animated: false];
+//            }
+//                break;
+//            case DAVA::Core::SCREEN_ORIENTATION_LANDSCAPE_RIGHT:
+//            {
+//                [[UIApplication sharedApplication] setStatusBarOrientation: UIInterfaceOrientationLandscapeRight animated: false];
+//            }
+//                break;
+//        }
+//
         
         DAVA::Core::eRenderer rendererCreated = DAVA::Core::RENDERER_OPENGL_ES_1_0;
         
@@ -150,6 +178,7 @@
     if(DAVA::Core::Instance()->IsActive())
     {
         [renderer startRendering];
+        //glClear(GL_COLOR_BUFFER_BIT);
 	}
         
 	DAVA::Core::Instance()->SystemProcessFrame();

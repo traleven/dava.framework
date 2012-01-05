@@ -589,16 +589,16 @@ const UIGeometricData &UIControlSystem::GetBaseGeometricData()
 	
 void UIControlSystem::SetInputScreenAreaSize(int32 width, int32 height)
 {
-	if(Core::Instance()->GetScreenOrientation() == Core::SCREEN_ORIENTATION_PORTRAIT || Core::Instance()->GetScreenOrientation() == Core::SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
-	{
+//	if(Core::Instance()->GetScreenOrientation() == Core::SCREEN_ORIENTATION_PORTRAIT || Core::Instance()->GetScreenOrientation() == Core::SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
+//	{
 		inputWidth = width;
 		inputHeight = height;
-	}
-	else
-	{
-		inputWidth = height;
-		inputHeight = width;
-	}
+//	}
+//	else
+//	{
+//		inputWidth = height;
+//		inputHeight = width;
+//	}
 }
 
 void UIControlSystem::CalculateScaleMultipliers()

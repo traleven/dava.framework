@@ -44,43 +44,100 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 	DAVA::Core * core = new DAVA::Core();
 	core->CreateSingletons();
 	FrameworkDidLaunched();
+    
+    
+    bool landscape = true;
+    
+#if 0
+    DAVA::KeyedArchive * options = DAVA::Core::Instance()->GetOptions();
+    switch ((DAVA::Core::eScreenOrientation)options->GetInt("orientation", DAVA::Core::SCREEN_ORIENTATION_PORTRAIT))
+    {
+        case DAVA::Core::SCREEN_ORIENTATION_LANDSCAPE_LEFT:
+        case DAVA::Core::SCREEN_ORIENTATION_LANDSCAPE_RIGHT:
+            landscape = true;
+            break;
+        default:
+            landscape = false;
+    }
+#endif
+    
 	
 	{//detecting physical screen size and initing core system with this size
 		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 		{
 			// The device is an iPad.
-			DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(768, 1024);
-			DAVA::Core::Instance()->SetPhysicalScreenSize(768, 1024);
+            if (landscape)
+            {
+                DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(1024, 768);
+                DAVA::Core::Instance()->SetPhysicalScreenSize(1024, 768);
+            }
+            else
+            {
+                DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(768, 1024);
+                DAVA::Core::Instance()->SetPhysicalScreenSize(768, 1024);
+            }
 			
 		}
 		else
 		{
 			// The device is an iPhone or iPod touch.
-			DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(320, 480);
-			if (DAVA::Core::IsAutodetectContentScaleFactor()) 
-			{
-				if ([::UIScreen instancesRespondToSelector: @selector(scale) ]
-					&& [::UIView instancesRespondToSelector: @selector(contentScaleFactor) ]) 
-				{
-					unsigned int scv = (unsigned int)[[::UIScreen mainScreen] scale];
-					if (scv != 2) 
-					{
-						DAVA::Core::Instance()->SetPhysicalScreenSize(320.0f, 480.0f);
-					}
-					else 
-					{
-						DAVA::Core::Instance()->SetPhysicalScreenSize(640.0f, 960.0f);
-					}
-				}
-				else 
-				{
-					DAVA::Core::Instance()->SetPhysicalScreenSize(320, 480);
-				}
-			}
-			else 
-			{
-				DAVA::Core::Instance()->SetPhysicalScreenSize(320, 480);
-			}
+            if (landscape)
+            {
+                DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(480, 320);
+                if (DAVA::Core::IsAutodetectContentScaleFactor()) 
+                {
+                    if ([::UIScreen instancesRespondToSelector: @selector(scale) ]
+                        && [::UIView instancesRespondToSelector: @selector(contentScaleFactor) ]) 
+                    {
+                        unsigned int scv = (unsigned int)[[::UIScreen mainScreen] scale];
+                        if (scv != 2) 
+                        {
+                            DAVA::Core::Instance()->SetPhysicalScreenSize(480.0f, 320.0f);
+                        }
+                        else 
+                        {
+                            DAVA::Core::Instance()->SetPhysicalScreenSize(960.0f, 640.0f);
+                        }
+                    }
+                    else 
+                    {
+                        DAVA::Core::Instance()->SetPhysicalScreenSize(480, 320);
+                    }
+                }
+                else 
+                {
+                    DAVA::Core::Instance()->SetPhysicalScreenSize(480, 320);
+                }
+            }
+            else
+                // portrait
+            {
+                DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(320, 480);
+                if (DAVA::Core::IsAutodetectContentScaleFactor()) 
+                {
+                    if ([::UIScreen instancesRespondToSelector: @selector(scale) ]
+                        && [::UIView instancesRespondToSelector: @selector(contentScaleFactor) ]) 
+                    {
+                        unsigned int scv = (unsigned int)[[::UIScreen mainScreen] scale];
+                        if (scv != 2) 
+                        {
+                            DAVA::Core::Instance()->SetPhysicalScreenSize(320.0f, 480.0f);
+                        }
+                        else 
+                        {
+                            DAVA::Core::Instance()->SetPhysicalScreenSize(640.0f, 960.0f);
+                        }
+                    }
+                    else 
+                    {
+                        DAVA::Core::Instance()->SetPhysicalScreenSize(320, 480);
+                    }
+                }
+                else 
+                {
+                    DAVA::Core::Instance()->SetPhysicalScreenSize(320, 480);
+                }
+            }
 		}
 		
 	}
@@ -109,7 +166,17 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 	{
 		UIWindow *wnd = application.keyWindow;
-		[wnd setFrame: CGRectMake(0, 0, 768, 1024)];
+        bool landscape = true;
+        // TODO landscape orientation detection
+        
+        if (landscape)
+        {
+            [wnd setFrame: CGRectMake(0, 0, 768, 1024)];
+        }
+        else
+        {
+            [wnd setFrame: CGRectMake(0, 0, 768, 1024)];
+        }
 	}
 	else
 	{
