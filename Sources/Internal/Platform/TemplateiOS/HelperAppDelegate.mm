@@ -163,6 +163,7 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
+#if 0
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 	{
 		UIWindow *wnd = application.keyWindow;
@@ -182,12 +183,22 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 	{
 		// The device is an iPhone or iPod touch.
 	}
+#endif
 	
 	glController = [[EAGLViewController alloc] init];
 	DAVA::UIScreenManager::Instance()->RegisterController(CONTROLLER_GL, glController);
 	DAVA::UIScreenManager::Instance()->SetGLControllerId(CONTROLLER_GL);
 	
 	DAVA::Core::Instance()->SystemAppStarted();
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		UIWindow *wnd = application.keyWindow;
+        //bool landscape = true;
+        // landscape orientation irrelevant
+        
+        [wnd setFrame: CGRectMake(0, 0, 768, 1024)];
+	}
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
