@@ -82,6 +82,11 @@ SoundBuffer::SoundBuffer()
 SoundBuffer::~SoundBuffer()
 {
 	Free(data);
+    
+#ifdef __DAVASOUND_AL__
+    AL_VERIFY(alDeleteBuffers(1, &buffer));
+    
+#endif 
 }
 
 int32 SoundBuffer::Release()
