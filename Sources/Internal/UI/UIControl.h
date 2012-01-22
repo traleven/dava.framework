@@ -755,6 +755,9 @@ public:
 	 */
 	Animation *		ColorAnimation(const Color & finalColor, float32 time, Interpolation::FuncType interpolationFunc = Interpolation::LINEAR, int32 track = 0);
 
+  
+    /// resets size to match GetBackground->GetSprite
+    void SetSizeFromBgSprite();
 protected:
 	void TouchableAnimationCallback(BaseObject * caller, void * param, void *callerData);
 	void DisabledAnimationCallback(BaseObject * caller, void * param, void *callerData);

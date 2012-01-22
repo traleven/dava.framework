@@ -1463,7 +1463,12 @@ namespace DAVA
 		
 		if (pivotNode)
 		{
-			pivotPoint = pivotNode->AsPoint();
+            if (pivotNode->AsString() == "center")
+            {
+                pivotPoint.Set(rect.dx/2, rect.dy/2);
+            }
+            else
+                pivotPoint = pivotNode->AsPoint();
 		}
 
         YamlNode * inputNode = node->Get("noInput");
@@ -1666,4 +1671,12 @@ namespace DAVA
 			}
 		}
 	}
-}
+
+    void UIControl::SetSizeFromBgSprite()
+    {
+        SetSize(background->GetSprite()->GetSize());
+    }
+
+} // ns
+
+
