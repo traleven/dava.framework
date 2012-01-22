@@ -1465,7 +1465,7 @@ namespace DAVA
 		{
             if (pivotNode->AsString() == "center")
             {
-                pivotPoint.Set(rect.dx/2, rect.dy/2);
+                pivotPoint.Set((int)rect.dx/2, (int)rect.dy/2);
             }
             else
                 pivotPoint = pivotNode->AsPoint();
