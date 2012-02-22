@@ -42,18 +42,21 @@ SoundGroup::SoundGroup()
 
 SoundGroup::~SoundGroup()
 {
+    /*
 	List<Sound*>::iterator it;
 	for(it = sounds.begin(); it != sounds.end(); ++it)
 	{
 		Sound * sound = *it;
 		sound->Release();
 	}
+     */
 }
 
 void SoundGroup::AddSound(Sound * sound)
 {
 	sound->SetVolume(volume);
 	sounds.push_back(sound);
+
 	sound->SetSoundGroup(this);
 }
 
