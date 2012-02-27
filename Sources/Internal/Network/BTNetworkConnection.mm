@@ -28,7 +28,8 @@
         * Created by Alexey 'Hottych' Prosin
 =====================================================================================*/
 
-#if 0
+// enabled for weak linking
+#if 1 
 
 #include "BaseTypes.h"
 #if defined(__DAVAENGINE_IPHONE__)
@@ -49,6 +50,7 @@
 
 @implementation BTNetworkConnection
 
+#if 0
 - (NSString *) platform
 {
     size_t size;
@@ -238,7 +240,7 @@
 	}
 }
 
-
+#endif
 
 @end
 

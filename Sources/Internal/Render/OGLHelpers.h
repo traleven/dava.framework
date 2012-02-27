@@ -34,7 +34,9 @@
 namespace DAVA
 {
 
-#if defined(__DAVAENGINE_WIN32__)
+#if 1
+    //defined(__DAVAENGINE_WIN32__)
+//#include <signal.h>
 #define RENDER_VERIFY(command) \
 { \
 	if(!Thread::IsMainThread() && RenderManager::Instance()->GetNonMainLockCount() == 0)\
@@ -43,8 +45,9 @@ namespace DAVA
 	}\
 	command;\
 	GLenum err = glGetError();\
-	if (err != GL_NO_ERROR)\
-        Logger::Debug("%s file:%s line:%d gl failed with errorcode: 0x%08x", #command, __FILE__, __LINE__, err);\
+	if (err != GL_NO_ERROR) {\
+            Logger::Debug("%s file:%s line:%d gl failed with errorcode: 0x%08x", #command, __FILE__, __LINE__, err);\
+            /*kill( getpid(), SIGINT ) ;*/ }\
 }
 #else
 #define RENDER_VERIFY(command) command;  

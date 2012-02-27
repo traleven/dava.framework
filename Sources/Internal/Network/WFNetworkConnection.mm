@@ -28,7 +28,8 @@
         * Created by Alexey 'Hottych' Prosin
 =====================================================================================*/
 
-#if 0
+// enabled for weak linking
+
 
 #include "BaseTypes.h"
 #if defined(__DAVAENGINE_IPHONE__)
@@ -46,6 +47,7 @@
 #define GAME_ID @"dava"
 #define DOMAIN_NAME @"local"
 
+#if 0
 
 -(void)startServerWithName:(NSString*)name
 {
@@ -352,8 +354,8 @@
 		}
 	}
 }
-
+#endif //0
 @end
 #endif // #if defined(__DAVAENGINE_IPHONE__)
 
-#endif //0
+

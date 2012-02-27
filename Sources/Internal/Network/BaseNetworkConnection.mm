@@ -28,7 +28,8 @@
         * Created by Alexey 'Hottych' Prosin
 =====================================================================================*/
 
-#if 0
+// enabled for weak linking
+#if 1 
 
 #include "BaseTypes.h"
 #if defined(__DAVAENGINE_IPHONE__)
@@ -42,7 +43,7 @@
 
 
 
-
+#if 0
 -(void)startServerWithName:(NSString*)name
 {
 	NSLog(@"*** empty BaseNetworkSystem::createServer ***");
@@ -104,6 +105,8 @@
 //	[UIApplication sharedApplication].idleTimerDisabled = false;
 	[self autorelease];
 }
+
+#endif
 
 @end
 #endif // #if defined(__DAVAENGINE_IPHONE__)
