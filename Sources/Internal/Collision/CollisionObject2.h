@@ -57,8 +57,7 @@ public:
 	 */
 	void SetType(eType type);
 	
-	/// NOTE! Polygon2 pointer must be valid as long as CollisionObject2 lives!
-	void SetPolygon(Polygon2 * p);
+	void SetPolygon(const Polygon2 & p);
 		
 	void Update(const Sprite::DrawState & state);
 	void DebugDraw();
@@ -81,7 +80,7 @@ public:
 	//Vector2 updatedCenter;		// real center of the collision polygon
 	ContactManifold2 manifold;
 	
-	Polygon2 * basePolygon;
+	Polygon2 basePolygon;
 	Polygon2 polygon;
 	AABBox2 bbox;
 	
@@ -89,28 +88,7 @@ public:
 	bool collisionOnLastFrame;
     
     bool forceUpdate;
-	
-/*	int pointsCount;
-	float *points;
-	
-	DAVA::AABBox bbox;
-	
-	float collisionRadius;
-	float centerX, centerY;
-	
-	// info from base game object	
-	float *collisionVertices;
-	float collX;
-	float collY;
-	
-	float xCoord;
-	float yCoord;
-	float angle; */
-		
-	/*bool IsPointsInsidePoints(float* points1, int cnt1, float*points2, int cnt2);
-	void CalcCollisionPoints();
-	bool IsCollideWith(CollisionObject2 * collObject);
-	void DrawCollision(); */
+
     
     void UpdatePosition(Vector2 newPos);
 };

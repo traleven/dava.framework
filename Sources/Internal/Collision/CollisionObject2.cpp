@@ -40,7 +40,6 @@ CollisionObject2::CollisionObject2(eType _type)
 {
 	type = _type;
 	updateFrameIndex = 0;
-	basePolygon = NULL;
 }
 
 CollisionObject2::~CollisionObject2()
@@ -53,60 +52,20 @@ void CollisionObject2::SetType(eType _type)
 	type = _type;
 }
 
-void CollisionObject2::SetPolygon(Polygon2 * _basePolygon)
+void CollisionObject2::SetPolygon(const Polygon2 & _basePolygon)
 {
-	DVASSERT(_basePolygon != 0);
-	//TODO: check Polygon life time (retain/release)
 	basePolygon = _basePolygon;
 	// TODO: Fix this because it can cause a problems when setting frame during draw 
 	// when you set the frame it reset polygon to it's original shape what's wrong
-	polygon = *_basePolygon;
-	basePolygon->CalculateCenterPoint(basePolygonCenter);
+	polygon = _basePolygon;
+	basePolygon.CalculateCenterPoint(basePolygonCenter);
 	circle.center = basePolygonCenter;
-	circle.radius = sqrtf(basePolygon->CalculateSquareRadius(basePolygonCenter));
+	circle.radius = sqrtf(basePolygon.CalculateSquareRadius(basePolygonCenter));
     
     forceUpdate = true;
 }
     
 
-#if 0
-void CollisionObject2::Update(const Sprite::DrawState & state/*const Vector2 & _position, const Vector2 & _pivot, const Vector2 & _scale, float32 _angle*/)
-{
-    if (!basePolygon)return;
-    uint32 globalFrameIndex = Core::Instance()->GetGlobalFrameIndex();
-    if (globalFrameIndex == updateFrameIndex)return;
-    updateFrameIndex = globalFrameIndex;
-    
-    position = state.position;
-    pivot = state.pivotPoint;
-    scale = state.scale;
-    angle = state.angle;
-    
-    bbox.Empty();
-    
-    if (type == TYPE_POLYGON)
-    {
-        float32 sinA = sinf(angle);
-        float32 cosA = cosf(angle);
-        for (int k = 0; k < basePolygon->pointCount; ++k)
-        {
-            Vector2 * v = &polygon.points[k];
-            *v = basePolygon->points[k] - pivot;
-            v->x *= scale.x;
-            v->y *= scale.y;
-            float32 nx = (v->x) * cosA  - (v->y) * sinA + position.x;
-            float32 ny = (v->x) * sinA  + (v->y) * cosA + position.y;
-            v->x = nx;
-            v->y = ny;
-            bbox.AddPoint(*v);
-        }
-    }
-    circle.center = basePolygonCenter;
-    circle.center -= pivot;
-    circle.center += position;
-}
-#endif
-	
 
 void CollisionObject2::UpdatePosition(Vector2 newPos)
 {
@@ -131,7 +90,6 @@ void CollisionObject2::UpdatePosition(Vector2 newPos)
 
 void CollisionObject2::Update(const Sprite::DrawState & state/*const Vector2 & _position, const Vector2 & _pivot, const Vector2 & _scale, float32 _angle*/)
 {
-	if (!basePolygon)return;
 	uint32 globalFrameIndex = Core::Instance()->GetGlobalFrameIndex();
 	if (globalFrameIndex == updateFrameIndex)return;
 	updateFrameIndex = globalFrameIndex;
@@ -170,10 +128,10 @@ void CollisionObject2::Update(const Sprite::DrawState & state/*const Vector2 & _
 	
 	if (type == TYPE_POLYGON)
 	{
-		for (int k = 0; k < basePolygon->pointCount; ++k)
+		for (int k = 0; k < basePolygon.pointCount; ++k)
 		{
 			Vector2 * v = &polygon.points[k];
-			*v = basePolygon->points[k] - pivot;
+			*v = basePolygon.points[k] - pivot;
 			v->x *= scale.x;
 			v->y *= scale.y;
 			float32 nx = (v->x) * cosA  - (v->y) * sinA + position.x;
@@ -197,9 +155,7 @@ void CollisionObject2::Update(const Sprite::DrawState & state/*const Vector2 & _
 }
 
 void CollisionObject2::DebugDraw()
-{
-	if (!basePolygon)return;
-	
+{	
 	RenderManager::Instance()->SetColor(1.0f, 0.0f, 0.0f, 1.0f);
 	RenderHelper::Instance()->DrawPoint(circle.center, 3);
 	

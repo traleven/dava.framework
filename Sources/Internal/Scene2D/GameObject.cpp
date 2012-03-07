@@ -473,7 +473,7 @@ void GameObject::BuildCollisionObjectFromSpritePoly(int32 frame)
 	if (!framePolygon)return;
 	if (!collision)collision = new CollisionObject2(CollisionObject2::TYPE_POLYGON);
 	collision->SetType(CollisionObject2::TYPE_POLYGON);
-	collision->SetPolygon(framePolygon);
+	collision->SetPolygon(*framePolygon);
 }
 
 List<GameObject*> & GameObject::GetChildren()
