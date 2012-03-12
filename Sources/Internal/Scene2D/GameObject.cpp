@@ -466,6 +466,32 @@ void GameObject::SetCollisionObject(CollisionObject2 * obj)
 	SafeRelease(collision);
 	collision = SafeRetain(obj);
 }
+    
+static Polygon2 ParseYamlPoly(YamlNode * polyNode)
+{
+    Polygon2 poly;
+    Vector<YamlNode*> vpoints = polyNode->AsVector();
+    for(Vector<YamlNode*>::iterator i = vpoints.begin(); i != vpoints.end(); ++i)
+    {
+        poly.AddPoint((*i)->AsVector2());
+    }
+    
+    return poly;
+}
+
+    
+void GameObject::SetCollisionObjectFromYaml(YamlNode * n)
+{
+    Polygon2 p = ParseYamlPoly(n);
+    
+    if (p.pointCount)
+    {
+        CollisionObject2 * co = new CollisionObject2(CollisionObject2::TYPE_POLYGON);
+        co->SetPolygon(p);
+        SetCollisionObject(co);
+        SafeRelease(co);
+    }
+}
 
 void GameObject::BuildCollisionObjectFromSpritePoly(int32 frame)
 {

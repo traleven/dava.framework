@@ -39,7 +39,7 @@ void TestScreen::LoadResources()
 
 	smallBox = GameObject::Create("~res:/Gfx/GameObjects/bluebox");
 	smallBox->SetPivotPoint(ALIGN_HCENTER | ALIGN_VCENTER);
-	bigBox->AddObject(smallBox.Get());
+    bigBox->AddObject(smallBox.Get());
 
 	smallCircle = GameObject::Create("~res:/Gfx/GameObjects/bluecircle");
 	smallCircle->SetPosition(bigBox->GetSize());
@@ -74,6 +74,13 @@ void TestScreen::LoadResources()
 	Texture::EnableMipmapGeneration();
 	testSprite = Sprite::Create("~res:/Gfx/GameObjects/blueboxbig");
 	Texture::DisableMipmapGeneration();
+    
+    YamlParser * parser = YamlParser::Create("~res:/collisions.yaml");
+    
+    smallBox->SetCollisionObjectFromYaml(parser->GetRootNode()->Get("bluebox"));
+    smallBox->SetDebugDraw(true);
+    
+    SafeRelease(parser);
 }
 
 void TestScreen::UnloadResources()

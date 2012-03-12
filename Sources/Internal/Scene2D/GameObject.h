@@ -150,6 +150,7 @@ public:
     bool            IsCollideWith(CollisionObject2 * collision2);
 	void			SetCollisionObject(CollisionObject2 * obj);
 	void			BuildCollisionObjectFromSpritePoly(int32 frame);
+    void            SetCollisionObjectFromYaml(YamlNode * n);
 	inline			CollisionObject2 * GetCollision();
 
 	void			SetDebugDraw(bool _isDebugDraw); 
