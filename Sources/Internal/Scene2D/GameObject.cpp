@@ -260,8 +260,8 @@ void GameObject::SetManager(GameObjectManager * _manager)
 
 void GameObject::Update(float32 timeElapsed)
 {
-	if(collision)
-		collision->Update(globalDrawState);
+	//if(collision)
+	//	collision->Update(globalDrawState);
 
     if(!children.empty())
     {
@@ -277,6 +277,9 @@ void GameObject::Update(float32 timeElapsed)
 void GameObject::RecalcHierarchy(const Sprite::DrawState &parentDrawState)
 {
 	globalDrawState.BuildStateFromParentAndLocal(parentDrawState, localDrawState);
+    if(collision)
+		collision->Update(globalDrawState);
+    
     if(!children.empty())
     {
         List<GameObject*>::iterator it_end = children.end();
