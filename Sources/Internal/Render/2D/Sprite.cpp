@@ -282,7 +282,7 @@ Sprite* Sprite::PureCreate(const String & spriteName, Sprite* forPointer)
 	//	center.x = width / 2;
 	//	center.y = height / 2;
 	
-	
+#if 0
 	fp->ReadLine(tempBuf, 1024);
 	sscanf(tempBuf, "%d", &spr->polygonsCount);
 	
@@ -320,6 +320,7 @@ Sprite* Sprite::PureCreate(const String & spriteName, Sprite* forPointer)
 			sscanf(tempBuf, "%d", &spr->polyIndeces[i]);
 		}
 	}
+#endif
 	
 	spr->resourceToVirtualFactor = Core::Instance()->GetResourceToVirtualFactor(spr->resourceSizeIndex);
 	spr->resourceToPhysicalFactor = Core::Instance()->GetResourceToPhysicalFactor(spr->resourceSizeIndex);

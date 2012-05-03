@@ -28,6 +28,7 @@
         * Created by Vitaliy Borodovsky 
 =====================================================================================*/
 #include "Base/BaseTypes.h"
+#include "UI/UIEvent.h"
 
 #if defined(__DAVAENGINE_IPHONE__)
 

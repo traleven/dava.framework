@@ -21,15 +21,15 @@
  3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "NeonMath.h"
-
+#if 0
 #ifdef __thumb__
 #error "This file should be compiled in ARM mode only."
 // Note in Xcode, right click file, Get Info->Build, Other compiler flags = "-marm"
 #endif
 
-#ifdef _ARM_ARCH_7
 
+#ifdef _ARM_ARCH_7
+#include "NeonMath.h"
 namespace DAVA 
 {
 // Note asm is taken from reader "Jeff" post Wolfgang's blog:
@@ -104,4 +104,5 @@ void NEON_Matrix4Vector4Mul(const float* m, const float* v, float* output)
      );
 }
 };
+#endif
 #endif
