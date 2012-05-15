@@ -32,6 +32,7 @@
 
 #include "Base/BaseTypes.h"
 #include <math.h>
+#include "Debug/DVAssert.h"
 
 namespace DAVA
 {
@@ -277,6 +278,7 @@ inline Vector2::Vector2(float32 _x, float32 _y)
 
 inline Vector2::Vector2(float32 *_data)
 {
+    DVASSERT(_data != NULL);
 	data[0] = _data[0];
 	data[1] = _data[1];
 }
@@ -478,6 +480,7 @@ inline Vector3::Vector3(float32 _x, float32 _y, float32 _z)
 
 inline Vector3::Vector3(float32 *_data)
 {
+    DVASSERT(_data != NULL);
 	data[0] = _data[0];
 	data[1] = _data[1];
 	data[2] = _data[2];
@@ -704,6 +707,7 @@ inline Vector4::Vector4(float32 _x, float32 _y, float32 _z, float32 _w)
 
 inline Vector4::Vector4(float32 *_data)
 {
+    DVASSERT(_data != NULL);
 	data[0] = _data[0];
 	data[1] = _data[1];
 	data[2] = _data[2];

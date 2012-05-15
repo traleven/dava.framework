@@ -81,6 +81,8 @@ void UIControlBackground::CopyDataFrom(UIControlBackground *srcBackground)
 
 UIControlBackground::~UIControlBackground()
 {
+    vertexStream = 0;
+    texCoordStream = 0;
 	SafeRelease(rdoObject);
 	SafeRelease(spr);
 }

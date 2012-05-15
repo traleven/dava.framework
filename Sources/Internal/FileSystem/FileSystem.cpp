@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 #include <sys/errno.h>
 #include <copyfile.h>
+#import <Foundation/Foundation.h>
 #elif defined(__DAVAENGINE_WIN32__)
 #include <direct.h>
 #include <io.h> 

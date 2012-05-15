@@ -31,7 +31,7 @@
 #include "Utils/HTTPDownloader.h"
 #include "Utils/Utils.h"
 #include "FileSystem/FileSystem.h"
-
+#import <Foundation/Foundation.h>
 
 @interface DownloaderObj : NSObject
 {

@@ -169,19 +169,21 @@ float32 KeyedArchive::GetFloat(const String & key, float32 defaultValue)
 		return objectMap[key].AsFloat();
 	return defaultValue;
 }
+    
 
-const String & KeyedArchive::GetString(const String & key, const String & defaultValue)
+const String KeyedArchive::GetString(const String & key, const String & defaultValue)
 {
 	if (IsKeyExists(key))
 		return objectMap[key].AsString();
 	return defaultValue;
 }
-const WideString & KeyedArchive::GetWideString(const String & key, const WideString & defaultValue)
+const WideString KeyedArchive::GetWideString(const String & key, const WideString & defaultValue)
 {
 	if (IsKeyExists(key))
 		return objectMap[key].AsWideString();
 	return defaultValue;
 }
+
 	
 const uint8 *KeyedArchive::GetByteArray(const String & key, const uint8 *defaultValue)
 {

@@ -354,7 +354,7 @@ int32	ResourceArchive::LoadResource(const String & pathName, void * data)
 {	
 	if (!withPaths)return -1;
 	
-	uint32 resourceIndex;
+	uint32 resourceIndex = 0;
 	if (lastResourceIndex != -1)
 	{
 		if (pathName == lastResourceName)

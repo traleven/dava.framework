@@ -37,7 +37,7 @@ namespace DAVA
 {
 
 SoundChannel::SoundChannel()
-:	state(STATE_FREE)
+:	state(STATE_FREE), priority(0), buddySound(NULL), volume(1.f), looping(false)
 {
 #ifdef __DAVASOUND_AL__
 	AL_VERIFY(alGenSources(1, &source));
