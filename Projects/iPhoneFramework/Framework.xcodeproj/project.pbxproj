@@ -2124,7 +2124,7 @@
 					./../../Libs/freetype/include,
 					./../../Libs/libpng/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lpng$(EFFECTIVE_PLATFORM_NAME)",
@@ -2164,7 +2164,7 @@
 					./../../Libs/freetype/include,
 					./../../Libs/libpng/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lpng$(EFFECTIVE_PLATFORM_NAME)",
@@ -2203,7 +2203,7 @@
 					./../../Libs/freetype/include,
 					./../../Libs/libpng/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lpng$(EFFECTIVE_PLATFORM_NAME)",
@@ -2265,7 +2265,7 @@
 					./../../Libs/freetype/include,
 					./../../Libs/libpng/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lpng$(EFFECTIVE_PLATFORM_NAME)",

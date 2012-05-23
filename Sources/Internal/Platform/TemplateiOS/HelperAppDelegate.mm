@@ -47,7 +47,7 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 	FrameworkDidLaunched();
     
     
-    bool landscape = true;
+    const bool landscape = true;
     
 #if 0
     DAVA::KeyedArchive * options = DAVA::Core::Instance()->GetOptions();
@@ -61,8 +61,18 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
             landscape = false;
     }
 #endif
+
+    unsigned int scaleItAll = 1;
+
+	if ([::UIScreen instancesRespondToSelector: @selector(scale) ]
+        && [::UIView instancesRespondToSelector: @selector(contentScaleFactor) ]) 
+    {
+        scaleItAll = (unsigned int)[[::UIScreen mainScreen] scale];
+    }
     
-	
+
+    
+    
 	{//detecting physical screen size and initing core system with this size
 		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 		{
@@ -70,12 +80,12 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
             if (landscape)
             {
                 DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(1024, 768);
-                DAVA::Core::Instance()->SetPhysicalScreenSize(1024, 768);
+                DAVA::Core::Instance()->SetPhysicalScreenSize(1024*scaleItAll, 768*scaleItAll);
             }
             else
             {
-                DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(768, 1024);
-                DAVA::Core::Instance()->SetPhysicalScreenSize(768, 1024);
+                DAVA::UIControlSystem::Instance()->SetInputScreenAreaSize(768*scaleItAll, 1024*scaleItAll);
+                DAVA::Core::Instance()->SetPhysicalScreenSize(768*scaleItAll, 1024*scaleItAll);
             }
 			
 		}
@@ -185,13 +195,32 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 		// The device is an iPhone or iPod touch.
 	}
 #endif
+    
+    unsigned int scaleItAll = 1;
+    
+	if ([::UIScreen instancesRespondToSelector: @selector(scale) ]
+        && [::UIView instancesRespondToSelector: @selector(contentScaleFactor) ]) 
+    {
+        scaleItAll = (unsigned int)[[::UIScreen mainScreen] scale];
+    }
+    
+#if 1
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		UIWindow *wnd = application.keyWindow;
+        //bool landscape = true;
+        // landscape orientation irrelevant
+        
+        [wnd setFrame: CGRectMake(0, 0, 768*scaleItAll, 1024*scaleItAll)];
+	}
+#endif
 	
 	glController = [[EAGLViewController alloc] init];
 	DAVA::UIScreenManager::Instance()->RegisterController(CONTROLLER_GL, glController);
 	DAVA::UIScreenManager::Instance()->SetGLControllerId(CONTROLLER_GL);
 	
 	DAVA::Core::Instance()->SystemAppStarted();
-    
+#if 0
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 	{
 		UIWindow *wnd = application.keyWindow;
@@ -200,6 +229,7 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
         
         [wnd setFrame: CGRectMake(0, 0, 768, 1024)];
 	}
+#endif
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
