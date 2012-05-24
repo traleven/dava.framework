@@ -204,7 +204,7 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
         scaleItAll = (unsigned int)[[::UIScreen mainScreen] scale];
     }
     
-#if 1
+#if 0
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 	{
 		UIWindow *wnd = application.keyWindow;
@@ -220,7 +220,7 @@ int DAVA::Core::Run(int argc, char * argv[], AppHandle handle)
 	DAVA::UIScreenManager::Instance()->SetGLControllerId(CONTROLLER_GL);
 	
 	DAVA::Core::Instance()->SystemAppStarted();
-#if 0
+#if 1
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 	{
 		UIWindow *wnd = application.keyWindow;
