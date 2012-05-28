@@ -152,7 +152,7 @@ bool GraphicsFont::IsCharAvaliable(char16 ch)
 
 uint32 GraphicsFont::GetFontHeight()
 {
-	return (uint32)(fdef->fontHeight * fontScaleCoeff);
+	return (uint32)(fdef->fontHeight * fontScaleCoeff) + 2;
 }
 	
 void GraphicsFont::SetSize(float32 _size)
