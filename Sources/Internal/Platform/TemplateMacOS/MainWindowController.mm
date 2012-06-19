@@ -880,6 +880,7 @@ void CoreMacOSPlatform::SwitchScreenToMode(eScreenMode screenMode)
 
 void CoreMacOSPlatform::Quit()
 {
+	mainWindowController->openGLView.willQuit = true;
 	[[NSApplication sharedApplication] terminate: nil];
 }
 	
