@@ -559,7 +559,9 @@ bool FileSystem::IsDirectory(const String & pathToCheck)
         int32 n = strlen(szPath);
         szPath[n] = '\\';
         szPath[n+1] = 0;
-        return szPath;
+        String str(szPath);
+        delete[] szPath;
+        return str;
     }
     
     const String FileSystem::GetPublicDocumentsPath()
@@ -569,8 +571,10 @@ bool FileSystem::IsDirectory(const String & pathToCheck)
         int32 n = strlen(szPath);
         szPath[n] = '\\';
         szPath[n+1] = 0;
-        return szPath;
-    }   
+        String str(szPath);
+        delete[] szPath;
+        return str;
+    }
 #endif //#if defined(__DAVAENGINE_WIN32__)
     
 #if defined(__DAVAENGINE_ANDROID__)
