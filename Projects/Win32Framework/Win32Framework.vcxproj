@@ -135,6 +135,7 @@
     <ClInclude Include="..\..\Sources\Internal\Autotesting\AutotestingSystem.h" />
     <ClInclude Include="..\..\Sources\Internal\Autotesting\Action.h" />
     <ClInclude Include="..\..\Sources\Internal\Autotesting\Config.h" />
+    <ClInclude Include="..\..\Sources\Internal\Autotesting\MongodbUpdateObject.h" />
     <ClInclude Include="..\..\Sources\Internal\Autotesting\TouchAction.h" />
     <ClInclude Include="..\..\Sources\Internal\Base\Data.h" />
     <ClInclude Include="..\..\Sources\Internal\Database\MongodbClient.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="..\..\Sources\Internal\Debug\MemoryManager.h" />
     <ClInclude Include="..\..\Sources\Internal\Debug\Replay.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\Components.h" />
+    <ClInclude Include="..\..\Sources\Internal\Entity\FlagsComponent.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\LandscapeGeometryComponent.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\LandscapeGeometrySystem.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\MeshInstanceComponent.h" />
@@ -450,6 +452,7 @@
     <ClCompile Include="..\..\Sources\Internal\Autotesting\AssertAction.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Autotesting\AutotestingSystem.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Autotesting\Action.cpp" />
+    <ClCompile Include="..\..\Sources\Internal\Autotesting\MongodbUpdateObject.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Autotesting\TouchAction.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Base\BaseObject.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Base\Data.cpp" />
@@ -486,6 +489,7 @@
     <ClCompile Include="..\..\Sources\Internal\Entity\Entity.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Entity\EntityFamily.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Entity\EntityManager.cpp" />
+    <ClCompile Include="..\..\Sources\Internal\Entity\FlagsComponent.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Entity\LandscapeGeometryComponent.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Entity\MeshInstanceComponent.cpp" />
     <ClCompile Include="..\..\Sources\Internal\Entity\PoolSystem.cpp" />

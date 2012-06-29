@@ -5,5 +5,6 @@
 #include "MeshInstanceComponent.h"
 #include "LandscapeGeometryComponent.h"
 #include "TransformComponent.h"
+#include "FlagsComponent.h"
 
 #endif //__DAVAENGINE_COMPONENTS__

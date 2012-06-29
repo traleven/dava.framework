@@ -92,6 +92,7 @@ void Scene::CreateComponents()
 	MeshInstanceComponent::Create();
 	LandscapeGeometryComponent::Create();
 	TransformComponent::Create();
+	FlagsComponent::Get();
 }
 
 void Scene::CreateSystems()
@@ -151,6 +152,7 @@ void Scene::RegisterNode(SceneNode * node)
 	}
 
 	node->entity = entityManager->CreateEntity();
+	node->entity->AddComponent(FlagsComponent::Get());
 
 	MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
 	if(meshInstance)
@@ -187,10 +189,10 @@ void Scene::UnregisterNode(SceneNode * node)
 		UnregisterImposter(imposter);
 	}
 
-	if(node->entity)
-	{
-		entityManager->DestroyEntity(node->entity);
-	}
+	//if(node->entity)
+	//{
+	//	entityManager->DestroyEntity(node->entity);
+	//}
 }
 
 Scene * Scene::GetScene()
