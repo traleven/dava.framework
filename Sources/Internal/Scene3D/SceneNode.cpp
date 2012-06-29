@@ -468,7 +468,8 @@ SceneNode* SceneNode::Clone(SceneNode *dstNode)
     dstNode->name = name;
     dstNode->tag = tag;
     dstNode->debugFlags = debugFlags;
-    dstNode->flags = flags;
+    //dstNode->flags = flags; Dizz: no need to clone flags
+	//TODO: clone entity
 
     SafeRelease(dstNode->customProperties);
     dstNode->customProperties = new KeyedArchive(*customProperties);
@@ -709,5 +710,63 @@ void SceneNode::RecursiveEnableImposters(bool enable)
 		children[c]->RecursiveEnableImposters(enable); 
 	}
 }
-    
+
+bool SceneNode::GetVisible(void)
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	return ((*flags) & NODE_VISIBLE) != 0;
+}
+
+bool SceneNode::GetUpdatable(void)
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	return ((*flags) & NODE_UPDATABLE) != 0;
+}
+
+bool SceneNode::IsLodPart(void)
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	return ((*flags) & NODE_IS_LOD_PART) != 0;
+}
+
+uint32 SceneNode::GetFlags() const
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	return *flags;
+}
+
+void SceneNode::AddFlag(int32 flagToAdd)
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	(*flags) |= flagToAdd;
+}
+
+void SceneNode::RemoveFlag(int32 flagToRemove)
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	(*flags) &= ~flagToRemove;
+}
+
+Matrix4 & SceneNode::ModifyLocalTransform()
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	(*flags) &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+	return localTransform;
+}
+
+void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	localTransform = newMatrix;
+	(*flags) &= ~NODE_WORLD_MATRIX_ACTUAL;
+	if (newMatrix == Matrix4::IDENTITY)(*flags) |= NODE_LOCAL_MATRIX_IDENTITY;
+	else (*flags) &= ~NODE_LOCAL_MATRIX_IDENTITY;
+}
+
+void SceneNode::InvalidateLocalTransform()
+{
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	(*flags) &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+}
+
 };

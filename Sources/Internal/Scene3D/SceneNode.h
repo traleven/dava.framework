@@ -336,7 +336,6 @@ protected:
 	String	name;
 	int32	tag;
 
-    uint32 flags;
     uint32 debugFlags;
 
 	Matrix4 worldTransform;
@@ -361,11 +360,6 @@ inline void SceneNode::SetVisible(bool isVisible)
     }
 }
 	
-inline bool SceneNode::GetVisible(void)
-{
-	return (flags & NODE_VISIBLE) != 0;
-}
-	
 inline void SceneNode::SetUpdatable(bool isUpdatable)
 {
     if (isUpdatable) 
@@ -376,32 +370,6 @@ inline void SceneNode::SetUpdatable(bool isUpdatable)
     {
         RemoveFlag(NODE_UPDATABLE);
     }
-}
-    
-inline bool SceneNode::GetUpdatable(void)
-{
-	return (flags & NODE_UPDATABLE) != 0;
-}
-    
-inline bool SceneNode::IsLodPart(void)
-{
-	return (flags & NODE_IS_LOD_PART) != 0;
-}
-
-
-inline void SceneNode::AddFlag(int32 flagToAdd)
-{
-    flags |= flagToAdd;
-}
-    
-inline void SceneNode::RemoveFlag(int32 flagToRemove)
-{
-    flags &= ~flagToRemove;
-}
-    
-inline uint32 SceneNode::GetFlags() const
-{
-    return flags;
 }
 
 inline SceneNode * SceneNode::GetParent()
@@ -433,31 +401,12 @@ inline const Matrix4 & SceneNode::GetDefaultLocalTransform()
 {
     return defaultLocalTransform;
 }
-    
-inline Matrix4 & SceneNode::ModifyLocalTransform()
-{
-    flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
-    return localTransform;
-}
-
-inline void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
-{
-    localTransform = newMatrix;
-    flags &= ~NODE_WORLD_MATRIX_ACTUAL;
-    if (newMatrix == Matrix4::IDENTITY)flags |= NODE_LOCAL_MATRIX_IDENTITY;
-    else flags &= ~NODE_LOCAL_MATRIX_IDENTITY;
-}
 //
 //inline void SceneNode::SetWorldTransform(const Matrix4 & newMatrix)
 //{
 //    worldTransform = newMatrix;
 //}
 //
-    
-inline void SceneNode::InvalidateLocalTransform()
-{
-    flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
-}
 
     
 inline void SceneNode::SetDefaultLocalTransform(const Matrix4 & newMatrix)

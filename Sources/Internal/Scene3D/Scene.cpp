@@ -92,7 +92,7 @@ void Scene::CreateComponents()
 	MeshInstanceComponent::Create();
 	LandscapeGeometryComponent::Create();
 	TransformComponent::Create();
-	FlagsComponent::Get();
+	FlagsComponent::Create();
 }
 
 void Scene::CreateSystems()

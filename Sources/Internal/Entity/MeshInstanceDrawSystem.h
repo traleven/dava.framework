@@ -57,23 +57,26 @@ public:
 			TemplatePool<MeshInstanceNode*> * meshInstances = (TemplatePool<MeshInstanceNode*>*)family->GetPoolByDataName("meshInstanceNode");
 			TemplatePool<Matrix4> * transforms = (TemplatePool<Matrix4>*)family->GetPoolByDataName("transform");
 
-			int32 count = visibilityFlags->GetCount();
-			uint32 * flag = visibilityFlags->GetPtr(0);
-			MeshInstanceNode ** meshInstancePointer = meshInstances->GetPtr(0);
-			Matrix4 * transform = transforms->GetPtr(0);
-			for(int32 i = 0; i < count; ++i)
+			if(meshInstances && transforms)
 			{
-				uint32 flagValue = *flag;
-				if(!(flagValue & SceneNode::NODE_CLIPPED_THIS_FRAME)/* && (flagValue & SceneNode::NODE_VISIBLE) && (flagValue & SceneNode::NODE_UPDATABLE) && !(flagValue & SceneNode::NODE_INVALID)*/)
+				int32 count = visibilityFlags->GetCount();
+				uint32 * flag = visibilityFlags->GetPtr(0);
+				MeshInstanceNode ** meshInstancePointer = meshInstances->GetPtr(0);
+				Matrix4 * transform = transforms->GetPtr(0);
+				for(int32 i = 0; i < count; ++i)
 				{
-					Matrix4 meshFinalMatrix = (*transform) * prevMatrix;
-					RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, meshFinalMatrix);
-					Draw(*meshInstancePointer);
-				}
+					uint32 flagValue = *flag;
+					if(!(flagValue & SceneNode::NODE_CLIPPED_THIS_FRAME)/* && (flagValue & SceneNode::NODE_VISIBLE) && (flagValue & SceneNode::NODE_UPDATABLE) && !(flagValue & SceneNode::NODE_INVALID)*/)
+					{
+						Matrix4 meshFinalMatrix = (*transform) * prevMatrix;
+						RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, meshFinalMatrix);
+						Draw(*meshInstancePointer);
+					}
 
-				transform++;
-				meshInstancePointer++;
-				flag++;
+					transform++;
+					meshInstancePointer++;
+					flag++;
+				}
 			}
 
 			visibilityFlags = visibilityFlags->next;

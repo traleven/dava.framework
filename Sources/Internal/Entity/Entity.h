@@ -26,7 +26,7 @@ public:
     void SetData(const char * dataName, const T & value);
     
 	template<class T>
-	const T * GetData(const char * dataName);
+	T * const GetData(const char * dataName);
 
     void SetFamily(EntityFamilyType newFamily);
 	const EntityFamilyType & GetFamily();
@@ -77,7 +77,7 @@ void Entity::SetData(const char * dataName, const T & value)
 }
 
 template<class T>
-const T * Entity::GetData(const char * dataName)
+T * const Entity::GetData(const char * dataName)
 {
 	if(changeState & FAMILY_CHANGED)
 	{

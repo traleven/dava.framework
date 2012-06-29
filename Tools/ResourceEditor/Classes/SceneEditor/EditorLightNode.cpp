@@ -30,15 +30,16 @@ void EditorLightNode::Update(float32 timeElapsed)
 {
 	SceneNode::Update(timeElapsed);
 	LightNode * parent = (LightNode*)GetParent();
-	if(type != parent->GetType())
-	{
-		RemoveAllChildren();
-
-		type = parent->GetType();
-		SceneNode * lightDrawNode = scene->GetRootNode(GetSceneFile())->Clone();
-		AddNode(lightDrawNode);
-		SafeRelease(lightDrawNode);
-	}
+// 	if(type != parent->GetType())
+// 	{
+// 		RemoveAllChildren();
+// 		scene->entityManager->Flush();
+// 		type = parent->GetType();
+// 		SceneNode * lightDrawNode = scene->GetRootNode(GetSceneFile())->Clone();
+// 		AddNode(lightDrawNode);
+// 		scene->entityManager->Flush();
+// 		SafeRelease(lightDrawNode);
+// 	}
 }
 
 void EditorLightNode::Draw()
