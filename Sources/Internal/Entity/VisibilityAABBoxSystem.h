@@ -28,7 +28,7 @@ public:
 
 			for(int32 i = 0; i < count; ++i)
 			{
-				if(frustum->IsInside(box))
+				if(!frustum->IsInside(box))
 				{
 					*flag |= SceneNode::NODE_CLIPPED_THIS_FRAME;
 				}

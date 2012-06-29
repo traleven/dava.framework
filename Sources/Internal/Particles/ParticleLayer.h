@@ -126,6 +126,9 @@ public:
 
     float32 GetLayerTime();
 
+	void Draw2D();
+	void Draw3D();
+
 private:	
 	void GenerateNewParticle(int32 emitIndex);
 	void GenerateSingleParticle();
@@ -154,6 +157,11 @@ private:
 	// particle layer sprite
 	Sprite 			* sprite;
 	Vector2			pivotPoint;
+
+	//3D draw
+	RenderDataObject *renderData;
+	Vector<float32> verts;
+	Vector<float32> texCoords;
 
 public:		
 	/*

@@ -150,11 +150,11 @@ void Scene::RegisterNode(SceneNode * node)
 		RegisterImposter(imposter);
 	}
 
+	node->entity = entityManager->CreateEntity();
+
 	MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
 	if(meshInstance)
 	{
-		Entity * entity = entityManager->CreateEntity();
-		node->entity = entity;
 		node->entity->AddComponent(VisibilityAABBoxComponent::Get());
 		node->entity->AddComponent(MeshInstanceComponent::Get());
 		node->entity->AddComponent(TransformComponent::Get());
@@ -167,8 +167,6 @@ void Scene::RegisterNode(SceneNode * node)
 	LandscapeNode * landscapeNode = dynamic_cast<LandscapeNode*>(node);
 	if(landscapeNode)
 	{
-		Entity * entity = entityManager->CreateEntity();
-		node->entity = entity;
 		node->entity->AddComponent(LandscapeGeometryComponent::Get());
 		entityManager->Flush();
 		node->entity->SetData("landscapeNode", landscapeNode);
@@ -478,7 +476,7 @@ void Scene::Draw()
     
 	//if (bvHierarchy)
     //    bvHierarchy->Cull();
-	//VisibilityAABBoxSystem::Run(this);
+	VisibilityAABBoxSystem::Run(this);
 
 	//entityManager->Dump();
 
@@ -487,9 +485,9 @@ void Scene::Draw()
 		imposterManager->Draw();
 	}
 
-    SceneNode::Draw();
-	//LandscapeGeometrySystem::Run(this);
-	//MeshInstanceDrawSystem::Run(this);
+    //SceneNode::Draw();
+	LandscapeGeometrySystem::Run(this);
+	MeshInstanceDrawSystem::Run(this);
 
 	if(shadowVolumes.size() > 0)
 	{

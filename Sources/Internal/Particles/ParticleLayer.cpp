@@ -33,6 +33,7 @@
 #include "Utils/StringFormat.h"
 #include "Render/RenderManager.h"
 #include "Utils/Random.h"
+#include "Scene3D/Camera.h"
 
 namespace DAVA
 {
@@ -208,6 +209,14 @@ ParticleLayer * ParticleLayer::Clone()
 void ParticleLayer::SetEmitter(ParticleEmitter * _emitter)
 {
 	emitter = _emitter;
+
+	SafeRelease(renderData);
+	if(emitter->GetIs3D())
+	{
+		renderData = new RenderDataObject();
+		renderData->SetStream(EVF_VERTEX, TYPE_FLOAT, 3, 0, &verts.front());
+		renderData->SetStream(EVF_TEXCOORD0, TYPE_FLOAT, 2, 0, &texCoords.front());
+	}
 }
 
 void ParticleLayer::SetSprite(Sprite * _sprite)
@@ -530,12 +539,13 @@ void ParticleLayer::Draw()
 	{
 		case TYPE_PARTICLES:
 		{
-			Particle * current = head;
-			while(current)
+			if(emitter->GetIs3D())
 			{
-				sprite->SetPivotPoint(pivotPoint);
-				current->Draw();
-				current = current->next;
+				Draw3D();
+			}
+			else
+			{
+				Draw2D();
 			}
 			break;
 		}
@@ -551,6 +561,32 @@ void ParticleLayer::Draw()
 	}
 }
 
+void ParticleLayer::Draw2D()
+{
+	Particle * current = head;
+	while(current)
+	{
+		sprite->SetPivotPoint(pivotPoint);
+		current->Draw();
+		current = current->next;
+	}
+}
+
+void ParticleLayer::Draw3D()
+{
+	verts.clear();
+	texCoords.clear();
+
+	//Camera * camera = scene->GetCurrentCamera();
+
+	Particle * current = head;
+	while(current)
+	{
+		
+
+		current = current->next;
+	}
+}
 
 void ParticleLayer::LoadFromYaml(YamlNode * node)
 {
@@ -704,6 +740,10 @@ Particle * ParticleLayer::GetHeadParticle()
 {
 	return head;
 }
+
+
+
+
 
 
 

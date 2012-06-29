@@ -63,7 +63,8 @@ public:
 			Matrix4 * transform = transforms->GetPtr(0);
 			for(int32 i = 0; i < count; ++i)
 			{
-				if((*flag) & SceneNode::NODE_CLIPPED_THIS_FRAME)
+				uint32 flagValue = *flag;
+				if(!(flagValue & SceneNode::NODE_CLIPPED_THIS_FRAME)/* && (flagValue & SceneNode::NODE_VISIBLE) && (flagValue & SceneNode::NODE_UPDATABLE) && !(flagValue & SceneNode::NODE_INVALID)*/)
 				{
 					Matrix4 meshFinalMatrix = (*transform) * prevMatrix;
 					RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, meshFinalMatrix);
