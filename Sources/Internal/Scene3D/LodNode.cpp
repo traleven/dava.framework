@@ -36,6 +36,7 @@
 #include "Utils/StringFormat.h"
 #include "Scene3D/SceneNodeAnimation.h"
 #include "Scene3D/SceneNodeAnimationList.h"
+#include "Entity/Entity.h"
 
 namespace DAVA 
 {
@@ -328,7 +329,7 @@ void LodNode::SetCurrentLod(LodData *newLod)
 
 void LodNode::Update(float32 timeElapsed)
 {
-    
+    uint32 flags = *entity->GetData<uint32>("flags");
     if (flags&SceneNode::NODE_VISIBLE)
     {
         lastLodUpdateFrame++;

@@ -160,19 +160,19 @@ void Scene::RegisterNode(SceneNode * node)
 		node->entity->AddComponent(VisibilityAABBoxComponent::Get());
 		node->entity->AddComponent(MeshInstanceComponent::Get());
 		node->entity->AddComponent(TransformComponent::Get());
-
-		//TODO: move Flush and data init to some Init() function
-		entityManager->Flush();
-		node->entity->SetData("flags", (uint32)0);
 	}
 
 	LandscapeNode * landscapeNode = dynamic_cast<LandscapeNode*>(node);
 	if(landscapeNode)
 	{
 		node->entity->AddComponent(LandscapeGeometryComponent::Get());
-		entityManager->Flush();
 		node->entity->SetData("landscapeNode", landscapeNode);
 	}
+
+	//TODO: move Flush and data init to some Init() function
+	entityManager->Flush();
+
+	node->entity->SetData("flags", (uint32)(NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY));
 }
 
 void Scene::UnregisterNode(SceneNode * node)
@@ -425,7 +425,7 @@ void Scene::Update(float timeElapsed)
 	entityManager->Flush();
 
     // lights 
-    flags &= ~SCENE_LIGHTS_MODIFIED;
+    //flags &= ~SCENE_LIGHTS_MODIFIED;
     
 	int32 size = (int32)animations.size();
 	for (int32 animationIndex = 0; animationIndex < size; ++animationIndex)

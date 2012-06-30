@@ -33,6 +33,8 @@
 #include "Render/RenderManager.h"
 #include "Render/RenderHelper.h"
 #include "Render/2D/Sprite.h"
+#include "Entity/Entity.h"
+
 namespace DAVA 
 {
     
@@ -155,6 +157,7 @@ SpriteNode::eType SpriteNode::GetType()
 
 void SpriteNode::Draw()
 {
+	uint32 flags = *entity->GetData<uint32>("flags");
 	if (!(flags&SceneNode::NODE_VISIBLE))return;
     
     // Get current modelview matrix, and in this case it's always a camera matrix

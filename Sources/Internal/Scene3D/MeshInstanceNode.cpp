@@ -121,7 +121,8 @@ void MeshInstanceNode::Update(float32 timeElapsed)
     //Stats::Instance()->BeginTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 
     bool needUpdateTransformBox = false;
-    if (!(flags & NODE_WORLD_MATRIX_ACTUAL)) 
+	const uint32 * flags = entity->GetData<uint32>("flags");
+    if (!((*flags) & NODE_WORLD_MATRIX_ACTUAL)) 
     {
         needUpdateTransformBox = true;
         UpdateLights();
@@ -148,7 +149,7 @@ void MeshInstanceNode::Draw()
 {
     //Stats::Instance()->BeginTimeMeasure("Scene.Draw.MeshInstanceNode.Draw", this);
 
-#if 1
+#if 0
     if (!(flags & NODE_VISIBLE) || !(flags & NODE_UPDATABLE) || (flags & NODE_INVALID))return;
 
 //    if (GetFullName() == String("MaxScene->node-Cylinder01->VisualSceneNode14->instance_0"))

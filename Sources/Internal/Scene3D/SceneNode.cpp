@@ -60,7 +60,6 @@ SceneNode::SceneNode()
     defaultLocalTransform.Identity();
 	//animation = 0;
     debugFlags = DEBUG_DRAW_NONE;
-    flags = NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY;
 	userData = 0;
     
     customProperties = new KeyedArchive();
@@ -381,6 +380,7 @@ void SceneNode::UpdateTransformNow()
 
 void SceneNode::UpdateTransform()
 {
+	uint32 flags = *entity->GetData<uint32>("flags");
 	if (!(flags & NODE_WORLD_MATRIX_ACTUAL))  
 	{
 		if (parent)
@@ -402,39 +402,41 @@ void SceneNode::UpdateTransform()
 		{
 			children[c]->InvalidateLocalTransform();
 		}
+
+		entity->SetData("flags", flags);
 	}
 }
 
 void SceneNode::Draw()
 {
-    //Stats::Instance()->BeginTimeMeasure("Scene.Draw.SceneNode.Draw", this);
-    
-	if (!(flags & NODE_VISIBLE) || !(flags & NODE_UPDATABLE) || (flags & NODE_INVALID))return;
-
-	//uint32 size = (uint32)children.size();
-    const Vector<SceneNode*>::iterator & itEnd = children.end();
-	for (Vector<SceneNode*>::iterator it = children.begin(); it != itEnd; ++it)
-		(*it)->Draw();
-    if (scene)
-        scene->nodeCounter++;
-
-	
-	if (debugFlags & DEBUG_DRAW_AABOX_CORNERS)
-	{
-//		Matrix4 prevMatrix = RenderManager::Instance()->GetMatrix(RenderManager::MATRIX_MODELVIEW); 
-//		Matrix4 finalMatrix = worldTransform * prevMatrix;
-//		RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, finalMatrix);
-		
-		AABBox3 box = GetWTMaximumBoundingBox();
-        RenderManager::Instance()->SetRenderEffect(RenderManager::FLAT_COLOR);
-        RenderManager::Instance()->SetState(RenderStateBlock::STATE_COLORMASK_ALL | RenderStateBlock::STATE_DEPTH_WRITE | RenderStateBlock::STATE_DEPTH_TEST); 
-		RenderManager::Instance()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-		RenderHelper::Instance()->DrawCornerBox(box);
-        RenderManager::Instance()->SetState(RenderStateBlock::DEFAULT_3D_STATE);
-        RenderManager::Instance()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-//		RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, prevMatrix);
-	}
-    //Stats::Instance()->EndTimeMeasure("Scene.Draw.SceneNode.Draw", this);
+//    //Stats::Instance()->BeginTimeMeasure("Scene.Draw.SceneNode.Draw", this);
+//    
+//	if (!(flags & NODE_VISIBLE) || !(flags & NODE_UPDATABLE) || (flags & NODE_INVALID))return;
+//
+//	//uint32 size = (uint32)children.size();
+//    const Vector<SceneNode*>::iterator & itEnd = children.end();
+//	for (Vector<SceneNode*>::iterator it = children.begin(); it != itEnd; ++it)
+//		(*it)->Draw();
+//    if (scene)
+//        scene->nodeCounter++;
+//
+//	
+//	if (debugFlags & DEBUG_DRAW_AABOX_CORNERS)
+//	{
+////		Matrix4 prevMatrix = RenderManager::Instance()->GetMatrix(RenderManager::MATRIX_MODELVIEW); 
+////		Matrix4 finalMatrix = worldTransform * prevMatrix;
+////		RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, finalMatrix);
+//		
+//		AABBox3 box = GetWTMaximumBoundingBox();
+//        RenderManager::Instance()->SetRenderEffect(RenderManager::FLAT_COLOR);
+//        RenderManager::Instance()->SetState(RenderStateBlock::STATE_COLORMASK_ALL | RenderStateBlock::STATE_DEPTH_WRITE | RenderStateBlock::STATE_DEPTH_TEST); 
+//		RenderManager::Instance()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+//		RenderHelper::Instance()->DrawCornerBox(box);
+//        RenderManager::Instance()->SetState(RenderStateBlock::DEFAULT_3D_STATE);
+//        RenderManager::Instance()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+////		RenderManager::Instance()->SetMatrix(RenderManager::MATRIX_MODELVIEW, prevMatrix);
+//	}
+//    //Stats::Instance()->EndTimeMeasure("Scene.Draw.SceneNode.Draw", this);
 }
 
     
@@ -596,7 +598,8 @@ void SceneNode::Save(KeyedArchive * archive, SceneFileV2 * sceneFileV2)
     archive->SetByteArrayAsType("localTransform", localTransform);
     archive->SetByteArrayAsType("defaultLocalTransform", defaultLocalTransform);
     
-    archive->SetUInt32("flags", flags);
+//TODO: save entities
+//    archive->SetUInt32("flags", flags);
 //    archive->SetUInt32("debugFlags", debugFlags);
     
     archive->SetByteArrayFromArchive("customprops", customProperties);
@@ -616,8 +619,8 @@ void SceneNode::Load(KeyedArchive * archive, SceneFileV2 * sceneFileV2)
     localTransform = archive->GetByteArrayAsType("localTransform", localTransform);
     defaultLocalTransform = archive->GetByteArrayAsType("defaultLocalTransform", defaultLocalTransform);
 
-    flags = archive->GetUInt32("flags", NODE_VISIBLE);
-    flags |= NODE_UPDATABLE;
+    //flags = archive->GetUInt32("flags", NODE_VISIBLE);
+    //flags |= NODE_UPDATABLE;
     InvalidateLocalTransform();
 //    debugFlags = archive->GetUInt32("debugFlags", 0);
     
@@ -711,62 +714,73 @@ void SceneNode::RecursiveEnableImposters(bool enable)
 	}
 }
 
-bool SceneNode::GetVisible(void)
+bool SceneNode::GetVisible()
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	return ((*flags) & NODE_VISIBLE) != 0;
+	const uint32 flags = *entity->GetData<uint32>("flags");
+	return (flags & NODE_VISIBLE) != 0;
 }
 
-bool SceneNode::GetUpdatable(void)
+bool SceneNode::GetUpdatable()
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	return ((*flags) & NODE_UPDATABLE) != 0;
+	const uint32 flags = *entity->GetData<uint32>("flags");
+	return (flags & NODE_UPDATABLE) != 0;
 }
 
 bool SceneNode::IsLodPart(void)
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	return ((*flags) & NODE_IS_LOD_PART) != 0;
+	const uint32 flags = *entity->GetData<uint32>("flags");
+	return (flags & NODE_IS_LOD_PART) != 0;
 }
 
 uint32 SceneNode::GetFlags() const
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	return *flags;
+	const uint32 flags = *entity->GetData<uint32>("flags");
+	return flags;
 }
 
 void SceneNode::AddFlag(int32 flagToAdd)
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	(*flags) |= flagToAdd;
+	uint32 flags = *entity->GetData<uint32>("flags");
+	flags |= flagToAdd;
+	entity->SetData("flags", flags);
 }
 
 void SceneNode::RemoveFlag(int32 flagToRemove)
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	(*flags) &= ~flagToRemove;
+	uint32 flags = *entity->GetData<uint32>("flags");
+	flags &= ~flagToRemove;
+	entity->SetData("flags", flags);
 }
 
 Matrix4 & SceneNode::ModifyLocalTransform()
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	(*flags) &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+	uint32 flags = *entity->GetData<uint32>("flags");
+	flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+	entity->SetData("flags", flags);
 	return localTransform;
 }
 
 void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
+	uint32 flags = *entity->GetData<uint32>("flags");
 	localTransform = newMatrix;
-	(*flags) &= ~NODE_WORLD_MATRIX_ACTUAL;
-	if (newMatrix == Matrix4::IDENTITY)(*flags) |= NODE_LOCAL_MATRIX_IDENTITY;
-	else (*flags) &= ~NODE_LOCAL_MATRIX_IDENTITY;
+	flags &= ~NODE_WORLD_MATRIX_ACTUAL;
+	if (newMatrix == Matrix4::IDENTITY)
+	{
+		flags |= NODE_LOCAL_MATRIX_IDENTITY;
+	}
+	else
+	{
+		flags &= ~NODE_LOCAL_MATRIX_IDENTITY;
+	}
+	entity->SetData("flags", flags);
 }
 
 void SceneNode::InvalidateLocalTransform()
 {
-	uint32 * const flags = entity->GetData<uint32>("flags");
-	(*flags) &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+	uint32 flags = *entity->GetData<uint32>("flags");
+	flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+	entity->SetData("flags", flags);
 }
 
 };

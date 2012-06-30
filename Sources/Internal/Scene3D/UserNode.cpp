@@ -30,6 +30,7 @@
 #include "Scene3D/UserNode.h"
 #include "Render/RenderHelper.h"
 #include "Render/RenderManager.h"
+#include "Entity/Entity.h"
 
 namespace DAVA
 {
@@ -49,6 +50,7 @@ UserNode::~UserNode()
 void UserNode::Draw()
 {    
 	SceneNode::Draw();
+	uint32 flags = *entity->GetData<uint32>("flags");
 	if (!(flags & NODE_VISIBLE) || !(flags & NODE_UPDATABLE) || (flags & NODE_INVALID))return;
 	
 	if (debugFlags & DEBUG_DRAW_USERNODE)

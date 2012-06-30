@@ -30,6 +30,7 @@
 #include "Utils/Utils.h"
 #include "Render/Image.h"
 #include "Platform/SystemTimer.h"
+#include "Entity/Entity.h"
 
 namespace DAVA
 {
@@ -65,6 +66,7 @@ void ImposterNode::UpdateState()
 {
 	if(GetChildrenCount() > 0)
 	{
+		uint32 flags = *entity->GetData<uint32>("flags");
 		if((flags & NODE_DISABLE_IMPOSTER))
 		{
 			return;
@@ -150,6 +152,7 @@ bool ImposterNode::IsAngleOrRangeChangedEnough(float32 squareDistance, float32 d
 
 void ImposterNode::Draw()
 {
+	uint32 flags = *entity->GetData<uint32>("flags");
 	if((flags & NODE_DISABLE_IMPOSTER) && GetChildrenCount() > 0)
 	{
 		DVASSERT(GetChildrenCount() == 1);
@@ -159,6 +162,7 @@ void ImposterNode::Draw()
 
 void ImposterNode::GeneralDraw()
 {
+	uint32 flags = *entity->GetData<uint32>("flags");
 	if(flags & NODE_DISABLE_IMPOSTER)
 	{
 		return;

@@ -32,6 +32,7 @@
 #include "Render/RenderManager.h"
 #include "Render/RenderHelper.h"
 #include "Scene3D/Scene.h"
+#include "Entity/Entity.h"
 
 namespace DAVA 
 {
@@ -100,7 +101,8 @@ SceneNode* LightNode::Clone(SceneNode *dstNode)
 void LightNode::Update(float32 timeElapsed)
 {
     bool needUpdateVars = false;
-    if (!(flags & NODE_WORLD_MATRIX_ACTUAL)) 
+	uint32 * const flags = entity->GetData<uint32>("flags");
+	if (!((*flags) & NODE_WORLD_MATRIX_ACTUAL)) 
     {
         needUpdateVars = true;
         GetScene()->AddFlag(SceneNode::SCENE_LIGHTS_MODIFIED);
@@ -204,6 +206,7 @@ void LightNode::Draw()
     
     if (debugFlags != DEBUG_DRAW_NONE)
     {
+		const uint32 flags = *entity->GetData<uint32>("flags");
         if (!(flags & SceneNode::NODE_VISIBLE))return;
 
         RenderManager::Instance()->SetRenderEffect(RenderManager::FLAT_COLOR);
