@@ -126,8 +126,8 @@ public:
 	virtual void	Draw();
 	
 	// properties
-	inline void SetVisible(bool isVisible);
-	inline bool GetVisible(void);
+	void SetVisible(bool isVisible);
+	bool GetVisible();
 	inline SceneNode * GetParent();
 	inline void SetUpdatable(bool isUpdatable);
 	inline bool GetUpdatable(void);
@@ -189,7 +189,7 @@ public:
 	
     inline void AddFlag(int32 flagToAdd);
     inline void RemoveFlag(int32 flagToRemove);
-    inline uint32 GetFlags() const;
+    uint32 GetFlags() const;
     void AddFlagRecursive(int32 flagToAdd);
     void RemoveFlagRecursive(int32 flagToRemove);
     

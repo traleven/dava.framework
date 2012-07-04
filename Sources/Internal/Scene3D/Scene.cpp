@@ -166,12 +166,15 @@ void Scene::RegisterNode(SceneNode * node)
 	if(landscapeNode)
 	{
 		node->entity->AddComponent(LandscapeGeometryComponent::Get());
-		node->entity->SetData("landscapeNode", landscapeNode);
 	}
 
 	//TODO: move Flush and data init to some Init() function
 	entityManager->Flush();
 
+	if(landscapeNode)
+	{
+		node->entity->SetData("landscapeNode", landscapeNode);
+	}
 	node->entity->SetData("flags", (uint32)(NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY));
 }
 
@@ -434,7 +437,11 @@ void Scene::Update(float timeElapsed)
 		anim->Update(timeElapsed);
 	}
 	
-	SceneNode::Update(timeElapsed);
+	size = children.size();
+	for (int32 c = 0; c < size; ++c)
+	{
+		children[c]->Update(timeElapsed);
+	}
 	
 	size = (int32)animatedMeshes.size();
 	for (int32 animatedMeshIndex = 0; animatedMeshIndex < size; ++animatedMeshIndex)
