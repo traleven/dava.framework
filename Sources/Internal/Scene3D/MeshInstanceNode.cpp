@@ -140,7 +140,6 @@ void MeshInstanceNode::Update(float32 timeElapsed)
 		entity->SetData("meshAABox", transformedBox);
 	}
 	entity->SetData("meshInstanceNode", this);
-	entity->SetData("transform", worldTransform);
 
     //Stats::Instance()->EndTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 }

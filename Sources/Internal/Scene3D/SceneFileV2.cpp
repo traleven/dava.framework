@@ -272,6 +272,7 @@ SceneFileV2::eError SceneFileV2::LoadScene(const String & filename, Scene * _sce
         
     SceneNode * rootNode = new SceneNode();
     rootNode->SetName(rootNodeName);
+	rootNode->SetScene(_scene);
     for (int ci = 0; ci < header.nodeCount; ++ci)
     {
         LoadHierarchy(_scene, rootNode, file, 1);

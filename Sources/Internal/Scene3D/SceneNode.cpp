@@ -91,16 +91,19 @@ SceneNode::~SceneNode()
 
 void SceneNode::SetScene(Scene * _scene)
 {
-    // Сheck 
-    if (scene)scene->UnregisterNode(this);
-    scene = _scene;
-    if (scene)scene->RegisterNode(this);
-    
-    const std::vector<SceneNode*>::iterator & childrenEnd = children.end();
-	for (std::vector<SceneNode*>::iterator t = children.begin(); t != childrenEnd; ++t)
+	if(scene != _scene)
 	{
-        (*t)->SetScene(_scene);
-    }
+		// Сheck 
+		if (scene)scene->UnregisterNode(this);
+		scene = _scene;
+		if (scene)scene->RegisterNode(this);
+    
+		const std::vector<SceneNode*>::iterator & childrenEnd = children.end();
+		for (std::vector<SceneNode*>::iterator t = children.begin(); t != childrenEnd; ++t)
+		{
+			(*t)->SetScene(_scene);
+		}
+	}
 }
     
 Scene * SceneNode::GetScene()
@@ -298,53 +301,10 @@ void SceneNode::Update(float32 timeElapsed)
     //Stats::Instance()->BeginTimeMeasure("Scene.Update.SceneNode.Update", this);
 
 //    if (!(flags & NODE_UPDATABLE))return;
-
     inUpdate = true;
+
 	// TODO - move node update to render because any of objects can change params of other objects
-	if (nodeAnimations.size() != 0)
-	{
-		Quaternion blendedRotation;
-		Vector3 blendedTranslation;
-		float32 accumWeight = 0.0f;
-		std::deque<SceneNodeAnimation*>::const_iterator end = nodeAnimations.end();
-		for (std::deque<SceneNodeAnimation*>::iterator it = nodeAnimations.begin(); it != end; ++it)
-		{
-			SceneNodeAnimation * animation = *it;
-			SceneNodeAnimationKey & key = animation->Intepolate(animation->GetCurrentTime());
-			if (accumWeight == 0.0f)
-			{
-				blendedTranslation = key.translation;
-				blendedRotation = key.rotation;
-				accumWeight = animation->weight;
-			}else
-			{
-				float32 factor = animation->weight / (accumWeight + animation->weight);
-				accumWeight += accumWeight;
-				blendedTranslation.Lerp(blendedTranslation, key.translation, factor);
-				blendedRotation.Slerp(blendedRotation, key.rotation, factor);
-			}
-			//key.GetMatrix(localTransform);
-		}
-		Matrix4 localTransformTrans;
-		Matrix4 localTransformRot;
-		Matrix4 localTransformFinal;
-		localTransformTrans.CreateTranslation(blendedTranslation);
-		localTransformRot = blendedRotation.GetMatrix();
-		
-		localTransform = localTransformRot * localTransformTrans;
-		
-//		if (nodeAnimations.size() != 1)
-//		{
-//			printf("-- blended node: %s\n", name.c_str());
-//			std::deque<SceneNodeAnimation*>::const_iterator end = nodeAnimations.end();
-//			for (std::deque<SceneNodeAnimation*>::iterator it = nodeAnimations.begin(); it != end; ++it)
-//			{
-//				SceneNodeAnimation * animation = *it;
-//				printf(">>> blend: %s wei: %f inDelay: %f\n", animation->GetParent()->name.c_str(), animation->weight, animation->delayTime);
-//			}
-//		}
-	}
-	
+
 	UpdateTransform();
 	uint32 size = (uint32)children.size();
 	for (uint32 c = 0; c < size; ++c)
@@ -394,6 +354,8 @@ void SceneNode::UpdateTransform()
 		{
 			worldTransform = localTransform;
 		}
+
+		entity->SetData("transform", worldTransform);
 
 		// need propagate changes to child nodes
 		flags |= NODE_WORLD_MATRIX_ACTUAL;
@@ -740,29 +702,26 @@ uint32 SceneNode::GetFlags() const
 
 void SceneNode::AddFlag(int32 flagToAdd)
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>("flags");
 	flags |= flagToAdd;
-	entity->SetData("flags", flags);
 }
 
 void SceneNode::RemoveFlag(int32 flagToRemove)
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>("flags");
 	flags &= ~flagToRemove;
-	entity->SetData("flags", flags);
 }
 
 Matrix4 & SceneNode::ModifyLocalTransform()
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>("flags");
 	flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
-	entity->SetData("flags", flags);
 	return localTransform;
 }
 
 void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>("flags");
 	localTransform = newMatrix;
 	flags &= ~NODE_WORLD_MATRIX_ACTUAL;
 	if (newMatrix == Matrix4::IDENTITY)
@@ -773,14 +732,12 @@ void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
 	{
 		flags &= ~NODE_LOCAL_MATRIX_IDENTITY;
 	}
-	entity->SetData("flags", flags);
 }
 
 void SceneNode::InvalidateLocalTransform()
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>("flags");
 	flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
-	entity->SetData("flags", flags);
 }
 
 };

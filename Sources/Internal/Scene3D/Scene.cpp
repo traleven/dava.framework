@@ -192,10 +192,10 @@ void Scene::UnregisterNode(SceneNode * node)
 		UnregisterImposter(imposter);
 	}
 
-	//if(node->entity)
-	//{
-	//	entityManager->DestroyEntity(node->entity);
-	//}
+	if(node->entity)
+	{
+		entityManager->DestroyEntity(node->entity);
+	}
 }
 
 Scene * Scene::GetScene()
@@ -429,25 +429,11 @@ void Scene::Update(float timeElapsed)
 
     // lights 
     //flags &= ~SCENE_LIGHTS_MODIFIED;
-    
-	int32 size = (int32)animations.size();
-	for (int32 animationIndex = 0; animationIndex < size; ++animationIndex)
-	{
-		SceneNodeAnimationList * anim = animations[animationIndex];
-		anim->Update(timeElapsed);
-	}
 	
-	size = children.size();
+	int32 size = (int32)children.size();
 	for (int32 c = 0; c < size; ++c)
 	{
 		children[c]->Update(timeElapsed);
-	}
-	
-	size = (int32)animatedMeshes.size();
-	for (int32 animatedMeshIndex = 0; animatedMeshIndex < size; ++animatedMeshIndex)
-	{
-		AnimatedMesh * mesh = animatedMeshes[animatedMeshIndex];
-		mesh->Update(timeElapsed);
 	}
 
 	if(imposterManager)

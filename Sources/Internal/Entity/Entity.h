@@ -73,7 +73,11 @@ void Entity::SetData(const char * dataName, const T & value)
 	}
 
     T * t = enFamily->GetPtr<T>(dataName);
-    t[indexInFamily] = value;
+
+	if(t)
+	{
+		t[indexInFamily] = value;
+	}
 }
 
 template<class T>

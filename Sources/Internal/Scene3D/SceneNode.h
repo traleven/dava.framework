@@ -461,7 +461,51 @@ void SceneNode::GetChildNodes(Container<T> & container)
 
 
 };
-
+/*
+	if (nodeAnimations.size() != 0)
+	{
+		Quaternion blendedRotation;
+		Vector3 blendedTranslation;
+		float32 accumWeight = 0.0f;
+		std::deque<SceneNodeAnimation*>::const_iterator end = nodeAnimations.end();
+		for (std::deque<SceneNodeAnimation*>::iterator it = nodeAnimations.begin(); it != end; ++it)
+		{
+			SceneNodeAnimation * animation = *it;
+			SceneNodeAnimationKey & key = animation->Intepolate(animation->GetCurrentTime());
+			if (accumWeight == 0.0f)
+			{
+				blendedTranslation = key.translation;
+				blendedRotation = key.rotation;
+				accumWeight = animation->weight;
+			}else
+			{
+				float32 factor = animation->weight / (accumWeight + animation->weight);
+				accumWeight += accumWeight;
+				blendedTranslation.Lerp(blendedTranslation, key.translation, factor);
+				blendedRotation.Slerp(blendedRotation, key.rotation, factor);
+			}
+			//key.GetMatrix(localTransform);
+		}
+		Matrix4 localTransformTrans;
+		Matrix4 localTransformRot;
+		Matrix4 localTransformFinal;
+		localTransformTrans.CreateTranslation(blendedTranslation);
+		localTransformRot = blendedRotation.GetMatrix();
+		
+		localTransform = localTransformRot * localTransformTrans;
+		
+//		if (nodeAnimations.size() != 1)
+//		{
+//			printf("-- blended node: %s\n", name.c_str());
+//			std::deque<SceneNodeAnimation*>::const_iterator end = nodeAnimations.end();
+//			for (std::deque<SceneNodeAnimation*>::iterator it = nodeAnimations.begin(); it != end; ++it)
+//			{
+//				SceneNodeAnimation * animation = *it;
+//				printf(">>> blend: %s wei: %f inDelay: %f\n", animation->GetParent()->name.c_str(), animation->weight, animation->delayTime);
+//			}
+//		}
+	}
+*/
 #endif // __DAVAENGINE_SCENENODE_H__
 
 

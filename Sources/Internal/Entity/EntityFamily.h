@@ -45,12 +45,17 @@ template<class T>
 T * EntityFamily::GetPtr(const char * dataName)
 {
     Pool * pool = GetPoolByDataName(dataName);
-    DVASSERT(pool);
+    if(pool)
+	{
+		// TODO: replace to reinterpret cast in release.
+		TemplatePool<T> * tPool = dynamic_cast<TemplatePool<T>*>(pool);
 
-    // TODO: replace to reinterpret cast in release.
-    TemplatePool<T> * tPool = dynamic_cast<TemplatePool<T>*>(pool);
-    
-    return tPool->GetHead();
+		return tPool->GetHead();
+	}
+	else
+	{
+		return 0;
+	}
 }
 
     
