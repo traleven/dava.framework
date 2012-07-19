@@ -39,7 +39,6 @@
 #include "LandscapeTest.h"
 #include "TreeTest.h"
 
-
 using namespace DAVA;
 
 GameCore::GameCore()
@@ -69,12 +68,15 @@ void GameCore::OnAppStarted()
 //        dbClient->DropDatabase();
         //TODO: test only
         
-        new SpriteTest("Sprite");
-        new CacheTest("Cache Test");
-        new LandscapeTest("Landscape Textures Test", LandscapeNode::TILED_MODE_COUNT);
-        new LandscapeTest("Landscape Mixed Mode", LandscapeNode::TILED_MODE_MIXED);
-        new LandscapeTest("Landscape Tiled Mode", LandscapeNode::TILED_MODE_TILEMASK);
-        new LandscapeTest("Landscape Texture Mode", LandscapeNode::TILED_MODE_TEXTURE);
+        new SpriteTest(String("Sprite"));
+        new CacheTest(String("Cache Test"));
+        new LandscapeTest(String("Landscape Textures Test"), LandscapeNode::TILED_MODE_COUNT);
+        new LandscapeTest(String("Landscape Mixed Mode"), LandscapeNode::TILED_MODE_MIXED);
+        new LandscapeTest(String("Landscape Tiled Mode"), LandscapeNode::TILED_MODE_TILEMASK);
+        new LandscapeTest(String("Landscape Texture Mode"), LandscapeNode::TILED_MODE_TEXTURE);
+        
+        new TreeTest(String(""), String(""));
+        new TreeTest(String(""), String(""));
         
         new TreeTest(String("TreeTest TEST_1HI"), String("~res:/3d/Maps/test/treetest/TEST_1HI.sc2"));
         new TreeTest(String("TreeTest TEST_2"), String("~res:/3d/Maps/test/treetest/TEST_2.sc2"));
@@ -103,7 +105,7 @@ void GameCore::RegisterScreen(BaseScreen *screen)
 bool GameCore::CreateLogFile()
 {
     String documentsPath =      String(FileSystem::Instance()->GetUserDocumentsPath()) 
-                            +   "PerfomanceTest/";
+                            +   String("PerfomanceTest/");
     
     bool documentsExists = FileSystem::Instance()->IsDirectory(documentsPath);
     if(!documentsExists)
@@ -306,14 +308,22 @@ void GameCore::FlushTestResults()
     MongodbObject *oldPlatformObject = dbClient->FindObjectByKey(PLATFORM_NAME);
     MongodbObject *newPlatformObject = new MongodbObject();
     
+    int64 globalIndex = 0;
+    if(oldPlatformObject)
+    {
+        globalIndex = oldPlatformObject->GetInt64(String("globalIndex"));
+        ++globalIndex;
+    }
+    
     if(newPlatformObject)
     {
         newPlatformObject->SetObjectName(PLATFORM_NAME);
+        newPlatformObject->AddInt64(String("globalIndex"), globalIndex);
+        
+        String testTimeString = Format("%016d", globalIndex);
+        
         
         time_t logStartTime = time(0);
-        String testTimeString = Format("%lld", logStartTime);
-        
-        
         tm* utcTime = localtime(&logStartTime);
         
         
@@ -397,6 +407,7 @@ MongodbObject * GameCore::CreateTestDataObject(const String &testTimeString, con
         logObject->SetObjectName(testTimeString);
         logObject->AddString(String("Owner"), TEST_OWNER);
         logObject->AddString(String("RunTime"), runTime);
+        logObject->AddInt32(String("DeviceFamily"), (int32)Core::Instance()->GetDeviceFamily());
         logObject->AddInt64(String("TotalTime"), testData->totalTime);
         logObject->AddInt64(String("MinTime"), testData->minTime);
         logObject->AddInt64(String("MaxTime"), testData->maxTime);
