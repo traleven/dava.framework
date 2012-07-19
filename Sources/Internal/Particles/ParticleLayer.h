@@ -94,7 +94,7 @@ public:
 	/**
 		\brief This function draws layer properties and layer particles. 
 	 */
-	void Draw();
+	virtual void Draw();
 	
 	/** 
 		\brief Function to set emitter for layer. 
@@ -126,10 +126,7 @@ public:
 
     float32 GetLayerTime();
 
-	void Draw2D();
-	void Draw3D();
-
-private:	
+protected:	
 	void GenerateNewParticle(int32 emitIndex);
 	void GenerateSingleParticle();
 	
