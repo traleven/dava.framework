@@ -33,7 +33,6 @@
 #include "Utils/StringFormat.h"
 #include "Render/RenderManager.h"
 #include "Utils/Random.h"
-#include "Scene3D/Camera.h"
 
 namespace DAVA
 {
@@ -70,14 +69,14 @@ ParticleLayer::ParticleLayer()
 	bounce = 0;				
 	bounceVariation = 0;
 	bounceOverLife = 0;
-	
+
 	colorOverLife = 0;
 	colorRandom = 0;
 	alphaOverLife = 0;
 
 	particlesToGenerate = 0.0f;
 	alignToMotion = 0.0f;
-	
+
 	layerTime = 0.0f;
 	additive = true;
 	type = TYPE_PARTICLES;
@@ -99,34 +98,34 @@ ParticleLayer * ParticleLayer::Clone()
 	ParticleLayer * layer = new ParticleLayer();
 	if (life)
 		layer->life.Set(life->Clone());
-	
+
 	if (lifeVariation)
 		layer->lifeVariation.Set(lifeVariation->Clone());
 
 	if (number)
 		layer->number.Set(number->Clone());
-	
+
 	if (numberVariation)
 		layer->numberVariation.Set(numberVariation->Clone());
 
 	if (size)
 		layer->size.Set(size->Clone());
-	
+
 	if (sizeVariation)
 		layer->sizeVariation.Set(sizeVariation->Clone());
-	
+
 	if (sizeOverLife)
 		layer->sizeOverLife.Set(sizeOverLife->Clone());
-	
+
 	if (velocity)
 		layer->velocity.Set(velocity->Clone());
-	
+
 	if (velocityVariation)
 		layer->velocityVariation.Set(velocityVariation->Clone());
-	
+
 	if (velocityOverLife)
 		layer->velocityOverLife.Set(velocityOverLife->Clone());
-	
+
 	for (int32 f = 0; f < (int32)forces.size(); ++f)
 	{
 		// TODO: normal fix for the calls
@@ -140,7 +139,7 @@ ParticleLayer * ParticleLayer::Clone()
 			forceOverLifeClone.Set(forcesOverLife[f]->Clone());
 		layer->forcesOverLife.push_back(forceOverLifeClone);
 	}
-	
+
     for(int32 f = 0; f < (int32)forcesVariation.size(); ++f)
     {
         
@@ -152,43 +151,43 @@ ParticleLayer * ParticleLayer::Clone()
     
 	if (spin)
 		layer->spin.Set(spin->Clone());
-	
+
 	if (spinVariation)
 		layer->spinVariation.Set(spinVariation->Clone());
-	
+
 	if (spinOverLife)
 		layer->spinOverLife.Set(spinOverLife->Clone());
-	
+
 	if (motionRandom)
 		layer->motionRandom.Set(motionRandom->Clone());
-	
+
 	if (motionRandomVariation)
 		layer->motionRandomVariation.Set(motionRandomVariation->Clone());
-	
+
 	if (motionRandomOverLife)
 		layer->motionRandomOverLife.Set(motionRandomOverLife->Clone());
-	
+
 	if (bounce)
 		layer->bounce.Set(bounce->Clone());
-	
+
 	if (bounceVariation)
 		layer->bounceVariation.Set(bounceVariation->Clone());
-	
+
 	if (bounceOverLife)
 		layer->bounceOverLife.Set(bounceOverLife->Clone());
-	
+
 	if (colorOverLife)
 		layer->colorOverLife.Set(colorOverLife->Clone());
-	
+
 	if (colorRandom)
 		layer->colorRandom.Set(colorRandom->Clone());
-	
+
 	if (alphaOverLife)
 		layer->alphaOverLife.Set(alphaOverLife->Clone());
-	
+
 	if (frameOverLife)
 		layer->frameOverLife.Set(frameOverLife->Clone());
-	
+
 	layer->alignToMotion = alignToMotion;
 	layer->additive = additive;
 	layer->startTime = startTime;
@@ -196,27 +195,19 @@ ParticleLayer * ParticleLayer::Clone()
 	layer->type = type;
 	layer->sprite = SafeRetain(sprite);
 	layer->pivotPoint = pivotPoint;
-	
+
 	layer->frameStart = frameStart;
 	layer->frameEnd = frameEnd;
-	
+
     layer->isDisabled = isDisabled;
     
 	return layer;
 }
-	
+
 
 void ParticleLayer::SetEmitter(ParticleEmitter * _emitter)
 {
 	emitter = _emitter;
-
-	SafeRelease(renderData);
-	if(emitter->GetIs3D())
-	{
-		renderData = new RenderDataObject();
-		renderData->SetStream(EVF_VERTEX, TYPE_FLOAT, 3, 0, &verts.front());
-		renderData->SetStream(EVF_TEXCOORD0, TYPE_FLOAT, 2, 0, &texCoords.front());
-	}
 }
 
 void ParticleLayer::SetSprite(Sprite * _sprite)
@@ -229,7 +220,7 @@ void ParticleLayer::SetSprite(Sprite * _sprite)
 		pivotPoint = Vector2(_sprite->GetWidth()/2.0f, _sprite->GetHeight()/2.0f);
 	}
 }
-	
+
 Sprite * ParticleLayer::GetSprite()
 {
 	return sprite;
@@ -255,7 +246,7 @@ void ParticleLayer::DeleteAllParticles()
 		current = next;
 	}
 	head = 0;
-	
+
 	DVASSERT(count == 0);
 }
 
@@ -315,12 +306,12 @@ void ParticleLayer::Update(float32 timeElapsed)
 
 				current = next;
 			}
-			
+
 			if (count == 0)
 			{
 				DVASSERT(head == 0);
 			}
-			
+
 			if ((layerTime >= startTime) && (layerTime < endTime) && !emitter->IsPaused())
 			{
 				float32 randCoeff = (float32)(Rand() & 255) / 255.0f;
@@ -335,9 +326,9 @@ void ParticleLayer::Update(float32 timeElapsed)
 				while(particlesToGenerate >= 1.0f)
 				{
 					particlesToGenerate -= 1.0f;
-					
+
 					int32 emitPointsCount = emitter->GetEmitPointsCount();
-					
+
 					if (emitPointsCount == -1)
 						GenerateNewParticle(-1);
 					else {
@@ -378,16 +369,16 @@ void ParticleLayer::Update(float32 timeElapsed)
 					ProcessParticle(head);
 				}
             }
-			
+
 			break;		
 		}
 	}
 }
-	
+
 void ParticleLayer::GenerateSingleParticle()
 {
 	GenerateNewParticle(-1);
-	
+
 	head->angle = 0.0f;
 	//particle->velocity.x = 0.0f;
 	//particle->velocity.y = 0.0f;
@@ -399,9 +390,9 @@ void ParticleLayer::GenerateNewParticle(int32 emitIndex)
 	{
 		return;
 	}
-	
+
 	Particle * particle = ParticleSystem::Instance()->NewParticle();
-	
+
     particle->forces.clear();
     particle->forcesOverLife.clear();
     
@@ -410,28 +401,28 @@ void ParticleLayer::GenerateNewParticle(int32 emitIndex)
 	particle->life = 0.0f;
 
 	float32 randCoeff = (float32)(Rand() & 255) / 255.0f;
-	
-	
+
+
 	particle->color = Color();
 	if (colorRandom)
 	{
 		particle->color = colorRandom->GetValue(randCoeff);
 	}
-	
+
 
 	particle->lifeTime = 0.0f;
 	if (life)
 		particle->lifeTime += life->GetValue(layerTime);
 	if (lifeVariation)
 		particle->lifeTime += (lifeVariation->GetValue(layerTime) * randCoeff);
-	
+
 	// size 
 	particle->size = Vector2(0.0f, 0.0f); 
 	if (size)
 		particle->size = size->GetValue(layerTime);
 	if (sizeVariation)
 		particle->size +=(sizeVariation->GetValue(layerTime) * randCoeff);
-	
+
 	particle->size.x /= (float32)sprite->GetWidth();
 	particle->size.y /= (float32)sprite->GetHeight();
 
@@ -440,7 +431,7 @@ void ParticleLayer::GenerateNewParticle(int32 emitIndex)
 		vel += velocity->GetValue(layerTime);
 	if (velocityVariation)
 		vel += (velocityVariation->GetValue(layerTime) * randCoeff);
-	
+
 	particle->angle = 0.0f;
 	particle->spin = 0.0f;
 	if (spin)
@@ -469,7 +460,7 @@ void ParticleLayer::GenerateNewParticle(int32 emitIndex)
 //	{
 //		particle->force0 += forcesVariation[0]->GetValue(layerTime) * randCoeff;
 //	}
-	
+
     int32 n = (int32)forces.size();
     for(int i = 0; i < n; i++)
         if(forces[i].Get())
@@ -486,7 +477,7 @@ void ParticleLayer::GenerateNewParticle(int32 emitIndex)
             particle->forcesOverLife.push_back(forcesOverLife[i]->GetValue(layerTime));
     
 	particle->frame = frameStart + (int)(randCoeff * (float32)(frameEnd - frameStart));
-	
+
 	// process it to fill first life values
 	ProcessParticle(particle);
 
@@ -517,7 +508,7 @@ void ParticleLayer::ProcessParticle(Particle * particle)
 	{
 		particle->drawColor = particle->color*emitter->ambientColor;
 	}
-	
+
 	if (frameOverLife)
 	{
 		int32 frame = (int32)frameOverLife->GetValue(t);
@@ -545,13 +536,12 @@ void ParticleLayer::Draw()
 	{
 		case TYPE_PARTICLES:
 		{
-			if(emitter->GetIs3D())
+			Particle * current = head;
+			while(current)
 			{
-				Draw3D();
-			}
-			else
-			{
-				Draw2D();
+				sprite->SetPivotPoint(pivotPoint);
+				current->Draw();
+				current = current->next;
 			}
 			break;
 		}
@@ -567,32 +557,6 @@ void ParticleLayer::Draw()
 	}
 }
 
-void ParticleLayer::Draw2D()
-{
-	Particle * current = head;
-	while(current)
-	{
-		sprite->SetPivotPoint(pivotPoint);
-		current->Draw();
-		current = current->next;
-	}
-}
-
-void ParticleLayer::Draw3D()
-{
-	verts.clear();
-	texCoords.clear();
-
-	//Camera * camera = scene->GetCurrentCamera();
-
-	Particle * current = head;
-	while(current)
-	{
-		
-
-		current = current->next;
-	}
-}
 
 void ParticleLayer::LoadFromYaml(YamlNode * node)
 {
@@ -625,8 +589,8 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 // 	PropertyLine<float32> * bounce;				//
 // 	PropertyLine<float32> * bounceVariation;
 // 	PropertyLine<float32> * bounceOverLife;	
-	
-	
+
+
 	type = TYPE_PARTICLES;
 	YamlNode * typeNode = node->Get("layerType");
 	if (typeNode)
@@ -639,7 +603,7 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 	if (spriteNode)
 	{
 		YamlNode * pivotPointNode = node->Get("pivotPoint");
-		
+
 		Sprite * _sprite = Sprite::Create(spriteNode->AsString());
 		Vector2 pivotPointTemp;
 		if(pivotPointNode)
@@ -655,7 +619,7 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 	colorOverLife = PropertyLineYamlReader::CreateColorPropertyLineFromYamlNode(node, "colorOverLife");
 	colorRandom = PropertyLineYamlReader::CreateColorPropertyLineFromYamlNode(node, "colorRandom");
 	alphaOverLife = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "alphaOverLife");
-	
+
 	frameOverLife = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "frameOverLife");	
 
 	life = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "life");	
@@ -671,7 +635,7 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 	velocity = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "velocity");	
 	velocityVariation = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "velocityVariation");	
 	velocityOverLife = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "velocityOverLife");	
-	
+
 	int32 forceCount = 0;
 	YamlNode * forceCountNode = node->Get("forceCount");
 	if (forceCountNode)
@@ -692,7 +656,7 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 	}
 
     DVASSERT(forces.size() == forcesOverLife.size());
-	
+
 	spin = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "spin");	
 	spinVariation = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "spinVariation");	
 	spinOverLife = PropertyLineYamlReader::CreateFloatPropertyLineFromYamlNode(node, "spinOverLife");	
@@ -724,7 +688,7 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 	YamlNode * endTimeNode = node->Get("endTime");
 	if (endTimeNode)
 		endTime = endTimeNode->AsFloat();
-	
+
 	frameStart = 0;
 	frameEnd = 0;
 
@@ -739,7 +703,7 @@ void ParticleLayer::LoadFromYaml(YamlNode * node)
 			frameEnd = frameNode->Get(1)->AsInt();
 		}
 	}
-	
+
 }
 
 Particle * ParticleLayer::GetHeadParticle()

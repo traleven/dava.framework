@@ -1064,6 +1064,7 @@
     </ClInclude>
     <ClInclude Include="..\..\Sources\Internal\Entity\FlagsComponent.h">
       <Filter>Internal\Entity\Components</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Sources\Internal\Scene3D\ParticleEmitterNode.h">
       <Filter>Internal\Scene3D</Filter>
     </ClInclude>
@@ -1851,6 +1852,7 @@
     </ClCompile>
     <ClCompile Include="..\..\Sources\Internal\Entity\FlagsComponent.cpp">
       <Filter>Internal\Entity\Components</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Sources\Internal\Scene3D\ParticleEmitterNode.cpp">
       <Filter>Internal\Scene3D</Filter>
     </ClCompile>
