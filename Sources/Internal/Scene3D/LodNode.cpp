@@ -329,7 +329,7 @@ void LodNode::SetCurrentLod(LodData *newLod)
 
 void LodNode::Update(float32 timeElapsed)
 {
-    uint32 flags = *entity->GetData<uint32>("flags");
+    uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
     if (flags&SceneNode::NODE_VISIBLE)
     {
         lastLodUpdateFrame++;

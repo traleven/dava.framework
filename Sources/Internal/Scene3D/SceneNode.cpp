@@ -340,7 +340,7 @@ void SceneNode::UpdateTransformNow()
 
 void SceneNode::UpdateTransform()
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	if (!(flags & NODE_WORLD_MATRIX_ACTUAL))  
 	{
 		if (parent)
@@ -355,7 +355,7 @@ void SceneNode::UpdateTransform()
 			worldTransform = localTransform;
 		}
 
-		entity->SetData("transform", worldTransform);
+		entity->SetData(DataName::TRANSFORM, worldTransform);
 
 		// need propagate changes to child nodes
 		flags |= NODE_WORLD_MATRIX_ACTUAL;
@@ -365,7 +365,7 @@ void SceneNode::UpdateTransform()
 			children[c]->InvalidateLocalTransform();
 		}
 
-		entity->SetData("flags", flags);
+		entity->SetData(DataName::FLAGS, flags);
 	}
 }
 
@@ -678,50 +678,50 @@ void SceneNode::RecursiveEnableImposters(bool enable)
 
 bool SceneNode::GetVisible()
 {
-	const uint32 flags = *entity->GetData<uint32>("flags");
+	const uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	return (flags & NODE_VISIBLE) != 0;
 }
 
 bool SceneNode::GetUpdatable()
 {
-	const uint32 flags = *entity->GetData<uint32>("flags");
+	const uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	return (flags & NODE_UPDATABLE) != 0;
 }
 
 bool SceneNode::IsLodPart(void)
 {
-	const uint32 flags = *entity->GetData<uint32>("flags");
+	const uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	return (flags & NODE_IS_LOD_PART) != 0;
 }
 
 uint32 SceneNode::GetFlags() const
 {
-	const uint32 flags = *entity->GetData<uint32>("flags");
+	const uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	return flags;
 }
 
 void SceneNode::AddFlag(int32 flagToAdd)
 {
-	uint32 & flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>(DataName::FLAGS);
 	flags |= flagToAdd;
 }
 
 void SceneNode::RemoveFlag(int32 flagToRemove)
 {
-	uint32 & flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>(DataName::FLAGS);
 	flags &= ~flagToRemove;
 }
 
 Matrix4 & SceneNode::ModifyLocalTransform()
 {
-	uint32 & flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>(DataName::FLAGS);
 	flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
 	return localTransform;
 }
 
 void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
 {
-	uint32 & flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>(DataName::FLAGS);
 	localTransform = newMatrix;
 	flags &= ~NODE_WORLD_MATRIX_ACTUAL;
 	if (newMatrix == Matrix4::IDENTITY)
@@ -736,7 +736,7 @@ void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
 
 void SceneNode::InvalidateLocalTransform()
 {
-	uint32 & flags = *entity->GetData<uint32>("flags");
+	uint32 & flags = *entity->GetData<uint32>(DataName::FLAGS);
 	flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
 }
 

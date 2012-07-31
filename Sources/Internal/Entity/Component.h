@@ -3,35 +3,36 @@
 
 #include "Entity/Pool.h"
 #include "Entity/ComponentTypes.h"
+#include "Entity/DataNames.h"
 #include "Entity/EntityManager.h"
 #include <typeinfo>
 
 
-#define DECLARE_COMPONENT(ComponentName) \
-class ComponentName : public Component \
+#define DECLARE_COMPONENT(ComponentClassName) \
+class ComponentClassName : public Component \
 { \
 public:	\
-	static ComponentName * Get() { return instance; } \
+	static ComponentClassName * Get() { return instance; } \
 	\
 	static void Create() \
 	{   \
-		ComponentName * component = new ComponentName(); \
-		RegisterComponent(#ComponentName, component); \
+		ComponentClassName * component = new ComponentClassName(); \
+		RegisterComponent(#ComponentClassName, component); \
 		component->Register(); \
 	}\
 private: \
-	static ComponentName * instance; \
-	ComponentName() \
+	static ComponentClassName * instance; \
+	ComponentClassName() \
 	{ \
 		instance = this; \
 	} \
-	inline void Register();	\
+	inline void Register(); \
 \
 }; 
 
 
-#define IMPLEMENT_COMPONENT(ComponentName) \
-ComponentName * ComponentName::instance = 0;
+#define IMPLEMENT_COMPONENT(ComponentClassName) \
+ComponentClassName * ComponentClassName::instance = 0;
 
 namespace DAVA 
 {
@@ -50,10 +51,10 @@ public:
     
     
     template <class T>
-    void RegisterData(const char * name)
+    void RegisterData(int32 dataName)
     {
-        EntityManager::CreatePoolAllocator<T>(name);
-        dataNames.insert(name);
+        EntityManager::CreatePoolAllocator<T>(dataName);
+        dataNames.insert(dataName);
     }
 
 //	template<class T>
@@ -69,13 +70,13 @@ public:
     
     static Component * GetComponentByIndex(uint64 index);
     
-    Set<const char*> & GetDataNames() {return dataNames; };
+    Set<int32> & GetDataNames() {return dataNames; };
 
 	static Map<const char *, Component * > cache;//<name, component>
     
 private:
 	ComponentType type;
-    Set<const char*> dataNames;
+    Set<int32> dataNames;
     static Map<uint64, Component*>  componentsByIndex;
 };
     

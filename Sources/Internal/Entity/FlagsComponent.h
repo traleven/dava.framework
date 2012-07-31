@@ -6,11 +6,11 @@
 namespace DAVA
 {
 
-	DECLARE_COMPONENT(FlagsComponent);  
+	DECLARE_COMPONENT(FlagsComponent);
 
 	void FlagsComponent::Register()
 	{   
-		RegisterData<uint32>("flags");
+		RegisterData<uint32>(DataName::FLAGS);
 	}
 
 };

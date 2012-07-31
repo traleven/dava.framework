@@ -27,19 +27,19 @@ public:
     EntityFamily * GetFamily(Component * c0, ...);
     
     template<class T>
-    TemplatePool<T> * GetLinkedTemplatePools(const char * dataName);
+    TemplatePool<T> * GetLinkedTemplatePools(int32 dataName);
     
 
     
     template<class T>
-    static void CreatePoolAllocator(const char * dataPoolName);
+    static void CreatePoolAllocator(int32 dataPoolName);
     // ??? 
     template<class T>
-    static void ReleasePoolAllocator(const char * dataPoolName);
+    static void ReleasePoolAllocator(int32 dataPoolName);
 
-    static Map<const char *, Pool *> & GetPoolAllocators() { return poolAllocators; };
+    static Map<int32, Pool *> & GetPoolAllocators() { return poolAllocators; };
     
-    Pool * CreatePool(const char * dataName, int32 size);
+    Pool * CreatePool(int32 dataName, int32 size);
         
 	void Dump();
 
@@ -54,8 +54,8 @@ private:
     Map<uint64, EntityFamily*> families;
     std::multimap<Component*, EntityFamily*> familiesWithComponent; // all families with given component
     
-    static Map<const char *, Pool *> poolAllocators;
-    Map<const char *, Pool *> pools;
+    static Map<int32, Pool *> poolAllocators;
+    Map<int32, Pool *> pools;
     
 	void ProcessAddRemoveComponent(Entity * entity, const EntityFamilyType & oldType, const EntityFamilyType & newType);
 
@@ -73,16 +73,17 @@ private:
     
     
 template<class T>
-void EntityManager::CreatePoolAllocator(const char * dataPoolName)
+void EntityManager::CreatePoolAllocator(int32 dataPoolName)
 {
-    Map<const char *, Pool *>::iterator it = poolAllocators.find(dataPoolName);
+    Map<int32, Pool *>::iterator it = poolAllocators.find(dataPoolName);
     if (it != poolAllocators.end())
     {
         if (typeid(TemplatePool<T>) != typeid(*(it->second)))
         {
             DVASSERT("Data type not valid" && 0);
         }
-    }else
+    }
+	else
     {
         Pool * pool = new TemplatePool<T>(1);
         poolAllocators[dataPoolName] = pool;
@@ -90,10 +91,10 @@ void EntityManager::CreatePoolAllocator(const char * dataPoolName)
 }
     
 template<class T>
-TemplatePool<T> * EntityManager::GetLinkedTemplatePools(const char * dataName)
+TemplatePool<T> * EntityManager::GetLinkedTemplatePools(int32 dataName)
 {
     Pool * pool = 0;
-    Map<const char *, Pool*>::iterator find = pools.find(dataName);
+    Map<int32, Pool*>::iterator find = pools.find(dataName);
     if(pools.end() != find)
     {
         pool = find->second;

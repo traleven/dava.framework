@@ -18,7 +18,7 @@ void EntityPropertyControl::ReadFrom(Entity * entity)
 	int32 sectionsCount = entity->GetDataCount();
 	for(int32 i = 0; i < sectionsCount; ++i)
 	{
-		propertyList->AddSection(entity->GetDataName(i), true);
+		//propertyList->AddSection(entity->GetDataName(i), true);
 	}
 
 	

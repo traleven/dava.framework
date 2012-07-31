@@ -212,6 +212,7 @@
     <ClInclude Include="..\..\Sources\Internal\Base\Data.h" />
     <ClInclude Include="..\..\Sources\Internal\Base\FixedSizePoolAllocator.h" />
     <ClInclude Include="..\..\Sources\Internal\Base\Mallocator.h" />
+    <ClInclude Include="..\..\Sources\Internal\Base\TemplateHelpers.h" />
     <ClInclude Include="..\..\Sources\Internal\Database\MongodbClient.h" />
     <ClInclude Include="..\..\Sources\Internal\Database\MongodbObject.h" />
     <ClInclude Include="..\..\Sources\Internal\DAVAConfig.h" />
@@ -253,6 +254,7 @@
     <ClInclude Include="..\..\Sources\Internal\Debug\ListAllocator.h" />
     <ClInclude Include="..\..\Sources\Internal\Debug\MemoryManager.h" />
     <ClInclude Include="..\..\Sources\Internal\Debug\Replay.h" />
+    <ClInclude Include="..\..\Sources\Internal\Entity\DataNames.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\Components.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\FlagsComponent.h" />
     <ClInclude Include="..\..\Sources\Internal\Entity\LandscapeGeometryComponent.h" />

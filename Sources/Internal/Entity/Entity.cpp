@@ -75,11 +75,11 @@ int32 Entity::GetDataCount()
 	return myFamily->pools.size();
 }
 
-const char * Entity::GetDataName(int32 dataIndex)
+int32 Entity::GetDataName(int32 dataIndex)
 {
 	//TODO: Dizz: this is awful, maybe move pool name to Pool class
 	EntityFamily * myFamily = manager->GetFamilyByType(family);
-	Map<const char *, Pool*>::iterator it = myFamily->poolByDataName.begin();
+	Map<int32, Pool*>::iterator it = myFamily->poolByDataName.begin();
 
 	while(dataIndex > 0)
 	{

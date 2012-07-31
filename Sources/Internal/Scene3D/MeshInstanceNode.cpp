@@ -121,7 +121,7 @@ void MeshInstanceNode::Update(float32 timeElapsed)
 	//Stats::Instance()->BeginTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 
 	bool needUpdateTransformBox = false;
-	const uint32 * flags = entity->GetData<uint32>("flags");
+	const uint32 * flags = entity->GetData<uint32>(DataName::FLAGS);
 	if (!((*flags) & NODE_WORLD_MATRIX_ACTUAL)) 
 	{
 		needUpdateTransformBox = true;
@@ -137,9 +137,9 @@ void MeshInstanceNode::Update(float32 timeElapsed)
 	if (needUpdateTransformBox)
 	{
 		bbox.GetTransformedBox(worldTransform, transformedBox);
-		entity->SetData("meshAABox", transformedBox);
+		entity->SetData(DataName::MESH_AABOX, transformedBox);
 	}
-	entity->SetData("meshInstanceNode", this);
+	entity->SetData(DataName::MESHINSTANCE_NODE, this);
 
 	//Stats::Instance()->EndTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 }

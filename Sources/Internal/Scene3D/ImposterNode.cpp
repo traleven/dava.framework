@@ -66,7 +66,7 @@ void ImposterNode::UpdateState()
 {
 	if(GetChildrenCount() > 0)
 	{
-		uint32 flags = *entity->GetData<uint32>("flags");
+		uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 		if((flags & NODE_DISABLE_IMPOSTER))
 		{
 			return;
@@ -152,7 +152,7 @@ bool ImposterNode::IsAngleOrRangeChangedEnough(float32 squareDistance, float32 d
 
 void ImposterNode::Draw()
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	if((flags & NODE_DISABLE_IMPOSTER) && !RenderManager::Instance()->GetOptions()->IsOptionEnabled(RenderOptions::IMPOSTERS_ENABLE) && GetChildrenCount() > 0)
 	{
 		DVASSERT(GetChildrenCount() == 1);
@@ -162,7 +162,7 @@ void ImposterNode::Draw()
 
 void ImposterNode::GeneralDraw()
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	if(flags & NODE_DISABLE_IMPOSTER)
 	{
 		return;

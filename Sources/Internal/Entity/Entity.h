@@ -23,10 +23,10 @@ public:
 	void RemoveComponent(Component * component);
 
     template<class T>
-    void SetData(const char * dataName, const T & value);
+    void SetData(int32 dataName, const T & value);
     
 	template<class T>
-	T * const GetData(const char * dataName);
+	T * const GetData(int32 dataName);
 
     void SetFamily(EntityFamilyType newFamily);
 	const EntityFamilyType & GetFamily();
@@ -38,7 +38,7 @@ public:
 
 	//for navigating through entitie's data
 	int32 GetDataCount();
-	const char * GetDataName(int32 dataIndex); //data index
+	int32 GetDataName(int32 dataIndex);
 
 private:
 	Entity(EntityManager * manager);
@@ -57,7 +57,7 @@ private:
 
 
 template<class T>
-void Entity::SetData(const char * dataName, const T & value)
+void Entity::SetData(int32 dataName, const T & value)
 {
 	if(changeState & FAMILY_CHANGED)
 	{
@@ -81,7 +81,7 @@ void Entity::SetData(const char * dataName, const T & value)
 }
 
 template<class T>
-T * const Entity::GetData(const char * dataName)
+T * const Entity::GetData(int32 dataName)
 {
 	if(changeState & FAMILY_CHANGED)
 	{

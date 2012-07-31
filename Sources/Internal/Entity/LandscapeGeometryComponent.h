@@ -10,7 +10,7 @@ namespace DAVA
 	class LandscapeNode;
 	void LandscapeGeometryComponent::Register()
 	{   
-		RegisterData<LandscapeNode*>("landscapeNode");
+		RegisterData<LandscapeNode*>(DataName::LANDSCAPE_NODE);
 	}
 
 };

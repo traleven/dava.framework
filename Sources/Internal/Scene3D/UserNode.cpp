@@ -50,7 +50,7 @@ UserNode::~UserNode()
 void UserNode::Draw()
 {    
 	SceneNode::Draw();
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	if (!(flags & NODE_VISIBLE) || !(flags & NODE_UPDATABLE) || (flags & NODE_INVALID))return;
 	
 	if (debugFlags & DEBUG_DRAW_USERNODE)

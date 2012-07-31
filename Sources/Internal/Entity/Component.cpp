@@ -24,7 +24,7 @@ void Component::RegisterComponent(const char * componentName, Component * compon
     
 Component * Component::GetComponent(const char * componentName)
 {
-    Map<const char *, Component * >::iterator res = cache.find(componentName);
+    Map<const char *, Component *>::iterator res = cache.find(componentName);
     if (res != cache.end())
     {
         return res->second;

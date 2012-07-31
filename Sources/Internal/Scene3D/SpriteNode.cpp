@@ -157,7 +157,7 @@ SpriteNode::eType SpriteNode::GetType()
 
 void SpriteNode::Draw()
 {
-	uint32 flags = *entity->GetData<uint32>("flags");
+	uint32 flags = *entity->GetData<uint32>(DataName::FLAGS);
 	if (!(flags&SceneNode::NODE_VISIBLE))return;
     
     // Get current modelview matrix, and in this case it's always a camera matrix

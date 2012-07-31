@@ -12,7 +12,7 @@ EntityFamily::EntityFamily(EntityManager * _manager, EntityFamilyType _family)
     family = _family;
     
     // Require refactoring, because depends on internal structure of FamilyType / ComponentType.
-    Set<const char*> dataNamesForAllComponents;
+    Set<int32> dataNamesForAllComponents;
     uint64 bit = family.GetBit();
     for (uint64 idx = 0; idx < 64; ++idx)
     {
@@ -28,7 +28,7 @@ EntityFamily::EntityFamily(EntityManager * _manager, EntityFamilyType _family)
     currentSize = 0;
 	maxSize = 10;
 
-    for (Set<const char*>::iterator it = dataNamesForAllComponents.begin(); it != dataNamesForAllComponents.end(); ++it)
+    for (Set<int32>::iterator it = dataNamesForAllComponents.begin(); it != dataNamesForAllComponents.end(); ++it)
     {
         Pool * newPool = manager->CreatePool(*it, maxSize);
 		newPool->SetEntityFamily(this);
@@ -37,9 +37,9 @@ EntityFamily::EntityFamily(EntityManager * _manager, EntityFamilyType _family)
     }       
 }
     
-Pool * EntityFamily::GetPoolByDataName(const char * dataName)
+Pool * EntityFamily::GetPoolByDataName(int32 dataName)
 {
-    Map<const char *, Pool*>::iterator it = poolByDataName.find(dataName);
+    Map<int32, Pool*>::iterator it = poolByDataName.find(dataName);
     if (it != poolByDataName.end())
     {
         return it->second;
@@ -101,7 +101,7 @@ void EntityFamily::MoveFromFamily(EntityFamily * oldFamily, Entity * entity)
 
 	NewEntity(entity);
     
-    for (Map<const char *, Pool*>::iterator currentPoolIt = poolByDataName.begin(); currentPoolIt != poolByDataName.end(); ++currentPoolIt)
+    for (Map<int32, Pool*>::iterator currentPoolIt = poolByDataName.begin(); currentPoolIt != poolByDataName.end(); ++currentPoolIt)
     {
 		Pool * oldPool = oldFamily->GetPoolByDataName(currentPoolIt->first);
         Pool * newPool = currentPoolIt->second;

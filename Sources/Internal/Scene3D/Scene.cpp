@@ -167,9 +167,9 @@ void Scene::RegisterNode(SceneNode * node)
 
 	if(landscapeNode)
 	{
-		node->entity->SetData("landscapeNode", landscapeNode);
+		node->entity->SetData(DataName::LANDSCAPE_NODE, landscapeNode);
 	}
-	node->entity->SetData("flags", (uint32)(NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY));
+	node->entity->SetData(DataName::FLAGS, (uint32)(NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY));
 
 	ImposterNode * imposter = dynamic_cast<ImposterNode*>(node);
 	if(imposter)

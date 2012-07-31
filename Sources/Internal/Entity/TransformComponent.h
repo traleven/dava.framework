@@ -10,7 +10,7 @@ namespace DAVA
 
 	void TransformComponent::Register()
 	{   
-		RegisterData<Matrix4>("transform");
+		RegisterData<Matrix4>(DataName::TRANSFORM);
 	}
 
 };

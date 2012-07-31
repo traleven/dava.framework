@@ -7,7 +7,7 @@ namespace DAVA
 {
 
     
-Map<const char *, Pool *> EntityManager::poolAllocators;
+Map<int32, Pool *> EntityManager::poolAllocators;
 
 Entity * EntityManager::CreateEntity()
 {
@@ -190,17 +190,17 @@ EntityFamily * EntityManager::GetFamily(Component * c0, ...)
     return 0;
 }
     
-Pool * EntityManager::CreatePool(const char * dataName, int32 maxSize)
+Pool * EntityManager::CreatePool(int32 dataName, int32 maxSize)
 {
 	Pool * pool = 0;
 
-    Map<const char *, Pool *>::iterator poolsIt = poolAllocators.find(dataName);
+    Map<int32, Pool *>::iterator poolsIt = poolAllocators.find(dataName);
     if (poolsIt != poolAllocators.end())
     {
         Pool * newPool = poolsIt->second->CreateCopy(maxSize);
 
         Pool * prevPool = 0;
-        Map<const char *, Pool*>::iterator find = pools.find(dataName);
+        Map<int32, Pool*>::iterator find = pools.find(dataName);
         if(pools.end() != find)
         {
             prevPool = find->second;
@@ -221,12 +221,12 @@ void EntityManager::Dump()
 	Logger::Info("Pools:");
 	Logger::Info("============================");
 	
-	Map<const char *, Pool *>::iterator poolIterator;
+	Map<int32, Pool *>::iterator poolIterator;
 	for(poolIterator = pools.begin(); poolIterator != pools.end(); ++poolIterator)
 	{
-		const char * poolName = poolIterator->first;
+		int32 poolName = poolIterator->first;
 		Pool * pool = poolIterator->second;
-		Logger::Info("Pool \"%s\" of type %s", poolName, typeid(*pool).name());
+		Logger::Info("Pool \"%d\" of type %s", poolName, typeid(*pool).name());
 		Logger::Info("----------------------------");
 		
 		while(pool)

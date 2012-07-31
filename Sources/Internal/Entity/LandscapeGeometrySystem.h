@@ -14,7 +14,7 @@ namespace DAVA
 	public:
 		static void Run(Scene * scene)
 		{
-			TemplatePool<LandscapeNode*> * landscapes = scene->entityManager->GetLinkedTemplatePools<LandscapeNode*>("landscapeNode");
+			TemplatePool<LandscapeNode*> * landscapes = scene->entityManager->GetLinkedTemplatePools<LandscapeNode*>(DataName::LANDSCAPE_NODE);
 
 
 			while(landscapes)

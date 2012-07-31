@@ -47,15 +47,15 @@ public:
 
 	static void Run(Scene * scene)
 	{
-		TemplatePool<uint32> * visibilityFlags = scene->entityManager->GetLinkedTemplatePools<uint32>("flags");
+		TemplatePool<uint32> * visibilityFlags = scene->entityManager->GetLinkedTemplatePools<uint32>(DataName::FLAGS);
 
 		Matrix4 prevMatrix = RenderManager::Instance()->GetMatrix(RenderManager::MATRIX_MODELVIEW); 
 
 		while(visibilityFlags)
 		{
 			EntityFamily * family = visibilityFlags->GetEntityFamily();
-			TemplatePool<MeshInstanceNode*> * meshInstances = (TemplatePool<MeshInstanceNode*>*)family->GetPoolByDataName("meshInstanceNode");
-			TemplatePool<Matrix4> * transforms = (TemplatePool<Matrix4>*)family->GetPoolByDataName("transform");
+			TemplatePool<MeshInstanceNode*> * meshInstances = (TemplatePool<MeshInstanceNode*>*)family->GetPoolByDataName(DataName::MESHINSTANCE_NODE);
+			TemplatePool<Matrix4> * transforms = (TemplatePool<Matrix4>*)family->GetPoolByDataName(DataName::TRANSFORM);
 
 			if(meshInstances && transforms)
 			{

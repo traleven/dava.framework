@@ -18,10 +18,10 @@ public:
 	EntityFamily(EntityManager * manager, EntityFamilyType family);
     ~EntityFamily();
     
-    Pool * GetPoolByDataName(const char * dataName);
+    Pool * GetPoolByDataName(int32 dataName);
 
     uint32 GetSize() { return currentSize; };
-    template<class T> T * GetPtr(const char * name);
+    template<class T> T * GetPtr(int32 name);
 
 private:
     // Immediate functions. Do what you ask immediatelly. Should be called only from EntityManager
@@ -33,7 +33,7 @@ private:
     EntityFamilyType family;
     Vector<Entity*> entities;
 	Vector<Pool*> pools;
-    Map<const char *, Pool*> poolByDataName;
+    Map<int32, Pool*> poolByDataName;
     uint32 currentSize;
     uint32 maxSize;
     
@@ -42,7 +42,7 @@ private:
 };
 
 template<class T>
-T * EntityFamily::GetPtr(const char * dataName)
+T * EntityFamily::GetPtr(int32 dataName)
 {
     Pool * pool = GetPoolByDataName(dataName);
     if(pool)

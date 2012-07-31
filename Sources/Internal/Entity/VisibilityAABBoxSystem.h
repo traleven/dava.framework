@@ -16,11 +16,11 @@ public:
 	{
 		Frustum * frustum = scene->GetClipCamera()->GetFrustum(); 
 
-		TemplatePool<AABBox3> * boxes = scene->entityManager->GetLinkedTemplatePools<AABBox3>("meshAABox");
+		TemplatePool<AABBox3> * boxes = scene->entityManager->GetLinkedTemplatePools<AABBox3>(DataName::MESH_AABOX);
 		while(boxes)
 		{
 			EntityFamily * family = boxes->GetEntityFamily();
-			TemplatePool<uint32> * visibilityFlags = (TemplatePool<uint32>*)family->GetPoolByDataName("flags");
+			TemplatePool<uint32> * visibilityFlags = (TemplatePool<uint32>*)family->GetPoolByDataName(DataName::FLAGS);
 
 			int32 count = boxes->GetCount();
 			AABBox3 * box = boxes->GetPtr(0);

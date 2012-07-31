@@ -4,6 +4,7 @@
 #include "Base/BaseTypes.h"
 #include "Debug/DVAssert.h"
 #include "Entity/DumpVariable.h"
+#include "Entity/DataNames.h"
 
 namespace DAVA 
 {

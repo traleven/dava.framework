@@ -10,7 +10,7 @@ namespace DAVA
 	class MeshInstanceNode;
 	void MeshInstanceComponent::Register()
 	{   
-		RegisterData<MeshInstanceNode*>("meshInstanceNode");
+		RegisterData<MeshInstanceNode*>(DataName::MESHINSTANCE_NODE);
 	}
 
 };
