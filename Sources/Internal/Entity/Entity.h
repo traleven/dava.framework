@@ -85,8 +85,8 @@ T * const Entity::GetData(int32 dataName)
 {
 	if(changeState & FAMILY_CHANGED)
 	{
-		DVASSERT(0 && "Entity::SetData called before manager->Flush()");
-		Logger::Error("Entity::SetData called before manager->Flush()");
+		DVASSERT(0 && "Entity::GetData called before manager->Flush()");
+		Logger::Error("Entity::GetData called before manager->Flush()");
 	}
 
 	EntityFamily * enFamily = manager->GetFamilyByType(family);
