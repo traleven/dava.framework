@@ -116,7 +116,7 @@ public:
 		\brief Function to load layer from yaml node.
 		Normally this function is called from ParticleEmitter. 	 
 	 */
-	void LoadFromYaml(YamlNode * node);
+	virtual void LoadFromYaml(YamlNode * node);
 
 	/**
 		\brief Get head(first) particle of the layer.
@@ -153,7 +153,6 @@ protected:
 	ParticleEmitter * emitter;
 	// particle layer sprite
 	Sprite 			* sprite;
-	Vector2			pivotPoint;
 
 	//3D draw
 	RenderDataObject *renderData;
@@ -161,6 +160,7 @@ protected:
 	Vector<float32> texCoords;
 
 public:		
+	Vector2			pivotPoint;
 	/*
 	 Properties of particle layer that describe particle system logic
 	 */

@@ -29,7 +29,14 @@ public:
 	 */
     void ValidateScene(Scene *scene, Set<String> &errorsLog);
     
-    
+    /*
+     \brief Function to find Scales in models transformations
+     \param[in] scene scene for validation
+     \param[out] errorsLog set for validation erros
+	 */
+	void ValidateScales(Scene *scene, Set<String> &errorsLog);
+
+
     /*
      \brief Function to validate Texture errors
      
@@ -99,9 +106,9 @@ public:
     /*
      \brief Function sets 3d folder path for cheking texture pathnames
      \param[in] pathname path to DataSource/3d folder
+     \return old path for checking
 	 */
-    void SetPathForChecking(const String &pathname);
-    
+    String SetPathForChecking(const String &pathname);
     
     void EnumerateSceneTextures();
     void CollectSceneStats(const RenderManager::Stats &newStats);
@@ -116,6 +123,8 @@ protected:
     
     void ValidateMeshInstance(MeshInstanceNode *meshNode, Set<String> &errorsLog);
     void ValidateLodNodes(Scene *scene, Set<String> &errorsLog);
+	void ValidateScalesInternal(SceneNode *sceneNode, Set<String> &errorsLog);
+
     
     void ShowErrors();
     

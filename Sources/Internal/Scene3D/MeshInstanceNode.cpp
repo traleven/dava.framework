@@ -118,30 +118,30 @@ void MeshInstanceNode::AddPolygonGroup(StaticMesh * mesh, int32 polygonGroupInde
     
 void MeshInstanceNode::Update(float32 timeElapsed)
 {
-    //Stats::Instance()->BeginTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
+	//Stats::Instance()->BeginTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 
-    bool needUpdateTransformBox = false;
+	bool needUpdateTransformBox = false;
 	const uint32 * flags = entity->GetData<uint32>("flags");
-    if (!((*flags) & NODE_WORLD_MATRIX_ACTUAL)) 
-    {
-        needUpdateTransformBox = true;
-        UpdateLights();
-    }
-    else
-    {
-        //if (GetScene()->GetFlags() & SCENE_LIGHTS_MODIFIED)
-        UpdateLights();
-    }
-    SceneNode::Update(timeElapsed);
-    
-    if (needUpdateTransformBox)
+	if (!((*flags) & NODE_WORLD_MATRIX_ACTUAL)) 
 	{
-        bbox.GetTransformedBox(worldTransform, transformedBox);
+		needUpdateTransformBox = true;
+		UpdateLights();
+	}
+	else
+	{
+		//if (GetScene()->GetFlags() & SCENE_LIGHTS_MODIFIED)
+		UpdateLights();
+	}
+	SceneNode::Update(timeElapsed);
+
+	if (needUpdateTransformBox)
+	{
+		bbox.GetTransformedBox(worldTransform, transformedBox);
 		entity->SetData("meshAABox", transformedBox);
 	}
 	entity->SetData("meshInstanceNode", this);
 
-    //Stats::Instance()->EndTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
+	//Stats::Instance()->EndTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 }
     
 void MeshInstanceNode::Draw()
@@ -159,11 +159,11 @@ void MeshInstanceNode::Draw()
 //    }    
 
 	//now clipping in entity system
-    //if (flags & NODE_CLIPPED_THIS_FRAME)
-    //{
-    //    // !scene->GetClipCamera()->GetFrustum()->IsInside(transformedBox)
-    //    return;
-    //}
+    if (flags & NODE_CLIPPED_THIS_FRAME)
+    {
+        // !scene->GetClipCamera()->GetFrustum()->IsInside(transformedBox)
+        return;
+    }
 		
 	Matrix4 prevMatrix = RenderManager::Instance()->GetMatrix(RenderManager::MATRIX_MODELVIEW); 
 	Matrix4 meshFinalMatrix = worldTransform * prevMatrix;
@@ -660,23 +660,8 @@ void MeshInstanceNode::BakeTransforms()
 void MeshInstanceNode::UpdateLights()
 {
     Vector3 meshPosition = Vector3() * worldTransform;
-    float32 squareMinDistance = 10000000.0f;
-    LightNode * nearestLight = 0;
-    
-    Set<LightNode*> & lights = scene->GetLights();
-    const Set<LightNode*>::iterator & endIt = lights.end();
-    for (Set<LightNode*>::iterator it = lights.begin(); it != endIt; ++it)
-    {
-        LightNode * node = *it;
-        const Vector3 & lightPosition = node->GetPosition();
-        
-        float32 squareDistanceToLight = (meshPosition - lightPosition).SquareLength();
-        if (squareDistanceToLight < squareMinDistance)
-        {
-            squareMinDistance = squareDistanceToLight;
-            nearestLight = node;
-        }
-    }
+    LightNode * nearestLight = scene->GetNearestDynamicLight(LightNode::TYPE_COUNT, meshPosition);
+
     RegisterNearestLight(nearestLight);
 }
 

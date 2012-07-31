@@ -77,7 +77,7 @@ Scene::Scene()
 	,	entityManager(0)
 {   
 	entityManager = new EntityManager();
-	
+
 	CreateComponents();
 	CreateSystems();
 
@@ -108,7 +108,7 @@ Scene::~Scene()
 		obj->Release();
 	}
 	animatedMeshes.clear();
-	
+
 	for (Vector<Camera*>::iterator t = cameras.begin(); t != cameras.end(); ++t)
 	{
 		Camera * obj = *t;
@@ -214,14 +214,14 @@ void Scene::AddAnimatedMesh(AnimatedMesh * mesh)
 
 void Scene::RemoveAnimatedMesh(AnimatedMesh * mesh)
 {
-	
+
 }
 
 AnimatedMesh * Scene::GetAnimatedMesh(int32 index)
 {
 	return animatedMeshes[index];
 }
-	
+
 void Scene::AddAnimation(SceneNodeAnimationList * animation)
 {
 	if (animation)
@@ -235,7 +235,7 @@ SceneNodeAnimationList * Scene::GetAnimation(int32 index)
 {
 	return animations[index];
 }
-	
+
 SceneNodeAnimationList * Scene::GetAnimation(const String & name)
 {
 	int32 size = (int32)animations.size();
@@ -247,9 +247,9 @@ SceneNodeAnimationList * Scene::GetAnimation(const String & name)
 	}
 	return 0;
 }
-	
-	
-	
+
+
+
 void Scene::AddCamera(Camera * camera)
 {
 	if (camera)
@@ -263,7 +263,7 @@ Camera * Scene::GetCamera(int32 n)
 {
 	if (n >= 0 && n < (int32)cameras.size())
 		return cameras[n];
-	
+
 	return NULL;
 }
 
@@ -429,7 +429,7 @@ void Scene::Update(float timeElapsed)
 
     // lights 
     //flags &= ~SCENE_LIGHTS_MODIFIED;
-	
+
 	int32 size = (int32)children.size();
 	for (int32 c = 0; c < size; ++c)
 	{
@@ -463,7 +463,7 @@ void Scene::Draw()
     RenderManager::Instance()->FlushState();
     RenderManager::Instance()->ClearDepthBuffer();
     
-	
+
     if (currentCamera)
     {
         currentCamera->Set();
@@ -499,7 +499,7 @@ void Scene::Draw()
 
 		RenderManager::Instance()->ClearStencilBuffer(0);
 		RenderManager::Instance()->AppendState(RenderStateBlock::STATE_STENCIL_TEST);
-		
+
 		RenderManager::State()->SetStencilFunc(FACE_FRONT_AND_BACK, CMP_ALWAYS);
 		RenderManager::State()->SetStencilRef(1);
 		RenderManager::State()->SetStencilMask(0xFFFFFFFF);
@@ -511,7 +511,7 @@ void Scene::Draw()
 		RenderManager::State()->SetStencilPass(FACE_BACK, STENCILOP_KEEP);
 		RenderManager::State()->SetStencilFail(FACE_BACK, STENCILOP_KEEP);
 		RenderManager::State()->SetStencilZFail(FACE_BACK, STENCILOP_INCR_WRAP);
-		
+
 		RenderManager::Instance()->FlushState();
 		Vector<ShadowVolumeNode*>::iterator itEnd = shadowVolumes.end();
 		for(Vector<ShadowVolumeNode*>::iterator it = shadowVolumes.begin(); it != itEnd; ++it)
@@ -522,7 +522,7 @@ void Scene::Draw()
 		//3rd pass
 		RenderManager::Instance()->RemoveState(RenderStateBlock::STATE_CULL);
 		RenderManager::Instance()->RemoveState(RenderStateBlock::STATE_DEPTH_TEST);
-		
+
 		RenderManager::State()->SetStencilRef(0);
 		RenderManager::State()->SetStencilFunc(FACE_FRONT_AND_BACK, CMP_NOTEQUAL);
 		RenderManager::State()->SetStencilPass(FACE_FRONT_AND_BACK, STENCILOP_KEEP);
@@ -545,7 +545,7 @@ void Scene::Draw()
 	//RenderManager::Instance()->RestoreRenderTarget();
 }
 
-	
+
 void Scene::StopAllAnimations(bool recursive )
 {
 	int32 size = (int32)animations.size();
@@ -661,15 +661,40 @@ void Scene::UpdateLights()
     
 }
     
-LightNode * Scene::GetNearestLight(LightNode::eType type, Vector3 position)
+LightNode * Scene::GetNearestDynamicLight(LightNode::eType type, Vector3 position)
 {
-    switch(type)
-    {
-        case LightNode::TYPE_DIRECTIONAL:
-            
-            break;
-    };
-    return NULL;
+	switch(type)
+	{
+	case LightNode::TYPE_DIRECTIONAL:
+
+		break;
+	};
+
+	float32 squareMinDistance = 10000000.0f;
+	LightNode * nearestLight = 0;
+
+	Set<LightNode*> & lights = GetLights();
+	const Set<LightNode*>::iterator & endIt = lights.end();
+	for (Set<LightNode*>::iterator it = lights.begin(); it != endIt; ++it)
+	{
+		LightNode * node = *it;
+		//TODO: use simple flag for "dynamic" option in non-editor projects
+		bool isDynamic = node->GetCustomProperties()->GetBool("editor.dynamiclight.enable", true);
+		if(isDynamic)
+		{
+			const Vector3 & lightPosition = node->GetPosition();
+
+			float32 squareDistanceToLight = (position - lightPosition).SquareLength();
+			if (squareDistanceToLight < squareMinDistance)
+			{
+				squareMinDistance = squareDistanceToLight;
+				nearestLight = node;
+			}
+		}
+
+	}
+
+	return nearestLight;
 }
 
 Set<LightNode*> & Scene::GetLights()
@@ -683,7 +708,7 @@ void Scene::RegisterImposter(ImposterNode * imposter)
 	{
 		imposterManager = new ImposterManager(this);
 	}
-	
+
 	imposterManager->Add(imposter);
 	imposter->RecursiveEnableImposters(enableImposters);
 }
@@ -735,7 +760,3 @@ void Scene::Load(KeyedArchive * archive)
 
 
 };
-
-
-
-
