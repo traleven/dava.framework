@@ -60,7 +60,7 @@ SceneNode::SceneNode()
     defaultLocalTransform.Identity();
 	//animation = 0;
     debugFlags = DEBUG_DRAW_NONE;
-    flags = NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY;
+    flags = NODE_VISIBLE | NODE_UPDATABLE | NODE_LOCAL_MATRIX_IDENTITY | NODE_REQUIRE_UPDATE;
 	userData = 0;
     
     customProperties = new KeyedArchive();
@@ -314,12 +314,15 @@ void SceneNode::ExtractCurrentNodeKeyForAnimation(SceneNodeAnimationKey & key)
 void SceneNode::Update(float32 timeElapsed)
 {
     //Stats::Instance()->BeginTimeMeasure("Scene.Update.SceneNode.Update", this);
-
+    if (!(flags & NODE_REQUIRE_UPDATE))return;
+    flags &= ~NODE_REQUIRE_UPDATE;
+    
 //    if (!(flags & NODE_UPDATABLE))return;
 
     inUpdate = true;
+    
 	// TODO - move node update to render because any of objects can change params of other objects
-	if (nodeAnimations.size() != 0)
+	/*if (nodeAnimations.size() != 0)
 	{
 		Quaternion blendedRotation;
 		Vector3 blendedTranslation;
@@ -361,7 +364,7 @@ void SceneNode::Update(float32 timeElapsed)
 //				printf(">>> blend: %s wei: %f inDelay: %f\n", animation->GetParent()->name.c_str(), animation->weight, animation->delayTime);
 //			}
 //		}
-	}
+	}*/
 	
 	UpdateTransform();
 	uint32 size = (uint32)children.size();
@@ -646,7 +649,7 @@ void SceneNode::Load(KeyedArchive * archive, SceneFileV2 * sceneFileV2)
     defaultLocalTransform = archive->GetByteArrayAsType("defaultLocalTransform", defaultLocalTransform);
 
     flags = archive->GetUInt32("flags", NODE_VISIBLE);
-    flags |= NODE_UPDATABLE;
+    flags |= NODE_UPDATABLE | NODE_REQUIRE_UPDATE;
     InvalidateLocalTransform();
 //    debugFlags = archive->GetUInt32("debugFlags", 0);
     
