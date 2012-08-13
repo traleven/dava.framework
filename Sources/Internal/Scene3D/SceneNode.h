@@ -360,11 +360,11 @@ inline void SceneNode::SetVisible(bool isVisible)
 {
     if (isVisible) 
     {
-        AddFlag(NODE_VISIBLE);
+        AddFlagRecursive(NODE_VISIBLE);
     }
     else 
     {
-        RemoveFlag(NODE_VISIBLE);
+        RemoveFlagRecursive(NODE_VISIBLE);
     }
 }
 	
