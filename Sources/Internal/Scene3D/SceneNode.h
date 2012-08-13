@@ -188,6 +188,7 @@ public:
         NODE_INVALID = 1 << 10,  // THIS NODE not passed some of verification stages and marked as invalid. Such nodes shouldn't be drawn.
 
 		NODE_DISABLE_IMPOSTER = 1 << 11, //if set in ImposterNode, it will act as common SceneNode (i.e. imposter is disabled)
+        NODE_REQUIRE_UPDATE = 1 << 12,
         
         // I decided to put scene flags here to avoid 2 variables. But probably we can create additional variable later if it'll be required.
         SCENE_LIGHTS_MODIFIED = 1 << 31,
@@ -444,6 +445,14 @@ inline const Matrix4 & SceneNode::GetDefaultLocalTransform()
 inline Matrix4 & SceneNode::ModifyLocalTransform()
 {
     flags &= ~(NODE_WORLD_MATRIX_ACTUAL | NODE_LOCAL_MATRIX_IDENTITY);
+
+    SceneNode * currentNode = this;
+    while(currentNode != 0)
+    {
+        currentNode->flags |= NODE_REQUIRE_UPDATE;
+        currentNode = currentNode->GetParent();
+    }
+
     return localTransform;
 }
 
@@ -453,6 +462,13 @@ inline void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
     flags &= ~NODE_WORLD_MATRIX_ACTUAL;
     if (newMatrix == Matrix4::IDENTITY)flags |= NODE_LOCAL_MATRIX_IDENTITY;
     else flags &= ~NODE_LOCAL_MATRIX_IDENTITY;
+
+    SceneNode * currentNode = this;
+    while(currentNode != 0)
+    {
+        currentNode->flags |= NODE_REQUIRE_UPDATE;
+        currentNode = currentNode->GetParent();
+    }
 }
 //
 //inline void SceneNode::SetWorldTransform(const Matrix4 & newMatrix)
