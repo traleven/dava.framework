@@ -675,7 +675,7 @@ const RenderManager::Caps & RenderManager::GetCaps()
 	return caps;
 }
     
-const RenderManager::Stats & RenderManager::GetStats()
+RenderManager::Stats & RenderManager::GetStats()
 {
     return stats;
 }
@@ -764,6 +764,7 @@ void RenderManager::Stats::Clear()
     drawElementsCalls = 0;
     for (int32 k = 0; k < PRIMITIVETYPE_COUNT; ++k)
         primitiveCount[k] = 0;
+    shaderSetCount = 0;
 }
 
 void RenderManager::EnableOutputDebugStatsEveryNFrame(int32 _frameToShowDebugStats)

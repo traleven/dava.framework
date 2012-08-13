@@ -344,13 +344,15 @@ void LodNode::Update(float32 timeElapsed)
                     int32 size = oldLod->nodes.size();
                     for (int i = 0; i < size; i++) 
                     {
-                        oldLod->nodes[i]->SetUpdatable(false);
+                        //oldLod->nodes[i]->SetUpdatable(false);
+                        oldLod->nodes[i]->RemoveFlagRecursive(SceneNode::NODE_VISIBLE);
                     }
                 }
                 int32 size = currentLod->nodes.size();
                 for (int i = 0; i < size; i++) 
                 {
-                    currentLod->nodes[i]->SetUpdatable(true);
+                    // currentLod->nodes[i]->SetUpdatable(true);
+                    currentLod->nodes[i]->AddFlagRecursive(SceneNode::NODE_VISIBLE);
                 }
             }
         }

@@ -52,6 +52,7 @@
 #include "Scene3D/ImposterManager.h"
 #include "Scene3D/ImposterNode.h"
 #include "Scene3D/LandscapeNode.h"
+#include "Scene3D/LodNode.h"
 
 #include "Entity/Entity.h"
 #include "Entity/EntityManager.h"
@@ -164,7 +165,26 @@ void Scene::RegisterNode(SceneNode * node)
 
     if(meshInstance || landscapeNode)
     {
-        drawQueue.push_back(node);
+        bool isImposter = false;
+        SceneNode * currentNode = node;
+        while(currentNode != 0)
+        {
+            if (dynamic_cast<ImposterNode*>(currentNode))
+            {
+                isImposter = true;
+                break;
+            }
+            currentNode = currentNode->GetParent();
+        }
+        
+        if (!isImposter)
+            drawQueue.push_back(node);
+    }
+    
+    LodNode * lodNode = dynamic_cast<LodNode*>(node);
+    if (lodNode)
+    {
+        updateQueue.push_back(node);
     }
     
 	//MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
@@ -221,6 +241,20 @@ void Scene::UnregisterNode(SceneNode * node)
             if (*t == node)
             {
                 drawQueue.erase(t);
+                break;
+            }
+        }
+    }
+    
+    LodNode * lodNode = dynamic_cast<LodNode*>(node);
+    if(lodNode)
+    {
+        //uint32 
+        for (Vector<SceneNode*>::iterator t = updateQueue.begin(); t != updateQueue.end(); ++t)
+        {
+            if (*t == node)
+            {
+                updateQueue.erase(t);
                 break;
             }
         }
@@ -472,6 +506,15 @@ void Scene::Update(float timeElapsed)
 	}
 	
 	SceneNode::Update(timeElapsed);
+    
+    
+    size = (int32)updateQueue.size();
+    for (int32 k = 0; k < size; ++k)
+    {
+        SceneNode * updateNode = updateQueue[k];
+        updateNode->Update(timeElapsed);
+    }
+
 	
 	size = (int32)animatedMeshes.size();
 	for (int32 animatedMeshIndex = 0; animatedMeshIndex < size; ++animatedMeshIndex)

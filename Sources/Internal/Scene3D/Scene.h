@@ -255,6 +255,7 @@ protected:
     Set<LightNode*> lights;
 	ShadowRect * shadowRect;
 	BVHierarchy * bvHierarchy;
+    Vector<SceneNode*> updateQueue;
     Vector<SceneNode*> drawQueue; 
     
     void DrawQueue();

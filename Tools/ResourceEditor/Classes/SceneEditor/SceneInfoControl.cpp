@@ -112,7 +112,9 @@ void SceneInfoControl::InvalidateRenderStats()
     SetIntInfoValue("TriangleList", renderStats.primitiveCount[PRIMITIVETYPE_TRIANGLELIST]);
     SetIntInfoValue("TriangleStrip", renderStats.primitiveCount[PRIMITIVETYPE_TRIANGLESTRIP]);
     SetIntInfoValue("TriangleFan", renderStats.primitiveCount[PRIMITIVETYPE_TRIANGLEFAN]);
-    
+
+    SetIntInfoValue("ShaderSet", renderStats.shaderSetCount);
+
     RedrawCells();
 }
 

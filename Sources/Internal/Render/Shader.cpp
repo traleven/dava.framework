@@ -451,6 +451,7 @@ void Shader::Unbind()
     {
         RENDER_VERIFY(glUseProgram(0));
         activeProgram = 0;
+        RenderManager::Instance()->GetStats().shaderSetCount++;
     }
 }
     
@@ -460,6 +461,7 @@ void Shader::Bind()
     {
         RENDER_VERIFY(glUseProgram(program));
         activeProgram = program;
+        RenderManager::Instance()->GetStats().shaderSetCount++;
     }
     
     for (int32 k = 0; k < activeUniforms; ++k)
