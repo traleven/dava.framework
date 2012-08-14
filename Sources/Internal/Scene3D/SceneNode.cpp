@@ -119,6 +119,7 @@ void SceneNode::AddNode(SceneNode * node)
 {
 	if (node)
     {
+		AddFlag(NODE_REQUIRE_UPDATE);
         node->Retain();
         children.push_back(node);
         node->SetParent(this);
