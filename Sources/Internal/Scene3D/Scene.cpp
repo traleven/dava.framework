@@ -138,6 +138,37 @@ Scene::~Scene()
 	entityManager->Flush();
 	SafeRelease(entityManager);
 }
+    
+    
+bool SortMaterialLess(SceneNode * n1, SceneNode * n2)
+{
+    LandscapeNode * n1Landscape = dynamic_cast<LandscapeNode*>(n1);
+    MeshInstanceNode * n1MeshInstance = dynamic_cast<MeshInstanceNode*>(n1);
+
+    LandscapeNode * n2Landscape = dynamic_cast<LandscapeNode*>(n2);
+    MeshInstanceNode * n2MeshInstance = dynamic_cast<MeshInstanceNode*>(n2);
+    
+    
+    if (n1Landscape && !n2Landscape)return true;
+    if (!n1Landscape && n2Landscape)return false;
+    
+    
+    uint32 n1Cnt = n1MeshInstance->GetPolygonGroups().size();
+    uint32 n2Cnt = n1MeshInstance->GetPolygonGroups().size();
+    
+    if ((n1Cnt == 1) && (n2Cnt > 1))return true;
+    if ((n1Cnt > 1) && (n2Cnt == 1))return false;
+    
+    if ((n1Cnt > 1) && (n2Cnt > 1))return (n1Cnt < n2Cnt);
+    
+    Material * mat1 = n1MeshInstance->GetPolygonGroups()[0]->GetMaterial();
+    Material * mat2 = n2MeshInstance->GetPolygonGroups()[0]->GetMaterial();
+
+    if ((!mat1->GetOpaque()) && (mat2->GetOpaque()))return true;
+    if ((mat1->GetOpaque()) && (!mat2->GetOpaque()))return false;
+    
+    return mat1 < mat2;
+}
 
 void Scene::RegisterNode(SceneNode * node)
 {
@@ -533,8 +564,18 @@ void Scene::Update(float timeElapsed)
 }		
 
     
+bool needSort = true;
+    
 void Scene::DrawQueue()
 {
+    if (needSort)
+    {
+        this->AddFlagRecursive(NODE_REQUIRE_UPDATE);
+        this->Update(0.0);
+        std::sort(drawQueue.begin(), drawQueue.end(), SortMaterialLess);
+        needSort = false;
+    }
+    
     uint32 size = (uint32)drawQueue.size();
     for (uint32 k = 0; k < size; ++k)
     {
