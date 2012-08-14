@@ -452,6 +452,7 @@ inline Matrix4 & SceneNode::ModifyLocalTransform()
         currentNode->flags |= NODE_REQUIRE_UPDATE;
         currentNode = currentNode->GetParent();
     }
+	AddFlagRecursive(NODE_REQUIRE_UPDATE);
 
     return localTransform;
 }
@@ -469,6 +470,7 @@ inline void SceneNode::SetLocalTransform(const Matrix4 & newMatrix)
         currentNode->flags |= NODE_REQUIRE_UPDATE;
         currentNode = currentNode->GetParent();
     }
+	AddFlagRecursive(NODE_REQUIRE_UPDATE);
 }
 //
 //inline void SceneNode::SetWorldTransform(const Matrix4 & newMatrix)
