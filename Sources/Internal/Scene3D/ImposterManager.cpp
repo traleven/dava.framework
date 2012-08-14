@@ -83,15 +83,21 @@ void ImposterManager::Draw()
 {
 	if(!RenderManager::Instance()->GetOptions()->IsOptionEnabled(RenderOptions::IMPOSTERS_ENABLE))
 	{
-		return;
+		List<ImposterNode*>::iterator end = imposters.end();
+		for(List<ImposterNode*>::iterator iter = imposters.begin(); iter != end; ++iter)
+		{
+			(*iter)->Draw();
+		}
 	}
-
-	ProcessQueue();
-
-	List<ImposterNode*>::iterator end = imposters.end();
-	for(List<ImposterNode*>::iterator iter = imposters.begin(); iter != end; ++iter)
+	else
 	{
-		(*iter)->GeneralDraw();
+		ProcessQueue();
+
+		List<ImposterNode*>::iterator end = imposters.end();
+		for(List<ImposterNode*>::iterator iter = imposters.begin(); iter != end; ++iter)
+		{
+			(*iter)->GeneralDraw();
+		}
 	}
 }
 

@@ -152,22 +152,28 @@ bool SortMaterialLess(SceneNode * n1, SceneNode * n2)
     if (n1Landscape && !n2Landscape)return true;
     if (!n1Landscape && n2Landscape)return false;
     
+    if(n1MeshInstance && n2MeshInstance)
+	{
+		uint32 n1Cnt = n1MeshInstance->GetPolygonGroups().size();
+		uint32 n2Cnt = n1MeshInstance->GetPolygonGroups().size();
     
-    uint32 n1Cnt = n1MeshInstance->GetPolygonGroups().size();
-    uint32 n2Cnt = n1MeshInstance->GetPolygonGroups().size();
+		if ((n1Cnt == 1) && (n2Cnt > 1))return true;
+		if ((n1Cnt > 1) && (n2Cnt == 1))return false;
     
-    if ((n1Cnt == 1) && (n2Cnt > 1))return true;
-    if ((n1Cnt > 1) && (n2Cnt == 1))return false;
+		if ((n1Cnt > 1) && (n2Cnt > 1))return (n1Cnt < n2Cnt);
     
-    if ((n1Cnt > 1) && (n2Cnt > 1))return (n1Cnt < n2Cnt);
-    
-    Material * mat1 = n1MeshInstance->GetPolygonGroups()[0]->GetMaterial();
-    Material * mat2 = n2MeshInstance->GetPolygonGroups()[0]->GetMaterial();
+		Material * mat1 = n1MeshInstance->GetPolygonGroups()[0]->GetMaterial();
+		Material * mat2 = n2MeshInstance->GetPolygonGroups()[0]->GetMaterial();
 
-    if ((!mat1->GetOpaque()) && (mat2->GetOpaque()))return true;
-    if ((mat1->GetOpaque()) && (!mat2->GetOpaque()))return false;
+		if ((!mat1->GetOpaque()) && (mat2->GetOpaque()))return true;
+		if ((mat1->GetOpaque()) && (!mat2->GetOpaque()))return false;
     
-    return mat1 < mat2;
+		return mat1 < mat2;
+	}
+	else
+	{
+		return n1 < n2;
+	}
 }
 
 void Scene::RegisterNode(SceneNode * node)
@@ -193,8 +199,13 @@ void Scene::RegisterNode(SceneNode * node)
 
     MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
     LandscapeNode * landscapeNode = dynamic_cast<LandscapeNode*>(node);
+	ShadowVolumeNode * shadowVolumeNode = dynamic_cast<ShadowVolumeNode*>(node);
+	if(shadowVolumeNode)
+	{
+		int i = 0;
+	}
 
-    if(meshInstance || landscapeNode)
+    if(meshInstance || landscapeNode || shadowVolumeNode)
     {
         bool isImposter = false;
         SceneNode * currentNode = node;
@@ -264,7 +275,8 @@ void Scene::UnregisterNode(SceneNode * node)
     
     MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
     LandscapeNode * landscapeNode = dynamic_cast<LandscapeNode*>(node);
-    if(meshInstance || landscapeNode)
+	ShadowVolumeNode * shadowVolumeNode = dynamic_cast<ShadowVolumeNode*>(node);
+    if(meshInstance || landscapeNode || shadowVolumeNode)
     {
         //uint32 
         for (Vector<SceneNode*>::iterator t = drawQueue.begin(); t != drawQueue.end(); ++t)
@@ -529,17 +541,17 @@ void Scene::Update(float timeElapsed)
     // lights 
     flags &= ~SCENE_LIGHTS_MODIFIED;
     
-	int32 size = (int32)animations.size();
-	for (int32 animationIndex = 0; animationIndex < size; ++animationIndex)
-	{
-		SceneNodeAnimationList * anim = animations[animationIndex];
-		anim->Update(timeElapsed);
-	}
+	//int32 size = (int32)animations.size();
+	//for (int32 animationIndex = 0; animationIndex < size; ++animationIndex)
+	//{
+	//	SceneNodeAnimationList * anim = animations[animationIndex];
+	//	anim->Update(timeElapsed);
+	//}
 	
 	SceneNode::Update(timeElapsed);
     
     
-    size = (int32)updateQueue.size();
+    int32 size = (int32)updateQueue.size();
     for (int32 k = 0; k < size; ++k)
     {
         SceneNode * updateNode = updateQueue[k];
@@ -547,12 +559,12 @@ void Scene::Update(float timeElapsed)
     }
 
 	
-	size = (int32)animatedMeshes.size();
-	for (int32 animatedMeshIndex = 0; animatedMeshIndex < size; ++animatedMeshIndex)
-	{
-		AnimatedMesh * mesh = animatedMeshes[animatedMeshIndex];
-		mesh->Update(timeElapsed);
-	}
+	//size = (int32)animatedMeshes.size();
+	//for (int32 animatedMeshIndex = 0; animatedMeshIndex < size; ++animatedMeshIndex)
+	//{
+	//	AnimatedMesh * mesh = animatedMeshes[animatedMeshIndex];
+	//	mesh->Update(timeElapsed);
+	//}
 
 	if(imposterManager)
 	{
@@ -579,8 +591,8 @@ void Scene::DrawQueue()
     uint32 size = (uint32)drawQueue.size();
     for (uint32 k = 0; k < size; ++k)
     {
-        SceneNode * meshInstance = drawQueue[k];
-        meshInstance->Draw();
+        SceneNode * sceneNode = drawQueue[k];
+        sceneNode->Draw();
     }
     
 }
