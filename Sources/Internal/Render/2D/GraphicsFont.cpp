@@ -161,7 +161,7 @@ bool GraphicsFont::IsCharAvaliable(char16 ch)
 
 uint32 GraphicsFont::GetFontHeight()
 {
-	return (uint32)(fdef->fontHeight * fontScaleCoeff) + 2;
+	return (uint32)((fdef->fontHeight) * fontScaleCoeff);
 }
 	
 void GraphicsFont::SetHorizontalSpacing(int32 _horizontalSpacing)
