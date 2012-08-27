@@ -48,6 +48,11 @@ void Shader::SetUniformValue(int32 uniformLocation, int32 value)
 
 }
 
+void Shader::SetUniformValue(int32 uniformLocation, float32 value)
+{
+
+}
+
 void Shader::SetUniformValue(int32 uniformLocation, const Vector3 & vector)
 {
 
@@ -59,6 +64,16 @@ void Shader::SetUniformValue(int32 uniformLocation, const Vector4 & vector)
 }
 
 void Shader::SetUniformValue(int32 uniformLocation, const Matrix4 & matrix)
+{
+
+}
+
+void Shader::SetUniformValue(int32 uniformLocation, const Vector2 & vector)
+{
+
+}
+
+void Shader::SetUniformValue(int32 uniformLocation, const Color & color)
 {
 
 }
@@ -104,6 +119,11 @@ bool Shader::Recompile()
 }
 
 Shader * Shader::RecompileNewInstance(const String & combination)
+{
+	return 0;
+}
+
+int32 Shader::GetAttributeCount()
 {
 	return 0;
 }
