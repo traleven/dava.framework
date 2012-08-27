@@ -26,6 +26,7 @@
     <ClCompile Include="Classes\PreviewControl.cpp" />
     <ClCompile Include="Classes\PropertyLineEditControl.cpp" />
     <ClCompile Include="Classes\TestScreen.cpp" />
+    <ClCompile Include="Win32Specific\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A31689CE-A339-464E-8D7E-49EF2AF81AA4}</ProjectGuid>
@@ -90,7 +91,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>./../../../dava.framework/Sources/Internal;./../../../dava.framework/Sources/External;$(DXSDK_DIR)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./../../../dava.framework/Sources/Internal;./../../../dava.framework/Sources/External;$(DXSDK_DIR)/include;./../../../dava.framework/Libs/glew/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>

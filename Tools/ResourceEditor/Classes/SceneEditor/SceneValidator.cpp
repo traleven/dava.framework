@@ -11,6 +11,8 @@ SceneValidator::SceneValidator()
     sceneTextureMemory = 0;
 
     infoControl = NULL;
+    
+    pathForChecking = String("");
 }
 
 SceneValidator::~SceneValidator()
@@ -20,29 +22,84 @@ SceneValidator::~SceneValidator()
 
 void SceneValidator::ValidateScene(Scene *scene)
 {
-    if(!scene) return;
-
     errorMessages.clear();
 
-    ValidateSceneNodeInternal(scene);
-    ValidateLodNodes(scene);
+    ValidateScene(scene, errorMessages);
 
-    if(errorMessages.size())
+    ShowErrors();
+}
+
+void SceneValidator::ValidateScene(Scene *scene, Set<String> &errorsLog)
+{
+    if(scene) 
     {
-        ShowErrors();
+        ValidateSceneNode(scene, errorsLog);
+        ValidateLodNodes(scene, errorsLog);
+    }
+    else 
+    {
+        errorsLog.insert(String("Scene in NULL!"));
     }
 }
+
+void SceneValidator::ValidateScales(Scene *scene, Set<String> &errorsLog)
+{
+	if(scene) 
+	{
+		ValidateScalesInternal(scene, errorsLog);
+	}
+	else 
+	{
+		errorsLog.insert(String("Scene in NULL!"));
+	}
+}
+
+void SceneValidator::ValidateScalesInternal(SceneNode *sceneNode, Set<String> &errorsLog)
+{
+//  Basic algorithm is here
+// 	Matrix4 S, T, R; //Scale Transpose Rotation
+// 	S.CreateScale(Vector3(1.5, 0.5, 2.0));
+// 	T.CreateTranslation(Vector3(100, 50, 20));
+// 	R.CreateRotation(Vector3(0, 1, 0), 2.0);
+// 
+// 	Matrix4 t = R*S*T; //Calculate complex matrix
+// 
+//	//Calculate Scale components from complex matrix
+// 	float32 sx = sqrt(t._00 * t._00 + t._10 * t._10 + t._20 * t._20);
+// 	float32 sy = sqrt(t._01 * t._01 + t._11 * t._11 + t._21 * t._21);
+// 	float32 sz = sqrt(t._02 * t._02 + t._12 * t._12 + t._22 * t._22);
+// 	Vector3 sCalculated(sx, sy, sz);
+
+	if(!sceneNode) return;
+
+	const Matrix4 & t = sceneNode->GetLocalTransform();
+	float32 sx = sqrt(t._00 * t._00 + t._10 * t._10 + t._20 * t._20);
+	float32 sy = sqrt(t._01 * t._01 + t._11 * t._11 + t._21 * t._21);
+	float32 sz = sqrt(t._02 * t._02 + t._12 * t._12 + t._22 * t._22);
+
+	if ((!FLOAT_EQUAL(sx, 1.0f)) 
+		|| (!FLOAT_EQUAL(sy, 1.0f))
+		|| (!FLOAT_EQUAL(sz, 1.0f)))
+	{
+ 		errorsLog.insert(Format("Node %s: has scale (%.3f, %.3f, %.3f) ! Re-design level.", sceneNode->GetName().c_str(), sx, sy, sz));
+	}
+
+	int32 count = sceneNode->GetChildrenCount();
+	for(int32 i = 0; i < count; ++i)
+	{
+		ValidateScalesInternal(sceneNode->GetChild(i), errorsLog);
+	}
+}
+
+
 
 void SceneValidator::ValidateSceneNode(SceneNode *sceneNode)
 {
     errorMessages.clear();
 
-    ValidateSceneNodeInternal(sceneNode);
+    ValidateSceneNode(sceneNode, errorMessages);
     
-    if(errorMessages.size())
-    {
-        ShowErrors();
-    }
+    ShowErrors();
     
     for (Set<SceneNode*>::iterator it = emptyNodesForDeletion.begin(); it != emptyNodesForDeletion.end(); ++it)
     {
@@ -60,7 +117,7 @@ void SceneValidator::ValidateSceneNode(SceneNode *sceneNode)
     emptyNodesForDeletion.clear();
 }
 
-void SceneValidator::ValidateSceneNodeInternal(SceneNode *sceneNode)
+void SceneValidator::ValidateSceneNode(SceneNode *sceneNode, Set<String> &errorsLog)
 {
     if(!sceneNode) return;
     
@@ -71,18 +128,18 @@ void SceneValidator::ValidateSceneNodeInternal(SceneNode *sceneNode)
         MeshInstanceNode *mesh = dynamic_cast<MeshInstanceNode*>(node);
         if(mesh)
         {
-            ValidateMeshInstanceInternal(mesh);
+            ValidateMeshInstance(mesh, errorsLog);
         }
         else 
         {
             LandscapeNode *landscape = dynamic_cast<LandscapeNode*>(node);
             if (landscape) 
             {
-                ValidateLandscapeInternal(landscape);
+                ValidateLandscape(landscape, errorsLog);
             }
             else
             {
-                ValidateSceneNodeInternal(node);
+                ValidateSceneNode(node, errorsLog);
             }
         }
         
@@ -104,7 +161,7 @@ void SceneValidator::ValidateSceneNodeInternal(SceneNode *sceneNode)
                     referencePath.replace(pos, dataSourcePath.length(), "");
                     customProperties->SetString("editor.referenceToOwner", referencePath);
                     
-                    errorMessages.insert(Format("Node %s: referenceToOwner isn't correct. Re-save level.", node->GetName().c_str()));
+                    errorsLog.insert(Format("Node %s: referenceToOwner isn't correct. Re-save level.", node->GetName().c_str()));
                 }
             }
         }
@@ -126,22 +183,25 @@ void SceneValidator::ValidateTexture(Texture *texture)
 {
     errorMessages.clear();
 
-    ValidateTextureInternal(texture);
+    ValidateTexture(texture, errorMessages);
 
-    if(errorMessages.size())
-    {
-        ShowErrors();
-    }
+    ShowErrors();
 }
 
-void SceneValidator::ValidateTextureInternal(Texture *texture)
+void SceneValidator::ValidateTexture(Texture *texture, Set<String> &errorsLog)
 {
     if(!texture) return;
-    
+
+    bool pathIsCorrect = ValidatePathname(texture->GetPathname());
+    if(!pathIsCorrect)
+    {
+        String path = FileSystem::AbsoluteToRelativePath(EditorSettings::Instance()->GetDataSourcePath(), texture->GetPathname());
+        errorsLog.insert("Wrong path of: " + path);
+    }
     if(IsntPower2(texture->GetWidth()) || IsntPower2(texture->GetHeight()))
     {
         String path = FileSystem::AbsoluteToRelativePath(EditorSettings::Instance()->GetDataSourcePath(), texture->GetPathname());
-        errorMessages.insert("Wrong size of " + path);
+        errorsLog.insert("Wrong size of " + path);
     }
 }
 
@@ -149,21 +209,25 @@ void SceneValidator::ValidateLandscape(LandscapeNode *landscape)
 {
     errorMessages.clear();
     
-    ValidateLandscapeInternal(landscape);
+    ValidateLandscape(landscape, errorMessages);
     
-    if(errorMessages.size())
-    {
-        ShowErrors();
-    }
+    ShowErrors();
 }
 
-void SceneValidator::ValidateLandscapeInternal(LandscapeNode *landscape)
+void SceneValidator::ValidateLandscape(LandscapeNode *landscape, Set<String> &errorsLog)
 {
     if(!landscape) return;
     
     for(int32 i = 0; i < LandscapeNode::TEXTURE_COUNT; ++i)
     {
-        ValidateTextureInternal(landscape->GetTexture((LandscapeNode::eTextureLevel)i));
+        ValidateTexture(landscape->GetTexture((LandscapeNode::eTextureLevel)i), errorsLog);
+    }
+    
+    bool pathIsCorrect = ValidatePathname(landscape->GetHeightmapPathname());
+    if(!pathIsCorrect)
+    {
+        String path = FileSystem::AbsoluteToRelativePath(EditorSettings::Instance()->GetDataSourcePath(), landscape->GetHeightmapPathname());
+        errorsLog.insert("Wrong path of Heightmap: " + path);
     }
 }
 
@@ -174,10 +238,13 @@ bool SceneValidator::IsntPower2(int32 num)
 
 void SceneValidator::ShowErrors()
 {
-    ErrorNotifier::Instance()->ShowError(errorMessages);
+    if(0 < errorMessages.size())
+    {
+        ErrorNotifier::Instance()->ShowError(errorMessages);
+    }
 }
 
-void SceneValidator::ValidateMeshInstanceInternal(MeshInstanceNode *meshNode)
+void SceneValidator::ValidateMeshInstance(MeshInstanceNode *meshNode, Set<String> &errorsLog)
 {
     meshNode->RemoveFlag(SceneNode::NODE_INVALID);
     
@@ -187,20 +254,20 @@ void SceneValidator::ValidateMeshInstanceInternal(MeshInstanceNode *meshNode)
     {
         Material * material = polygroups[iMat]->GetMaterial();
 
-        ValidateMaterialInternal(material);
+        ValidateMaterial(material, errorsLog);
 
         if (material->Validate(polygroups[iMat]->GetPolygonGroup()) == Material::VALIDATE_INCOMPATIBLE)
         {
             meshNode->AddFlag(SceneNode::NODE_INVALID);
-            errorMessages.insert(Format("Material: %s incompatible with node:%s.", material->GetName().c_str(), meshNode->GetFullName().c_str()));
-            errorMessages.insert("For lightmapped objects check second coordinate set. For normalmapped check tangents, binormals.");
+            errorsLog.insert(Format("Material: %s incompatible with node:%s.", material->GetName().c_str(), meshNode->GetFullName().c_str()));
+            errorsLog.insert("For lightmapped objects check second coordinate set. For normalmapped check tangents, binormals.");
         }
     }
     
     int32 lightmapCont = meshNode->GetLightmapCount();
     for(int32 iLight = 0; iLight < lightmapCont; ++iLight)
     {
-        ValidateTextureInternal(meshNode->GetLightmapDataForIndex(iLight)->lightmap);
+        ValidateTexture(meshNode->GetLightmapDataForIndex(iLight)->lightmap, errorsLog);
     }
 }
 
@@ -209,19 +276,16 @@ void SceneValidator::ValidateMaterial(Material *material)
 {
     errorMessages.clear();
 
-    ValidateMaterialInternal(material);
+    ValidateMaterial(material, errorMessages);
 
-    if(errorMessages.size())
-    {
-        ShowErrors();
-    }
+    ShowErrors();
 }
 
-void SceneValidator::ValidateMaterialInternal(Material *material)
+void SceneValidator::ValidateMaterial(Material *material, Set<String> &errorsLog)
 {
     for(int32 iTex = 0; iTex < Material::TEXTURE_COUNT; ++iTex)
     {
-        ValidateTextureInternal(material->textures[iTex]);
+        ValidateTexture(material->textures[iTex], errorsLog);
     }
 }
 
@@ -308,7 +372,7 @@ void SceneValidator::ReloadTextures()
     Image::EnableAlphaPremultiplication(isAlphaPremultiplicationEnabled);
 }
 
-void SceneValidator::ValidateLodNodes(Scene *scene)
+void SceneValidator::ValidateLodNodes(Scene *scene, Set<String> &errorsLog)
 {
     Vector<LodNode *> lodnodes;
     scene->GetChildNodes(lodnodes); 
@@ -324,7 +388,7 @@ void SceneValidator::ValidateLodNodes(Scene *scene)
             if(LodNode::INVALID_DISTANCE == distance)
             {
                 ln->SetLodLayerDistance(layer, ln->GetDefaultDistance(layer));
-                errorMessages.insert(Format("Node %s: lod distances weren't correct. Re-save.", ln->GetName().c_str()));
+                errorsLog.insert(Format("Node %s: lod distances weren't correct. Re-save.", ln->GetName().c_str()));
             }
         }
         
@@ -341,8 +405,48 @@ void SceneValidator::ValidateLodNodes(Scene *scene)
             {
                 ld->layer = layer;
 
-                errorMessages.insert(Format("Node %s: lod layers weren't correct. Rename childs. Re-save.", ln->GetName().c_str()));
+                errorsLog.insert(Format("Node %s: lod layers weren't correct. Rename childs. Re-save.", ln->GetName().c_str()));
             }
         }
     }
+}
+
+String SceneValidator::SetPathForChecking(const String &pathname)
+{
+    String oldPath = pathForChecking;
+    pathForChecking = pathname;
+    return pathForChecking;
+}
+
+
+#include "FuckingErrorDialog.h"
+bool SceneValidator::ValidatePathname(const String &pathForValidation)
+{
+    DVASSERT(0 < pathForChecking.length()); 
+    //Need to set path to DataSource/3d for path correction  
+    //Use SetPathForChecking();
+    
+    String normalizedPath = FileSystem::NormalizePath(pathForValidation);
+    
+    String::size_type fboFound = normalizedPath.find(String("FBO"));
+    String::size_type resFound = normalizedPath.find(String("~res:"));
+    if((String::npos != fboFound) || (String::npos != resFound))
+    {
+        return true;   
+    }
+    
+    
+    String::size_type foundPos = normalizedPath.find(pathForChecking);
+    bool pathIsCorrect = (String::npos != foundPos);
+    if(!pathIsCorrect)
+    {
+        UIScreen *screen = UIScreenManager::Instance()->GetScreen();
+        
+        FuckingErrorDialog *dlg = new FuckingErrorDialog(screen->GetRect(), String("Wrong path: ") + pathForValidation);
+        screen->AddControl(dlg);
+        SafeRelease(dlg);
+    }
+    
+    return pathIsCorrect;
+    
 }

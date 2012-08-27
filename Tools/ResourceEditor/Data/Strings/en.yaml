@@ -3,6 +3,7 @@ dialog.ok: "Ok"
 dialog.cancel: "Cancel"
 dialog.create: "Create"
 dialog.close: "Close"
+dialog.set: "Set"
 
 #menu strings
 menu.open: "Open" 
@@ -23,6 +24,7 @@ menu.createnode.sphere: "Sphere"
 menu.createnode.camera: "Camera"
 menu.createnode.imposter: "Imposter"
 menu.createnode.lodnode: "LodNode"
+menu.createnode.particleemitter: "Particle emitter"
 menu.createnode.usernode: "UserNode"
 menu.new: "New Scene"
 menu.new.emptyscene: "Empty Scene"
@@ -60,6 +62,7 @@ scenegraph.removeobject: "Remove Object"
 scenegraph.debugflags: "Debug Flags"
 scenegraph.bakematrices: "Bake Matrices"
 scenegraph.buildquadtree: "Build Quad Tree"
+scenegraph.removerootnode: "Remove Root Nodes"
 
 
 #Library
@@ -85,6 +88,7 @@ createnode.camera: "Create camera"
 createnode.imposter: "Create imposter"
 createnode.lodnode: "Create lod node"
 createnode.usernode: "Create user node"
+createnode.particleemitter: "Create particle emitter"
 
 #Create Property Dialog
 createproperty.type: "Type:"
@@ -116,6 +120,7 @@ materialeditor.materials: "Materials:"
 materialeditor.selected: "Selected"
 materialeditor.all: "All"
 materialeditor.nomaterials: "No materials."
+materialeditor.setupfog: "Setup Fog"
 
 #Modification Panel
 modificationpanel.modification: "Modification:"
@@ -141,9 +146,12 @@ property.lightnode.light: "Light"
 property.lightnode.type: "Type:"
 property.lightnode.color: "Color:"
 property.lightnode.staticlight: "Static light"
+property.lightnode.dynamiclight: "Dynamic light"
 property.lightnode.ambient.color: "Ambient color:"
 property.lightnode.diffuse.color: "Diffuse color:"
 property.lightnode.specular.color: "Specular color:"
+property.staticlight.enable: "Enable"
+property.dynamiclight.enable: "Enable"
 
 
 #CubeNode Section
@@ -224,6 +232,11 @@ property.material.specularshininess: "Specular shininess:"
 property.material.alphablend: "Alpha blend"
 property.material.blendSrc: "Source factor"
 property.material.blendDst: "Destination factor"
+property.material.dencity: "Dencity:"
+property.material.fogenabled: "Fog enabled:"
+property.material.fogsettings: "Fog Settings"
+property.material.fogcolor: "Fog Color"
+
 
 #LodNode
 property.lodnode: "LodNode"

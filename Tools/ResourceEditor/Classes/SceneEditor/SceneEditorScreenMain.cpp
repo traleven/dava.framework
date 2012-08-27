@@ -6,6 +6,7 @@
 #include "ControlsFactory.h"
 #include "../EditorScene.h"
 #include "MaterialEditor.h"
+#include "../ParticlesEditor/ParticlesEditorControl.h"
 
 #include "EditorSettings.h"
 #include "SceneValidator.h"
@@ -20,6 +21,8 @@
 #include "HelpDialog.h"
 
 #include "UNDOManager.h"
+
+#include "SceneExporter.h"
 
 void SceneEditorScreenMain::LoadResources()
 {
@@ -37,8 +40,7 @@ void SceneEditorScreenMain::LoadResources()
     fileSystemDialog = new UIFileSystemDialog("~res:/Fonts/MyriadPro-Regular.otf");
     fileSystemDialog->SetDelegate(this);
     
-    KeyedArchive *keyedArchieve = EditorSettings::Instance()->GetSettings();
-    String path = keyedArchieve->GetString("3dDataSourcePath", "/");
+    String path = EditorSettings::Instance()->GetDataSourcePath();
     if(path.length())
     fileSystemDialog->SetCurrentDir(path);
     
@@ -65,6 +67,7 @@ void SceneEditorScreenMain::LoadResources()
     textureConverterDialog = new TextureConverterDialog(fullRect);
     
     materialEditor = new MaterialEditor();
+	particlesEditor = new ParticlesEditorControl();
     
     //add line before body
     AddLineControl(Rect(0, BODY_Y_OFFSET, fullRect.dx, LINE_HEIGHT));
@@ -103,15 +106,17 @@ void SceneEditorScreenMain::LoadResources()
     AddControl(sceneInfoButton);
     
     
-    sceneGraphButton = ControlsFactory::CreateButton(
-                                        Vector2(0, BODY_Y_OFFSET - ControlsFactory::BUTTON_HEIGHT), LocalizedString(L"panel.graph.scene"));
+    sceneGraphButton = ControlsFactory::CreateButton( Vector2(0, BODY_Y_OFFSET - ControlsFactory::BUTTON_HEIGHT), LocalizedString(L"panel.graph.scene"));
     sceneGraphButton->AddEvent(UIControl::EVENT_TOUCH_UP_INSIDE, Message(this, &SceneEditorScreenMain::OnSceneGraphPressed));
     AddControl(sceneGraphButton);
     
-    dataGraphButton = ControlsFactory::CreateButton(
-                                                     Vector2(ControlsFactory::BUTTON_WIDTH, BODY_Y_OFFSET - ControlsFactory::BUTTON_HEIGHT), LocalizedString(L"panel.graph.data"));
+    dataGraphButton = ControlsFactory::CreateButton(Vector2(ControlsFactory::BUTTON_WIDTH, BODY_Y_OFFSET - ControlsFactory::BUTTON_HEIGHT), LocalizedString(L"panel.graph.data"));
     dataGraphButton->AddEvent(UIControl::EVENT_TOUCH_UP_INSIDE, Message(this, &SceneEditorScreenMain::OnDataGraphPressed));
     AddControl(dataGraphButton);
+
+	entitiesButton = ControlsFactory::CreateButton(Vector2(ControlsFactory::BUTTON_WIDTH*2, BODY_Y_OFFSET - ControlsFactory::BUTTON_HEIGHT), LocalizedString(L"panel.graph.entities"));
+	entitiesButton->AddEvent(UIControl::EVENT_TOUCH_UP_INSIDE, Message(this, &SceneEditorScreenMain::OnEntitiesPressed));
+	AddControl(entitiesButton);
     
     InitializeBodyList();
     
@@ -132,6 +137,7 @@ void SceneEditorScreenMain::UnloadResources()
     
     SafeRelease(sceneGraphButton);
     SafeRelease(dataGraphButton);
+	SafeRelease(entitiesButton);
     
     ReleaseNodeDialogs();
     
@@ -143,6 +149,8 @@ void SceneEditorScreenMain::UnloadResources()
     SafeRelease(libraryButton);
     
     SafeRelease(fileSystemDialog);
+
+	SafeRelease(particlesEditor);
     
     ReleaseBodyList();
         
@@ -286,23 +294,24 @@ void SceneEditorScreenMain::OnFileSelected(UIFileSystemDialog *forDialog, const 
         case DIALOG_OPERATION_MENU_SAVE:
         {
             EditorSettings::Instance()->AddLastOpenedFile(pathToFile);
+            SaveSceneToFile(pathToFile);
 
-            BodyItem *iBody = FindCurrentBody();
-            iBody->bodyControl->SetFilePath(pathToFile);
-			
-			iBody->bodyControl->PushDebugCamera();
-
-            Scene * scene = iBody->bodyControl->GetScene();
-
-            uint64 startTime = SystemTimer::Instance()->AbsoluteMS();
-            SceneFileV2 * file = new SceneFileV2();
-            file->EnableDebugLog(false);
-            file->SaveScene(pathToFile, scene);
-            SafeRelease(file);
-            uint64 endTime = SystemTimer::Instance()->AbsoluteMS();
-            Logger::Info("[SAVE SCENE TIME] %d ms", (endTime - startTime));
-
-			iBody->bodyControl->PopDebugCamera();			
+//            BodyItem *iBody = FindCurrentBody();
+//            iBody->bodyControl->SetFilePath(pathToFile);
+//			
+//			iBody->bodyControl->PushDebugCamera();
+//
+//            Scene * scene = iBody->bodyControl->GetScene();
+//
+//            uint64 startTime = SystemTimer::Instance()->AbsoluteMS();
+//            SceneFileV2 * file = new SceneFileV2();
+//            file->EnableDebugLog(false);
+//            file->SaveScene(pathToFile, scene);
+//            SafeRelease(file);
+//            uint64 endTime = SystemTimer::Instance()->AbsoluteMS();
+//            Logger::Info("[SAVE SCENE TIME] %d ms", (endTime - startTime));
+//
+//			iBody->bodyControl->PopDebugCamera();			
             break;
         }
             
@@ -318,6 +327,7 @@ void SceneEditorScreenMain::OnFileSelected(UIFileSystemDialog *forDialog, const 
             keyedArchieve->SetString("3dDataSourcePath", projectPath + "DataSource/3d/");
             EditorSettings::Instance()->Save();
             
+            SceneValidator::Instance()->SetPathForChecking(EditorSettings::Instance()->GetProjetcPath());
             libraryControl->SetPath(EditorSettings::Instance()->GetDataSourcePath());
             break;
         }
@@ -335,7 +345,7 @@ void SceneEditorScreenMain::OnFileSytemDialogCanceled(UIFileSystemDialog *forDia
 }
 
 
-void SceneEditorScreenMain::OnOpenPressed(BaseObject * obj, void *, void *)
+void SceneEditorScreenMain::OnOpenPressed(BaseObject *, void *, void *)
 {
     if(EditorSettings::Instance()->GetLastOpenedCount())
     {
@@ -351,7 +361,7 @@ void SceneEditorScreenMain::OnOpenPressed(BaseObject * obj, void *, void *)
 }
 
 
-void SceneEditorScreenMain::OnSavePressed(BaseObject * obj, void *, void *)
+void SceneEditorScreenMain::OnSavePressed(BaseObject *, void *, void *)
 {
     BodyItem *iBody = FindCurrentBody();
 
@@ -381,7 +391,7 @@ void SceneEditorScreenMain::OnSavePressed(BaseObject * obj, void *, void *)
     }
 }
 
-void SceneEditorScreenMain::OnExportPressed(BaseObject * obj, void *, void *)
+void SceneEditorScreenMain::OnExportPressed(BaseObject *, void *, void *)
 {
     BodyItem *iBody = FindCurrentBody();
     if(iBody->bodyControl->LandscapeEditorActive())
@@ -395,82 +405,69 @@ void SceneEditorScreenMain::OnExportPressed(BaseObject * obj, void *, void *)
     }
 }
 
-void SceneEditorScreenMain::ExportTexture(const String &textureDataSourcePath)
+//void SceneEditorScreenMain::ExportTexture(const String &textureDataSourcePath)
+//{
+//    Logger::Debug("[ExportTexture] %s", textureDataSourcePath.c_str());
+//    
+//    String fileOnly;
+//    String pathOnly;
+//    String pathTo = textureDataSourcePath;
+//    pathTo.replace(textureDataSourcePath.find("DataSource"), strlen("DataSource"), "Data");
+//    FileSystem::SplitPath(pathTo, pathOnly, fileOnly);
+//
+//	//default pathTo  -gith
+//	if(useConvertedTextures)
+//	{
+//		// texture.pvr.png -> texture.pvr
+//        if(String::npos != pathTo.find(".pvr.png"))
+//        {
+//            pathTo.replace(pathTo.find(".pvr.png"), strlen(".pvr.png"), ".pvr");
+//        }
+//        else if(String::npos != pathTo.find(".png"))
+//        {
+//            pathTo.replace(pathTo.find(".png"), strlen(".png"), ".pvr");
+//        }
+//	}
+//
+//    FileSystem::Instance()->CreateDirectory(pathOnly, true);
+//	FileSystem::Instance()->DeleteFile(pathTo);
+//    FileSystem::Instance()->CopyFile(textureDataSourcePath, pathTo);
+//}
+//
+//void SceneEditorScreenMain::ExportLandscapeFile(const String &fileDataSourcePath)
+//{
+//    String fileOnly;
+//    String pathOnly;
+//    String pathTo = fileDataSourcePath;
+//    pathTo.replace(fileDataSourcePath.find("DataSource"), strlen("DataSource"), "Data");
+//    FileSystem::SplitPath(pathTo, pathOnly, fileOnly);
+//    
+//	//default pathTo  -gith
+//	if(useConvertedTextures)
+//	{
+//		// texture.pvr.png -> texture.pvr
+//        if(String::npos != pathTo.find(".pvr.png"))
+//        {
+//            pathTo.replace(pathTo.find(".pvr.png"), strlen(".pvr.png"), ".pvr");
+//        }
+//        else if(String::npos != pathTo.find(".png"))
+//        {
+//            pathTo.replace(pathTo.find(".png"), strlen(".png"), ".pvr");
+//        }
+//	}
+//    
+//    FileSystem::Instance()->CreateDirectory(pathOnly, true);
+//	FileSystem::Instance()->DeleteFile(pathTo);
+//    FileSystem::Instance()->CopyFile(fileDataSourcePath, pathTo);
+//}
+
+void SceneEditorScreenMain::OnMaterialsPressed(BaseObject *, void *, void *)
 {
-    Logger::Debug("[ExportTexture] %s", textureDataSourcePath.c_str());
-    
-    String fileOnly;
-    String pathOnly;
-    String pathTo = textureDataSourcePath;
-    pathTo.replace(textureDataSourcePath.find("DataSource"), strlen("DataSource"), "Data");
-    FileSystem::SplitPath(pathTo, pathOnly, fileOnly);
-
-	//default pathTo  -gith
-	if(useConvertedTextures)
-	{
-		// texture.pvr.png -> texture.pvr
-        if(String::npos != pathTo.find(".pvr.png"))
-        {
-            pathTo.replace(pathTo.find(".pvr.png"), strlen(".pvr.png"), ".pvr");
-        }
-        else if(String::npos != pathTo.find(".png"))
-        {
-            pathTo.replace(pathTo.find(".png"), strlen(".png"), ".pvr");
-        }
-	}
-
-    FileSystem::Instance()->CreateDirectory(pathOnly, true);
-	FileSystem::Instance()->DeleteFile(pathTo);
-    FileSystem::Instance()->CopyFile(textureDataSourcePath, pathTo);
-}
-
-void SceneEditorScreenMain::ExportLandscapeFile(const String &fileDataSourcePath)
-{
-    String fileOnly;
-    String pathOnly;
-    String pathTo = fileDataSourcePath;
-    pathTo.replace(fileDataSourcePath.find("DataSource"), strlen("DataSource"), "Data");
-    FileSystem::SplitPath(pathTo, pathOnly, fileOnly);
-    
-	//default pathTo  -gith
-	if(useConvertedTextures)
-	{
-		// texture.pvr.png -> texture.pvr
-        if(String::npos != pathTo.find(".pvr.png"))
-        {
-            pathTo.replace(pathTo.find(".pvr.png"), strlen(".pvr.png"), ".pvr");
-        }
-        else if(String::npos != pathTo.find(".png"))
-        {
-            pathTo.replace(pathTo.find(".png"), strlen(".png"), ".pvr");
-        }
-	}
-    
-    FileSystem::Instance()->CreateDirectory(pathOnly, true);
-	FileSystem::Instance()->DeleteFile(pathTo);
-    FileSystem::Instance()->CopyFile(fileDataSourcePath, pathTo);
-}
-
-void SceneEditorScreenMain::OnMaterialsPressed(BaseObject * obj, void *, void *)
-{
-    BodyItem *iBody = FindCurrentBody();
-    if (!materialEditor->GetParent())
-    {
-        materialEditor->SetWorkingScene(iBody->bodyControl->GetScene(), iBody->bodyControl->GetSelectedSGNode());
-
-        AddControl(materialEditor);
-    }
-    else 
-    {
-        RemoveControl(materialEditor);
-        
-        iBody->bodyControl->RefreshProperties();
-        SceneValidator::Instance()->EnumerateSceneTextures();
-    }
+    MaterialsTriggered();
 }
 
 
-void SceneEditorScreenMain::OnCreatePressed(BaseObject * obj, void *, void *)
+void SceneEditorScreenMain::OnCreatePressed(BaseObject *, void *, void *)
 {
     menuPopup->InitControl(MENUID_CREATENODE, btnCreate->GetRect());
     AddControl(menuPopup);
@@ -479,6 +476,7 @@ void SceneEditorScreenMain::OnCreatePressed(BaseObject * obj, void *, void *)
 
 void SceneEditorScreenMain::OnNewPressed(BaseObject * obj, void *, void *)
 {
+    NewScene();
     bodies[0]->bodyControl->ReleaseScene();
     bodies[0]->bodyControl->CreateScene(true);
     bodies[0]->bodyControl->Refresh();
@@ -562,7 +560,7 @@ void SceneEditorScreenMain::OnSelectBody(BaseObject * owner, void * userData, vo
 {
     UIButton *btn = (UIButton *)owner;
     
-    for(int32 i = 0; i < bodies.size(); ++i)
+    for(int32 i = 0; i < (int32)bodies.size(); ++i)
     {
         if(bodies[i]->bodyControl->GetParent())
         {
@@ -597,7 +595,7 @@ void SceneEditorScreenMain::OnCloseBody(BaseObject * owner, void * userData, voi
     
     bool needToSwitchBody = false;
     Vector<BodyItem*>::iterator it = bodies.begin();
-    for(int32 i = 0; i < bodies.size(); ++i, ++it)
+    for(int32 i = 0; i < (int32)bodies.size(); ++i, ++it)
     {
         if(btn == bodies[i]->closeButton)
         {
@@ -620,7 +618,7 @@ void SceneEditorScreenMain::OnCloseBody(BaseObject * owner, void * userData, voi
         }
     }
 
-    for(int32 i = 0; i < bodies.size(); ++i)
+    for(int32 i = 0; i < (int32)bodies.size(); ++i)
     {
         bodies[i]->headerButton->SetRect(
                             Rect(TAB_BUTTONS_OFFSET + i * (ControlsFactory::BUTTON_WIDTH), 
@@ -669,7 +667,7 @@ void SceneEditorScreenMain::OnLibraryPressed(DAVA::BaseObject *obj, void *, void
 
 SceneEditorScreenMain::BodyItem * SceneEditorScreenMain::FindCurrentBody()
 {
-    for(int32 i = 0; i < bodies.size(); ++i)
+    for(int32 i = 0; i < (int32)bodies.size(); ++i)
     {
         if(bodies[i]->bodyControl->GetParent())
         {
@@ -735,6 +733,13 @@ void SceneEditorScreenMain::OnDataGraphPressed(BaseObject * obj, void *, void *)
 //    iBody->bodyControl->ShowDataGraph(!areShown);
 }
 
+void SceneEditorScreenMain::OnEntitiesPressed(BaseObject * obj, void *, void *)
+{
+	BodyItem *iBody = FindCurrentBody();
+
+	iBody->bodyControl->ToggleEntities();
+}
+
 
 void SceneEditorScreenMain::OnBeastPressed(BaseObject * obj, void *, void *)
 {
@@ -771,31 +776,19 @@ void SceneEditorScreenMain::MenuSelected(int32 menuID, int32 itemID)
             
         case MENUID_CREATENODE:
         {
-            nodeDialog->CreateNode(itemID);
-            
-            AddControl(dialogBack);
-            AddControl(nodeDialog);
+            CreateNode((ResourceEditor::eNodeType)itemID);
             break;
         }
                         
         case MENUID_VIEWPORT:
         {
-            BodyItem *iBody = FindCurrentBody();
-            
-            if(libraryControl->GetParent())
-            {
-                RemoveControl(libraryControl);
-            }
-            
-            iBody->bodyControl->UpdateLibraryState(libraryControl->GetParent(), libraryControl->GetRect().dx);
-            
-            iBody->bodyControl->SetViewPortSize(itemID);
+            SetViewport((ResourceEditor::eViewportType)itemID);
             break;
         }
             
         case MENUID_EXPORTTOGAME:
         {
-            ExportToGameAction(itemID);
+            ExportAs((ResourceEditor::eExportFormat)itemID);
             break;
         }
             
@@ -829,62 +822,61 @@ WideString SceneEditorScreenMain::MenuItemText(int32 menuID, int32 itemID)
         {
             switch (itemID) 
             {
-                case ECNID_LANDSCAPE:
+                case ResourceEditor::NODE_LANDSCAPE:
                 {
                     text = LocalizedString(L"menu.createnode.landscape");
                     break;
                 }
                     
-                case ECNID_LIGHT:
+                case ResourceEditor::NODE_LIGHT:
                 {
                     text = LocalizedString(L"menu.createnode.light");
                     break;
                 }
                     
-                case ECNID_SERVICENODE:
+                case ResourceEditor::NODE_SERVICE_NODE:
                 {
                     text = LocalizedString(L"menu.createnode.servicenode");
                     break;
                 }
                     
-                case ECNID_BOX:
+                case ResourceEditor::NODE_BOX:
                 {
                     text = LocalizedString(L"menu.createnode.box");
                     break;
                 }
                     
-                case ECNID_SPHERE:
+                case ResourceEditor::NODE_SPHERE:
                 {
                     text = LocalizedString(L"menu.createnode.sphere");
                     break;
                 }
                     
-                case ECNID_CAMERA:
+                case ResourceEditor::NODE_CAMERA:
                 {
                     text = LocalizedString(L"menu.createnode.camera");
                     break;
                 }
 
-				case ECNID_IMPOSTER:
+				case ResourceEditor::NODE_IMPOSTER:
 				{
 					text = LocalizedString(L"menu.createnode.imposter");
 					break;
 				}
 
-				case ECNID_USERNODE:
-					{
-						text = LocalizedString(L"menu.createnode.usernode");
-						break;
-					}
+				case ResourceEditor::NODE_PARTICLE_EMITTER:
+				{
+					text = LocalizedString(L"menu.createnode.particleemitter");
+					break;
+				}
+
+				case ResourceEditor::NODE_USER_NODE:
+                {
+                    text = LocalizedString(L"menu.createnode.usernode");
+                    break;
+                }
 
 
-//                case ECNID_LODNODE:
-//				{
-//					text = LocalizedString(L"menu.createnode.lodnode");
-//					break;
-//				}
-
-                    
                 default:
                     break;
             }
@@ -897,19 +889,19 @@ WideString SceneEditorScreenMain::MenuItemText(int32 menuID, int32 itemID)
         {
             switch (itemID)
             {
-                case EditorBodyControl::EVPID_IPHONE:
+                case ResourceEditor::VIEWPORT_IPHONE:
                     text = LocalizedString("menu.viewport.iphone");
                     break;
 
-                case EditorBodyControl::EVPID_RETINA:
+                case ResourceEditor::VIEWPORT_RETINA:
                     text = LocalizedString("menu.viewport.retina");
                     break;
 
-                case EditorBodyControl::EVPID_IPAD:
+                case ResourceEditor::VIEWPORT_IPAD:
                     text = LocalizedString("menu.viewport.ipad");
                     break;
 
-                case EditorBodyControl::EVPID_DEFAULT:
+                case ResourceEditor::VIEWPORT_DEFAULT:
                     text = LocalizedString("menu.viewport.default");
                     break;
 
@@ -923,15 +915,15 @@ WideString SceneEditorScreenMain::MenuItemText(int32 menuID, int32 itemID)
         {
             switch (itemID) 
             {
-                case EETGMID_PNG:
+                case ResourceEditor::FORMAT_PNG:
                     text = LocalizedString(L"menu.export.png");
                     break;
                     
-                case EETGMID_PVR:
+                case ResourceEditor::FORMAT_PVR:
                     text = LocalizedString(L"menu.export.pvr");
                     break;
 
-                case EETGMID_DXT:
+                case ResourceEditor::FORMAT_DXT:
                     text = LocalizedString(L"menu.export.dxt");
                     break;
                     
@@ -961,19 +953,19 @@ int32 SceneEditorScreenMain::MenuItemsCount(int32 menuID)
         }
         case MENUID_CREATENODE:
         {
-            retCount = ECNID_COUNT;
+            retCount = ResourceEditor::NODE_COUNT;
             break;
         }
             
         case MENUID_VIEWPORT:
         {
-            retCount = EditorBodyControl::EVPID_COUNT;
+            retCount = ResourceEditor::VIEWPORT_COUNT;
             break;
         }
 
         case MENUID_EXPORTTOGAME:
         {
-            retCount = EETGMID_COUNT;
+            retCount = ResourceEditor::FORMAT_COUNT;
             break;
         }
             
@@ -1021,26 +1013,14 @@ void SceneEditorScreenMain::ReleaseNodeDialogs()
     SafeRelease(dialogBack);
 }
 
-void SceneEditorScreenMain::OnLandscapeHeightmapPressed(BaseObject * obj, void *, void *)
+void SceneEditorScreenMain::OnLandscapeHeightmapPressed(BaseObject *, void *, void *)
 {
-    BodyItem *iBody = FindCurrentBody();
-    bool ret = iBody->bodyControl->ToggleLandscapeEditor(ELEMID_HEIGHTMAP);
-    if(ret)
-    {
-        bool selected = btnLandscapeHeightmap->GetSelected();
-        btnLandscapeHeightmap->SetSelected(!selected);
-    }
+    HeightmapTriggered();
 }
 
-void SceneEditorScreenMain::OnLandscapeColorPressed(BaseObject * obj, void *, void *)
+void SceneEditorScreenMain::OnLandscapeColorPressed(BaseObject *, void *, void *)
 {
-    BodyItem *iBody = FindCurrentBody();
-    bool ret = iBody->bodyControl->ToggleLandscapeEditor(ELEMID_COLOR_MAP);
-    if(ret)
-    {
-        bool selected = btnLandscapeColor->GetSelected();
-        btnLandscapeColor->SetSelected(!selected);
-    }
+    TilemapTriggered();
 }
 
 void SceneEditorScreenMain::EditMaterial(Material *material)
@@ -1117,7 +1097,7 @@ void SceneEditorScreenMain::SettingsChanged()
 //    editorScene->SetForceLodLayer(node, EditorSettings::Instance()->GetForceLodLayer());
     
 
-    for(int32 i = 0; i < bodies.size(); ++i)
+    for(int32 i = 0; i < (int32)bodies.size(); ++i)
     {
         EditorScene *scene = bodies[i]->bodyControl->GetScene();
 //        scene->SetForceLodLayer(EditorSettings::Instance()->GetForceLodLayer());
@@ -1222,155 +1202,214 @@ void SceneEditorScreenMain::ShowTextureTriangles(PolygonGroup *polygonGroup)
     }
 }
 
-void SceneEditorScreenMain::OnTextureConverter(DAVA::BaseObject *obj, void *, void *)
+void SceneEditorScreenMain::OnTextureConverter(DAVA::BaseObject *, void *, void *)
+{
+    TextureConverterTriggered();
+}
+
+
+void SceneEditorScreenMain::RecreteFullTilingTexture()
+{
+    for(int32 i = 0; i < (int32)bodies.size(); ++i)
+    {
+        bodies[i]->bodyControl->RecreteFullTilingTexture();
+    }
+}
+
+void SceneEditorScreenMain::EditParticleEmitter(ParticleEmitterNode * emitter)
+{
+	//BodyItem *iBody = FindCurrentBody();
+	if (!particlesEditor->GetParent())
+	{
+		particlesEditor->SetEmitter(emitter->GetEmitter());
+		AddControl(particlesEditor);
+	}
+}
+
+void SceneEditorScreenMain::NewScene()
+{
+    bodies[0]->bodyControl->ReleaseScene();
+    bodies[0]->bodyControl->CreateScene(true);
+    bodies[0]->bodyControl->Refresh();
+}
+
+
+bool SceneEditorScreenMain::SaveIsAvailable()
+{
+    if(FindCurrentBody()->bodyControl->LandscapeEditorActive())
+    {
+        ErrorNotifier::Instance()->ShowError("Can't save level at Landscape Editor Mode.");
+        return false;
+    }
+
+    return true;
+}
+
+String SceneEditorScreenMain::CurrentScenePathname()
+{
+    String pathname = FindCurrentBody()->bodyControl->GetFilePath();
+    if (0 < pathname.length())
+    {
+        pathname = FileSystem::Instance()->ReplaceExtension(pathname, ".sc2");
+    }
+
+    return pathname;
+}
+
+
+void SceneEditorScreenMain::SaveSceneToFile(const String &pathToFile)
+{
+    BodyItem *iBody = FindCurrentBody();
+    iBody->bodyControl->SetFilePath(pathToFile);
+    
+    iBody->bodyControl->PushDebugCamera();
+    
+    Scene * scene = iBody->bodyControl->GetScene();
+    
+    uint64 startTime = SystemTimer::Instance()->AbsoluteMS();
+    SceneFileV2 * file = new SceneFileV2();
+    file->EnableDebugLog(false);
+    file->SaveScene(pathToFile, scene);
+    SafeRelease(file);
+    uint64 endTime = SystemTimer::Instance()->AbsoluteMS();
+    Logger::Info("[SAVE SCENE TIME] %d ms", (endTime - startTime));
+    
+    iBody->bodyControl->PopDebugCamera();			
+}
+
+void SceneEditorScreenMain::ExportAs(ResourceEditor::eExportFormat format)
+{
+    String formatStr;
+    switch (format) 
+    {
+        case ResourceEditor::FORMAT_PNG:
+            formatStr = String("png");
+            break;
+            
+        case ResourceEditor::FORMAT_PVR:
+            formatStr = String("pvr");
+            break;
+            
+        case ResourceEditor::FORMAT_DXT:
+            DVASSERT(0);
+            return;
+            
+        default:
+			DVASSERT(0);
+            return;
+    }
+    
+    
+    BodyItem *iBody = FindCurrentBody();
+	iBody->bodyControl->PushDebugCamera();
+    
+    String filePath = iBody->bodyControl->GetFilePath();
+    
+    String dataSourcePath = EditorSettings::Instance()->GetDataSourcePath();
+    String::size_type pos = filePath.find(dataSourcePath);
+    if(String::npos != pos)
+    {
+        filePath = filePath.replace(pos, dataSourcePath.length(), "");
+    }
+    else 
+    {
+        DVASSERT(0);
+    }
+    
+    // Get project path
+    KeyedArchive *keyedArchieve = EditorSettings::Instance()->GetSettings();
+    String projectPath = keyedArchieve->GetString(String("ProjectPath"));
+    
+    if(!SceneExporter::Instance()) new SceneExporter();
+    
+    String inFolder = projectPath + String("DataSource/3d/");
+    SceneExporter::Instance()->SetInFolder(inFolder);
+    SceneExporter::Instance()->SetOutFolder(projectPath + String("Data/3d/"));
+    
+    SceneExporter::Instance()->SetExportingFormat(formatStr);
+    
+    //TODO: how to be with removed nodes?
+    Set<String> errorsLog;
+    SceneExporter::Instance()->ExportScene(iBody->bodyControl->GetScene(), filePath, errorsLog);
+    
+	iBody->bodyControl->PopDebugCamera();
+    libraryControl->RefreshTree();
+    
+    if(0 < errorsLog.size())
+    {
+        ErrorNotifier::Instance()->ShowError(errorsLog);
+    }
+}
+
+
+void SceneEditorScreenMain::CreateNode(ResourceEditor::eNodeType nodeType)
+{
+    nodeDialog->CreateNode(nodeType);
+    
+    AddControl(dialogBack);
+    AddControl(nodeDialog);
+}
+
+void SceneEditorScreenMain::SetViewport(ResourceEditor::eViewportType viewportType)
+{
+    BodyItem *iBody = FindCurrentBody();
+    
+    if(libraryControl->GetParent())
+    {
+        RemoveControl(libraryControl);
+    }
+    
+    iBody->bodyControl->UpdateLibraryState(libraryControl->GetParent(), libraryControl->GetRect().dx);
+    
+    iBody->bodyControl->SetViewportSize(viewportType);
+}
+
+void SceneEditorScreenMain::MaterialsTriggered()
+{
+    BodyItem *iBody = FindCurrentBody();
+    if (!materialEditor->GetParent())
+    {
+        materialEditor->SetWorkingScene(iBody->bodyControl->GetScene(), iBody->bodyControl->GetSelectedSGNode());
+        
+        AddControl(materialEditor);
+    }
+    else 
+    {
+        RemoveControl(materialEditor);
+        
+        iBody->bodyControl->RefreshProperties();
+        SceneValidator::Instance()->EnumerateSceneTextures();
+    }
+}
+
+void SceneEditorScreenMain::TextureConverterTriggered()
 {
     if(textureConverterDialog)
     {
         BodyItem *body = FindCurrentBody();
-
+        
         textureConverterDialog->Show(body->bodyControl->GetScene());
     }
 }
 
-void SceneEditorScreenMain::ExportToGameAction(int32 actionID)
+void SceneEditorScreenMain::HeightmapTriggered()
 {
-    switch (actionID) 
-    {
-        case EETGMID_PNG:
-            useConvertedTextures = false;
-            break;
-
-        case EETGMID_PVR:
-            useConvertedTextures = true;
-            break;
-
-        case EETGMID_DXT:
-            DVASSERT(0);
-            break;
-
-        default:
-			DVASSERT(0);
-            break;
-    }
-    
-//  old code
     BodyItem *iBody = FindCurrentBody();
-    String path = iBody->bodyControl->GetFilePath();
-	String lightmapsSource = path + "_lightmaps/";
-	String lightmapsDestination = lightmapsSource;
-    if(String::npos == path.find("DataSource"))
+    bool ret = iBody->bodyControl->ToggleLandscapeEditor(ELEMID_HEIGHTMAP);
+    if(ret)
     {
-        return;
+        bool selected = btnLandscapeHeightmap->GetSelected();
+        btnLandscapeHeightmap->SetSelected(!selected);
     }
-    path.replace(path.find("DataSource"), strlen("DataSource"), "Data");
-    
-    String fileOnly;
-    String pathOnly;
-    FileSystem::SplitPath(path, pathOnly, fileOnly);
-    FileSystem::Instance()->CreateDirectory(pathOnly, true);
-    path = FileSystem::Instance()->ReplaceExtension(path, ".sc2");
-
-	iBody->bodyControl->PushDebugCamera();
-	
-    Scene * scene = iBody->bodyControl->GetScene();
-    
-    Vector<Material*> materials;
-    scene->GetDataNodes(materials);
-    for (int i = 0; i < (int)materials.size(); i++)
-    {
-        Material *m = materials[i];
-        if (m->GetName().find("editor.") == String::npos)
-        {
-
-			if (m->textures[Material::TEXTURE_DIFFUSE])
-			{
-				if (!m->textures[Material::TEXTURE_DIFFUSE]->relativePathname.empty()) 
-				{
-					if(useConvertedTextures)
-					{
-						ExportTexture(m->names[Material::TEXTURE_DIFFUSE]);
-					}
-					else
-					{
-						ExportTexture(m->textures[Material::TEXTURE_DIFFUSE]->relativePathname);
-					}
-				}
-			}
-        }
-    }
-    
-    ExportLandscapeAndMeshLightmaps(scene);
-
-	//lightmapsDestination.replace(lightmapsDestination.find("DataSource"), strlen("DataSource"), "Data");
-	//FileSystem::Instance()->CreateDirectory(lightmapsDestination, false);
- //   FileSystem::Instance()->CopyDirectory(lightmapsSource, lightmapsDestination);
-
-    SceneFileV2 * file = new SceneFileV2();
-    file->EnableSaveForGame(true);
-    file->EnableDebugLog(true);
-    file->SaveScene(path.c_str(), scene);
-    SafeRelease(file);
-
-    
-	iBody->bodyControl->PopDebugCamera();
-
-	
-    libraryControl->RefreshTree();
-    
 }
 
-void SceneEditorScreenMain::ExportLandscapeAndMeshLightmaps(SceneNode *node)
+void SceneEditorScreenMain::TilemapTriggered()
 {
-	LandscapeNode *land = dynamic_cast<LandscapeNode *>(node);
-    if(land) 
+    BodyItem *iBody = FindCurrentBody();
+    bool ret = iBody->bodyControl->ToggleLandscapeEditor(ELEMID_COLOR_MAP);
+    if(ret)
     {
-        String fullTiledTexture = land->SaveFullTiledTexture();
-        land->SetTexture(LandscapeNode::TEXTURE_TILE_FULL, fullTiledTexture);
-        
-        ExportLandscapeFile(land->GetHeightmapPathname());
-        for(int i = 0; i < LandscapeNode::TEXTURE_COUNT; i++)
-        {
-            Texture *t = land->GetTexture((LandscapeNode::eTextureLevel)i);
-            if(t) 
-            {
-                ExportLandscapeFile(land->GetTextureName((LandscapeNode::eTextureLevel)i));
-//                if(useConvertedTextures)
-//                {
-//                    ExportTexture(t->names[Material::TEXTURE_DIFFUSE]);
-//                }
-//                else
-//                {
-//                    ExportTexture(m->textures[Material::TEXTURE_DIFFUSE]->relativePathname);
-//                }
-            }
-        }
-    }
-    // PNG / PVR conversion question??? Save lightmaps as beast batched the lightmaps ignoring settings
-    // TODO: what to do? 
-    MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
-    if (meshInstance)
-    {
-        for (int32 li = 0; li < meshInstance->GetLightmapCount(); ++li)
-        {
-            MeshInstanceNode::LightmapData * ld = meshInstance->GetLightmapDataForIndex(li);
-            if (ld)
-            {
-                ExportTexture(ld->lightmapName);  
-            }
-        }
-    }
-
-	for(int ci = 0; ci < node->GetChildrenCount(); ++ci)
-	{
-		SceneNode * child = node->GetChild(ci);
-		ExportLandscapeAndMeshLightmaps(child);
-	}
-}
-
-void SceneEditorScreenMain::RecreteFullTilingTexture()
-{
-    for(int32 i = 0; i < bodies.size(); ++i)
-    {
-        bodies[i]->bodyControl->RecreteFullTilingTexture();
+        bool selected = btnLandscapeColor->GetSelected();
+        btnLandscapeColor->SetSelected(!selected);
     }
 }

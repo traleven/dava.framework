@@ -31,13 +31,12 @@
 #define __GAMECORE_H__
 
 #include "DAVAEngine.h"
-#include "AppScreens.h"
+#include "Database/MongodbClient.h"
 
 using namespace DAVA;
 
-class SpriteTest;
-class LandscapeTest;
-
+class TestData;
+class BaseScreen;
 class GameCore : public ApplicationCore
 {
 public:	
@@ -60,27 +59,41 @@ public:
 	virtual void Update(DAVA::float32 update);
 	virtual void Draw();
 
-    
-	File * logFile;
-	SpriteTest * spriteTest;
-    
-    LandscapeTest *landscapeTextures;
-    LandscapeTest *landscapeMixedMode;
-    LandscapeTest *landscapeTiledMode;
-    LandscapeTest *landscapeTextureMode;
-    
-    
-    void TestFinished();
+    void RegisterScreen(BaseScreen *screen);
+
+    void LogMessage(const String &message);
     
 protected:
     
-    void GoToNextTest();
+    bool ConnectToDB();
     
+    void RunAllTests();
+    void RunTestByName(const String &testName);
+
+    void ProcessTests();
+    void FinishTests();
+    
+    void FlushTestResults();
     
     bool CreateLogFile();
     
-    int32 currentScreenID;
+    int32 TestCount();
     
+    MongodbObject * CreateTestDataObject(const String &testTimeString, const String &runTime, TestData *testData);
+    MongodbObject * CreateSubObject(const String &objectName, MongodbObject *dbObject, bool needFinished);
+    
+protected:
+    
+    File * logFile;
+
+    MongodbClient *dbClient;
+    
+    BaseScreen *currentScreen;
+
+    int32 currentScreenIndex;
+    Vector<BaseScreen *> screens;
+    
+    int32 currentTestIndex;
 };
 
 

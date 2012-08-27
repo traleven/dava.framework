@@ -181,7 +181,32 @@ void RenderManager::Init(int32 _frameBufferWidth, int32 _frameBufferHeight)
 #if defined(__DAVAENGINE_DIRECTX9__)
 	currentState.direct3DDevice = GetD3DDevice();
 #endif
-	currentState.Reset(true);
+    
+    RenderManager::LockNonMain();
+	currentState.Reset(false);
+    hardwareState.Reset(true);
+
+#if defined(__DAVAENGINE_OPENGL__)
+#if !defined(__DAVAENGINE_IPHONE__)//Dizz: glDisableClientState functions are not supported by GL ES 2.0
+    glDisableClientState(GL_VERTEX_ARRAY);
+    oldVertexArrayEnabled = 0;                      
+
+    glDisableClientState(GL_NORMAL_ARRAY);
+    oldNormalArrayEnabled = 0;                      
+	for (int k = 0; k < RenderStateBlock::MAX_TEXTURE_LEVELS; ++k)
+    {
+        glClientActiveTexture(GL_TEXTURE0 + k);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        oldTextureCoordArrayEnabled[k] = 0;                
+    }
+    glClientActiveTexture(GL_TEXTURE0);
+    
+    glDisableClientState(GL_COLOR_ARRAY);
+    oldColorArrayEnabled = 0;                       
+
+    RenderManager::UnlockNonMain();
+#endif    
+#endif
     
 	frameBufferWidth = _frameBufferWidth;
 	frameBufferHeight = _frameBufferHeight;
@@ -802,6 +827,11 @@ RenderStateBlock * RenderManager::State()
 void RenderManager::SetDepthFunc(eCmpFunc func)
 {
 	currentState.SetDepthFunc(func);
+}
+
+RenderOptions * RenderManager::GetOptions()
+{
+	return &options;
 }
 
 

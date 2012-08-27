@@ -1,6 +1,5 @@
 #include "EditorLightNode.h"
 
-
 REGISTER_CLASS(EditorLightNode);
 
 EditorLightNode::EditorLightNode()
@@ -63,4 +62,19 @@ DAVA::String EditorLightNode::GetSceneFile()
 	default:
 		return String();
 	}
+}
+
+SceneNode* EditorLightNode::Clone(SceneNode *dstNode /*= NULL*/)
+{
+	if(!dstNode)
+	{
+		dstNode = new EditorLightNode();
+	}
+
+	SceneNode::Clone(dstNode);
+
+	EditorLightNode *lightNode = (EditorLightNode *)dstNode;
+	lightNode->type = type;
+
+	return dstNode;
 }

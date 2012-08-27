@@ -37,6 +37,8 @@
 #include "Utils/StringFormat.h"
 #include "Scene3D/ShadowVolumeNode.h"
 #include "Debug/Stats.h"
+#include "Entity/Components.h"
+#include "Entity/Entity.h"
 
 namespace DAVA 
 {
@@ -132,7 +134,12 @@ void MeshInstanceNode::Update(float32 timeElapsed)
     SceneNode::Update(timeElapsed);
     
     if (needUpdateTransformBox)
+	{
         bbox.GetTransformedBox(worldTransform, transformedBox);
+		//entity->SetData("meshAABox", transformedBox);
+	}
+	//entity->SetData("meshInstanceNode", this);
+	//entity->SetData("transform", worldTransform);
 
     //Stats::Instance()->EndTimeMeasure("Scene.Update.MeshInstanceNode.Update", this);
 }
@@ -151,6 +158,7 @@ void MeshInstanceNode::Draw()
 //        RenderManager::Instance()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 //    }    
 
+	//now clipping in entity system
     if (flags & NODE_CLIPPED_THIS_FRAME)
     {
         // !scene->GetClipCamera()->GetFrustum()->IsInside(transformedBox)
@@ -652,23 +660,8 @@ void MeshInstanceNode::BakeTransforms()
 void MeshInstanceNode::UpdateLights()
 {
     Vector3 meshPosition = Vector3() * worldTransform;
-    float32 squareMinDistance = 10000000.0f;
-    LightNode * nearestLight = 0;
-    
-    Set<LightNode*> & lights = scene->GetLights();
-    const Set<LightNode*>::iterator & endIt = lights.end();
-    for (Set<LightNode*>::iterator it = lights.begin(); it != endIt; ++it)
-    {
-        LightNode * node = *it;
-        const Vector3 & lightPosition = node->GetPosition();
-        
-        float32 squareDistanceToLight = (meshPosition - lightPosition).SquareLength();
-        if (squareDistanceToLight < squareMinDistance)
-        {
-            squareMinDistance = squareDistanceToLight;
-            nearestLight = node;
-        }
-    }
+    LightNode * nearestLight = scene->GetNearestDynamicLight(LightNode::TYPE_COUNT, meshPosition);
+
     RegisterNearestLight(nearestLight);
 }
 

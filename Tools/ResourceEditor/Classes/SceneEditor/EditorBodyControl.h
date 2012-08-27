@@ -6,7 +6,7 @@
 #include "EditMatrixControl.h"
 #include "../EditorScene.h"
 
-#include "SceneNodeIDs.h"
+#include "../Constants.h"
 #include "NodesPropertyControl.h"
 
 #include "ModificationsPanel.h"
@@ -23,6 +23,7 @@ using namespace DAVA;
 
 class SceneGraph;
 class DataGraph;
+class EntitiesGraph;
 
 class SceneInfoControl;
 class BeastManager;
@@ -49,15 +50,6 @@ class EditorBodyControl:
     
 public:
 	
-    enum eViewPortIDs
-    {
-        EVPID_IPHONE = 0,
-        EVPID_RETINA,
-        EVPID_IPAD,
-        EVPID_DEFAULT,
-
-        EVPID_COUNT
-    };
     
 public:
     EditorBodyControl(const Rect & rect);
@@ -77,6 +69,7 @@ public:
 
     void ToggleSceneGraph();
     void ToggleDataGraph();
+	void ToggleEntities();
     
     void UpdateLibraryState(bool isShown, int32 width);
 
@@ -98,7 +91,7 @@ public:
     const String &GetFilePath();
     void SetFilePath(const String &newFilePath);
     
-    void SetViewPortSize(int32 viewportID);
+    void SetViewportSize(ResourceEditor::eViewportType viewportType);
     bool ControlsAreLocked();
 
 	void PushDebugCamera();
@@ -134,6 +127,7 @@ protected:
 	void PrepareModMatrix(const Vector2 & point);
 
 	void PlaceOnLandscape();
+	void PlaceOnLandscape(SceneNode *node);
 	
 	Vector3 GetIntersection(const Vector3 & start, const Vector3 & dir, const Vector3 & planeN, const Vector3 & planePos);
 	void InitMoving(const Vector2 & point);
@@ -197,7 +191,7 @@ protected:
 	//	Logger::Debug("intersection result %f %f %f", res.x, res.y, res.z);
 
 	
-    eViewPortIDs currentViewPortID;
+    ResourceEditor::eViewportType currentViewportType;
     
     SceneInfoControl *sceneInfoControl;
 
@@ -216,6 +210,7 @@ protected:
     //graps
     SceneGraph *sceneGraph;
     DataGraph *dataGraph;
+	EntitiesGraph *entitiesGraph;
     GraphBase *currentGraph;
     ePropertyShowState propertyShowState;
     

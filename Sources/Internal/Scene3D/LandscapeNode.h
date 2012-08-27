@@ -205,10 +205,17 @@ public:
     
 	/**
         \brief Get texture name that was previously set in SetTexture.
-        \param[in] level 
+        \param[in] level level of texture you want to get name
         \returns current texture name
 	 */
     const String & GetTextureName(eTextureLevel level);
+
+	/**
+        \brief Set texture name for export.
+        \param[in] level level of texture you want to set name
+        \param[in] newTextureName new texture name
+	 */
+    void SetTextureName(eTextureLevel level, const String &newTextureName);
     
     
 	/**
@@ -252,7 +259,7 @@ public:
     void Load(KeyedArchive * archive, SceneFileV2 * sceneFile);
     
     // TODO: Need comment here
-	bool PlacePoint(const Vector3 & point, Vector3 & result);
+	bool PlacePoint(const Vector3 & point, Vector3 & result, Vector3 * normal = 0) const;
 	Vector3 GetPoint(int16 x, int16 y, uint16 height);
 
 	void CursorEnable();
@@ -266,6 +273,14 @@ public:
     
     void UpdateFullTiledTexture();
     String SaveFullTiledTexture();
+    
+    void SetFog(bool _fogEnabled);
+    bool IsFogEnabled() const;
+    void SetFogDensity(float32 _fogDensity);
+    float32 GetFogDensity() const;
+    void SetFogColor(const Color & _fogColor);
+    const Color & GetFogColor() const;
+
     
 protected:	
     
@@ -342,6 +357,8 @@ protected:
     
     int32 uniformFogDensity;
     int32 uniformFogColor;
+    int32 uniformFogDensityFT;
+    int32 uniformFogColorFT;
 
     
     Shader * tileMaskShader;
@@ -377,6 +394,11 @@ protected:
     
     int32 nearLodIndex;
     int32 farLodIndex;
+    
+    
+    bool    isFogEnabled;
+    float32 fogDensity;
+    Color   fogColor;
 };
 
 inline AABBox3 & LandscapeNode::GetBoundingBox()

@@ -25,6 +25,9 @@ class PropertyControlCreator: public Singleton<PropertyControlCreator>
         
         EPCID_LANDSCAPE_EDITOR_MASK,
         EPCID_LANDSCAPE_EDITOR_HEIGHT,
+
+		EPCID_ENTITY,
+		EPCID_PARTICLE_EMITTER,
         
         EPCID_COUNT
     };
@@ -37,6 +40,7 @@ public:
     NodesPropertyControl * CreateControlForLandscapeEditor(SceneNode * sceneNode, const Rect & rect, LandscapeEditorPropertyControl::eEditorMode mode);
     NodesPropertyControl * CreateControlForNode(SceneNode * sceneNode, const Rect & rect, bool createNodeProperties);
 	NodesPropertyControl * CreateControlForNode(DataNode * dataNode, const Rect & rect, bool createNodeProperties);
+	NodesPropertyControl * CreateControlForEntity(Entity * entity, const Rect & rect);
 
 
 private:

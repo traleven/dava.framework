@@ -156,6 +156,7 @@ namespace DAVA
 	DisplayMode fullscreenMode = Core::Instance()->GetCurrentDisplayMode();
 	
 	// launch framework and setup all preferences
+    //TODO: maybe we need reorder calls 
 	FrameworkDidLaunched();
     RenderManager::Create(Core::RENDERER_OPENGL);
     
@@ -274,34 +275,14 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
 {
     NSLog(@"[MainWindowController] windowDidMiniaturize");
     
-    SoundSystem::Instance()->Suspend();
-    Core::Instance()->SetIsActive(false);
-    
-//    if(core)
-//    {
-//        core->OnSuspend();
-//    }
-//    else 
-//    {
-//        Core::Instance()->SetIsActive(false);
-//    }
+    [self OnSuspend];
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)notification
 {
     NSLog(@"[MainWindowController] windowDidDeminiaturize");
     
-    SoundSystem::Instance()->Resume();
-    Core::Instance()->SetIsActive(true);
-    
-//    if(core)
-//    {
-//        core->OnResume();
-//    }
-//    else 
-//    {
-//        Core::Instance()->SetIsActive(true);
-//    }
+    [self OnResume];
 }
 
 // Action method wired up to fire when the user clicks the "Go FullScreen" button.  We remain in this method until the user exits FullScreen mode.
@@ -350,19 +331,20 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
 		
         // Specify that we want a full-screen OpenGL context.
         NSOpenGLPFAFullScreen,
-		NSOpenGLPFADoubleBuffer,
-		
         // We may be on a multi-display system (and each screen may be driven by a different renderer), so we need to specify which screen we want to take over.  For this demo, we'll specify the main screen.
         NSOpenGLPFAScreenMask, CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay),
-		
         // Attributes Common to FullScreen and non-FullScreen
+
+        NSOpenGLPFANoRecovery,	/* disable all failure recovery systems         */
 
 #ifdef __DAVAENGINE_MACOS_VERSION_10_6__
         NSOpenGLPFAColorSize, [openGLView displayBitsPerPixel:kCGDirectMainDisplay], //24,
 #else //#ifdef __DAVAENGINE_MACOS_VERSION_10_6__
         NSOpenGLPFAColorSize, CGDisplayBitsPerPixel(kCGDirectMainDisplay), //24,
 #endif //#ifdef __DAVAENGINE_MACOS_VERSION_10_6__
+
         NSOpenGLPFADepthSize, 16,
+        NSOpenGLPFAStencilSize, 8,
         NSOpenGLPFADoubleBuffer,
         NSOpenGLPFAAccelerated,
         0
@@ -406,7 +388,9 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
     // Enter FullScreen mode and make our FullScreen context the active context for OpenGL commands.
 	//NSLog(@"[CoreMacOSPlatform] failed to create fullScreenContext");
 	NSLog(@"[CoreMacOSPlatform] setFullscreen (before)");
-	[fullScreenContext setFullScreen];
+	//[fullScreenContext setFullScreen];
+    CGLContextObj obj = (CGLContextObj)[fullScreenContext CGLContextObj];
+    CGLSetFullScreenOnDisplay(obj, CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay));
 	NSLog(@"[CoreMacOSPlatform] makeCurrentContext (before)");
     [fullScreenContext makeCurrentContext];
 	
@@ -453,7 +437,7 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
 	
         // Check for and process input events.
         NSEvent *event;
-        while (event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]) 
+        while ((event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES])) 
 		{
             switch ([event type]) 
 			{
@@ -757,6 +741,16 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	NSLog(@"[CoreMacOSPlatform] Application did finish launching");	
+    
+    [self OnResume];
+    
+    DAVA::Cursor * activeCursor = RenderManager::Instance()->GetCursor();
+    if (activeCursor)
+    {
+        NSCursor * cursor = (NSCursor*)activeCursor->GetMacOSXCursor();
+        [cursor set];
+    }
+
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
@@ -776,33 +770,15 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification
 {
 	NSLog(@"[CoreMacOSPlatform] Application did become active");
-    if(core)
-    {
-        core->OnResume();
-    }
-    else 
-    {
-        Core::Instance()->SetIsActive(true);
-    }    
-    DAVA::Cursor * activeCursor = RenderManager::Instance()->GetCursor();
-    if (activeCursor)
-    {
-        NSCursor * cursor = (NSCursor*)activeCursor->GetMacOSXCursor();
-        [cursor set];
-    }
+
+    [self OnResume];
 }
 
 - (void)applicationDidResignActive:(NSNotification *)aNotification
 {
-    if(core)
-    {
-        core->OnSuspend();
-    }
-    else 
-    {
-        Core::Instance()->SetIsActive(false);
-    }
 	NSLog(@"[CoreMacOSPlatform] Application did resign active");
+
+    [self OnSuspend];
 }
 
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification
@@ -840,6 +816,35 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
 	NSLog(@"[CoreMacOSPlatform] Application terminate");
 	return NSTerminateNow;
 }
+
+
+- (void)OnSuspend
+{
+    if(core)
+    {
+        core->OnSuspend();
+    }
+    else 
+    {
+        Core::Instance()->SetIsActive(false);
+    }
+}
+
+- (void)OnResume
+{
+    if(core)
+    {
+        core->OnResume();
+    }
+    else 
+    {
+        Core::Instance()->SetIsActive(true);
+    }
+}
+
+
+
+
 @end
 
 namespace DAVA 

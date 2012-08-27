@@ -33,6 +33,10 @@
 #include <pthread.h>
 #import <QuartzCore/QuartzCore.h>
 
+#if defined (__DAVAENGINE_MACOS__)
+#import <AppKit/NSOpenGL.h>
+#endif //#if defined (__DAVAENGINE_MACOS__)
+
 @interface __ThreadMacOSInit__ : NSObject
 {
 }
@@ -137,6 +141,11 @@ void	Thread::StartMacOS()
 bool Thread::IsMainThread()
 {
 	return [NSThread isMainThread];
+}
+    
+void Thread::YieldThread()
+{
+    return pthread_yield_np();
 }
 	
 };

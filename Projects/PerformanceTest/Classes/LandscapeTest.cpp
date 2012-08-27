@@ -31,15 +31,32 @@
 #include "LandscapeTest.h"
 
 LandscapeTest::LandscapeTest(const String &testName, LandscapeNode::eTiledShaderMode mode)
-    :   TestTemplate(testName)
+    :   TestTemplate<LandscapeTest>(testName)
     ,   shaderMode(mode)
 {
     testCounter = 0;
-    startTime = 0;
     
     for(int32 i = 0; i < LandscapeNode::TEXTURE_COUNT; ++i)
     {
         textures[i] = NULL;
+    }
+    
+    if(LandscapeNode::TILED_MODE_COUNT == shaderMode)
+    {
+        for(int32 i = 0; i < LandscapeNode::TEXTURE_COUNT; ++i)
+        {
+            RegisterFunction(this, &LandscapeTest::DrawSprite, Format("TestLandscapeTexture_%02d", i), TEST_FRAMES_COUNT/2, (void *)i);
+        }
+    }
+    else 
+    {
+        PerfFuncData data;
+        data.testData.name = testName;
+        data.testData.runCount = TEST_FRAMES_COUNT;
+        data.func = NULL;
+        data.screen = this;
+        
+        perfFuncs.push_back(data);
     }
 }
 
@@ -49,13 +66,13 @@ void LandscapeTest::LoadResources()
     SafeRelease(land);
     
     Scene *scene = new Scene();
-    scene->AddNode(scene->GetRootNode("~res:/3d/LandscapeTest/landscapetest.sc2")); 
+    scene->AddNode(scene->GetRootNode(String("~res:/3d/LandscapeTest/landscapetest.sc2"))); 
 
-    Camera *cam = (Camera *)scene->FindByName("TestCamera");
+    Camera *cam = (Camera *)scene->FindByName(String("TestCamera"));
     scene->AddCamera(cam); 
     scene->SetCurrentCamera(cam);
     
-    land = (LandscapeNode *)scene->FindByName("Landscape"); 
+    land = (LandscapeNode *)scene->FindByName(String("Landscape")); 
     if(land)
     {
         if(LandscapeNode::TILED_MODE_COUNT == shaderMode)
@@ -66,7 +83,6 @@ void LandscapeTest::LoadResources()
                 if(t)
                 {
                     textures[i] = Sprite::CreateFromTexture(t, 0, 0, t->GetWidth(), t->GetHeight());
-                    RegisterFunction(this, &LandscapeTest::DrawSprite, "TestLandscapeTexture", TEST_FRAMES_COUNT/2, textures[i]);
                 }
             }
         }
@@ -83,7 +99,6 @@ void LandscapeTest::LoadResources()
     SafeRelease(scene);
     
     testCounter = 0;
-    startTime = 0;
 }
 
 void LandscapeTest::UnloadResources()
@@ -98,54 +113,47 @@ void LandscapeTest::UnloadResources()
     testCounter = 0;
 }
 
-void LandscapeTest::RunTests()
+bool LandscapeTest::RunTest(int32 testNum)
 {
     if(LandscapeNode::TILED_MODE_COUNT == shaderMode)
     {
-        TestTemplate<LandscapeTest>::RunTests();
+        return TestTemplate<LandscapeTest>::RunTest(testNum);
     }
     else 
     {
-        if(LOADING_FRAMES_COUNT == testCounter)
+        if(0 == testCounter)
         {
-            startTime = SystemTimer::Instance()->AbsoluteMS();
+            perfFuncs[0].testData.startTime = SystemTimer::Instance()->AbsoluteMS();
         }
-        else if(FULL_FRAMES_COUNT == testCounter)
+        else if(TEST_FRAMES_COUNT == testCounter)
         {
-            uint64 endTime = SystemTimer::Instance()->AbsoluteMS();
-            uint64 testTime = endTime - startTime;
-            
-            int32 fps = (int32)((float32)TEST_FRAMES_COUNT / ((float32)testTime / 1000.0f));
-            
-//            PerfFuncData data = {0};
-//            data.name = screenName;
-//            data.startTime = startTime;
-//            data.endTime = endTime;
-//            data.maxTime = fps;
-//            data.runCount = TEST_FRAMES_COUNT;
-//            runIndex = 0;
-//            WriteLog(&data);
+            perfFuncs[0].testData.endTime = SystemTimer::Instance()->AbsoluteMS();
+            perfFuncs[0].testData.totalTime = perfFuncs[0].testData.endTime - perfFuncs[0].testData.startTime;
 
-            File * log = GameCore::Instance()->logFile;
-            log->WriteLine(Format("%s", screenName.c_str()));
-            log->WriteLine(Format("runCount = %d, fps = %d", TEST_FRAMES_COUNT, fps));
-            
-            Logger::Debug("%s, fps = %d", screenName.c_str(), fps);
-            
-            GameCore::Instance()->TestFinished();
+            perfFuncs[0].testData.maxTimeIndex = (int32)((float32)TEST_FRAMES_COUNT / ((float32)perfFuncs[0].testData.totalTime / 1000.0f));            
+            return true;
         }
         ++testCounter;
     }
+    return false;
 }
+
 
 void LandscapeTest::DrawSprite(PerfFuncData * data)
 {
-    Sprite *sprite = (Sprite *)data->userData;
-    
-	sprite->Reset();
-    sprite->SetFrame(0);
-    sprite->SetPosition(0.f, 0.f);
-    sprite->Draw();
+#if defined (__DAVAENGINE_MACOS__) && defined (__x86_64__) 
+	int32 spriteIndex = (int64)data->testData.userData;
+#else //#if defined (__DAVAENGINE_MACOS__) && defined (__x86_64__) 
+	int32 spriteIndex = (int32)data->testData.userData;
+#endif //#if defined (__DAVAENGINE_MACOS__) && defined (__x86_64__) 
+
+    if(textures[spriteIndex])
+    {
+        textures[spriteIndex]->Reset();
+        textures[spriteIndex]->SetFrame(0);
+        textures[spriteIndex]->SetPosition(0.f, 0.f);
+        textures[spriteIndex]->Draw();
+    }
 }
 
 

@@ -22,12 +22,13 @@
 
 #include "SceneGraph.h"
 #include "DataGraph.h"
+#include "EntitiesGraph.h"
 
 EditorBodyControl::EditorBodyControl(const Rect & rect)
     :   UIControl(rect)
 	, beastManager(0)
 {
-    currentViewPortID = EVPID_DEFAULT;
+    currentViewportType = ResourceEditor::VIEWPORT_DEFAULT;
     
     scene = NULL;
 	
@@ -35,6 +36,7 @@ EditorBodyControl::EditorBodyControl(const Rect & rect)
 
     sceneGraph = new SceneGraph(this, rect);
     dataGraph = new DataGraph(this, rect);
+	entitiesGraph = new EntitiesGraph(this, rect);
     currentGraph = NULL;
     
     bool showOutput = EditorSettings::Instance()->GetShowOutput();
@@ -98,6 +100,7 @@ EditorBodyControl::~EditorBodyControl()
 {
     SafeRelease(dataGraph);
     SafeRelease(sceneGraph);
+	SafeRelease(entitiesGraph);
     currentGraph = NULL;
     
     SafeRelease(sceneInfoControl);
@@ -156,6 +159,7 @@ void EditorBodyControl::CreateScene(bool withCameras)
     
     sceneGraph->SetScene(scene);
     dataGraph->SetScene(scene);
+	entitiesGraph->SetScene(scene);
 }
 
 void RemoveDeepCamera(SceneNode * curr)
@@ -262,6 +266,30 @@ void EditorBodyControl::PlaceOnLandscape()
 	}
 }
 
+void EditorBodyControl::PlaceOnLandscape(SceneNode *node)
+{
+	if(node)
+	{
+		Vector3 result;
+		LandscapeNode * ls = scene->GetLandScape(scene);
+		if (ls)
+		{
+			const Matrix4 & itemWT = node->GetWorldTransform();
+			Vector3 p = Vector3(0,0,0) * itemWT;
+			bool res = ls->PlacePoint(p, result);
+			if (res)
+			{
+				Vector3 offs = result - p;
+				Matrix4 invItem;
+				Matrix4 mod;
+				mod.CreateTranslation(offs);
+				node->SetLocalTransform(node->GetLocalTransform() * mod);
+			}						
+		}
+	}
+}
+
+
 void EditorBodyControl::Input(DAVA::UIEvent *event)
 {    
     if(LandscapeEditorActive())
@@ -363,7 +391,6 @@ void EditorBodyControl::Input(DAVA::UIEvent *event)
 					
 					if (selection)
 					{
-						Logger::Debug(L"init %f %f", event->point.x, event->point.y);
 						scene->SetBulletUpdate(selection, false);
 						
 						inTouch = true;	
@@ -396,7 +423,6 @@ void EditorBodyControl::Input(DAVA::UIEvent *event)
                     {
                         currentGraph->UpdatePropertiesForCurrentNode();
                     }
-					Logger::Debug(L"mod %f %f", event->point.x, event->point.y);
 				}
 			}
 		}
@@ -405,6 +431,11 @@ void EditorBodyControl::Input(DAVA::UIEvent *event)
 			inTouch = false;
 			if (isDrag)
 			{
+                if(modificationPanel->IsLandscapeRelative())
+                {
+                    PlaceOnLandscape();
+                }
+                
 				if (selection)
 					scene->SetBulletUpdate(selection, true);				
 			}
@@ -466,8 +497,6 @@ void EditorBodyControl::InitMoving(const Vector2 & point)
 
 //	bool result = 
     GetIntersectionVectorWithPlane(from, dir, planeNormal, rotationCenter, startDragPoint);
-	
-	Logger::Debug("startDragPoint %f %f %f", startDragPoint.x, startDragPoint.y, startDragPoint.z);
 }	
 
 void EditorBodyControl::GetCursorVectors(Vector3 * from, Vector3 * dir, const Vector2 &point)
@@ -714,11 +743,22 @@ void EditorBodyControl::OpenScene(const String &pathToFile, bool editScene)
                 Vector3 nodePos = pos + 10 * direction;
                 nodePos.z = 0;
                 
-				Matrix4 mod;
-				mod.CreateTranslation(nodePos);
-				rootNode->SetLocalTransform(rootNode->GetLocalTransform() * mod);
+                LandscapeNode * ls = scene->GetLandScape(scene);
+                if(ls)
+                {
+                    Vector3 result;
+                    bool res = ls->PlacePoint(nodePos, result);
+                    if(res)
+                    {
+                        nodePos = result;
+                    }
+                }
+
+                Matrix4 mod;
+                mod.CreateTranslation(nodePos);
+                rootNode->SetLocalTransform(rootNode->GetLocalTransform() * mod);
             }
-            
+                        
             SafeRelease(rootNode); 
         }
 
@@ -738,7 +778,7 @@ void EditorBodyControl::ReloadRootScene(const String &pathToFile)
     ReloadNode(scene, pathToFile);
     
     scene->SetSelection(0);
-    for (int i = 0; i < nodesToAdd.size(); i++) 
+    for (int32 i = 0; i < (int32)nodesToAdd.size(); i++) 
     {
         scene->ReleaseUserData(nodesToAdd[i].nodeToRemove);
         nodesToAdd[i].parent->RemoveNode(nodesToAdd[i].nodeToRemove);
@@ -796,6 +836,7 @@ void EditorBodyControl::WillAppear()
     
     sceneGraph->SelectNode(NULL);
     dataGraph->SelectNode(NULL);
+	entitiesGraph->SelectNode(NULL);
 }
 
 void EditorBodyControl::ShowProperties(bool show)
@@ -935,6 +976,11 @@ void EditorBodyControl::ToggleDataGraph()
     ToggleGraph(dataGraph);
 }
 
+void EditorBodyControl::ToggleEntities()
+{
+	ToggleGraph(entitiesGraph);
+}
+
 
 void EditorBodyControl::UpdateLibraryState(bool isShown, int32 width)
 {
@@ -1038,12 +1084,12 @@ void EditorBodyControl::ResetSelection()
 }
 
 
-void EditorBodyControl::SetViewPortSize(int32 viewportID)
+void EditorBodyControl::SetViewportSize(ResourceEditor::eViewportType viewportType)
 {
-    if(currentViewPortID == viewportID)
+    if(currentViewportType == viewportType)
         return;
     
-    currentViewPortID = (eViewPortIDs)viewportID;
+    currentViewportType = viewportType;
     
     if(currentGraph->GetGraphPanel()->GetParent())
     {
@@ -1059,17 +1105,17 @@ void EditorBodyControl::SetViewPortSize(int32 viewportID)
     }
     
     Rect newRect = viewRect;
-    switch (viewportID)
+    switch (viewportType)
     {
-        case EVPID_IPHONE:
+        case ResourceEditor::VIEWPORT_IPHONE:
             newRect = Rect(SCENE_OFFSET, SCENE_OFFSET, 480, 320);
             break;
 
-        case EVPID_RETINA:
+        case ResourceEditor::VIEWPORT_RETINA:
             newRect = Rect(SCENE_OFFSET, SCENE_OFFSET, 960, 640);
             break;
 
-        case EVPID_IPAD:
+        case ResourceEditor::VIEWPORT_IPAD:
             newRect = Rect(SCENE_OFFSET, SCENE_OFFSET, 1024, 768);
             break;
 
@@ -1083,7 +1129,7 @@ void EditorBodyControl::SetViewPortSize(int32 viewportID)
     }
     else
     {
-        currentViewPortID = EVPID_DEFAULT;
+        currentViewportType = ResourceEditor::VIEWPORT_DEFAULT;
     }
     
     scene3dView->SetRect(viewRect);
@@ -1091,7 +1137,7 @@ void EditorBodyControl::SetViewPortSize(int32 viewportID)
 
 bool EditorBodyControl::ControlsAreLocked()
 {
-    return (EVPID_DEFAULT != currentViewPortID);
+    return (ResourceEditor::VIEWPORT_DEFAULT != currentViewportType);
 }
 
 void EditorBodyControl::ToggleSceneInfo()

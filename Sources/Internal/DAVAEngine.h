@@ -32,12 +32,13 @@
 
 #include "DAVAConfig.h"
 #include "Debug/MemoryManager.h"
+#include "Debug/Stats.h"
+#include "Debug/Backtrace.h"
 
 #include "Base/BaseTypes.h"
 #include "Base/BaseMath.h"
 #include "Utils/StringFormat.h"
 
-#include "Debug/Stats.h"
 
 #include "FileSystem/Logger.h"
 #include "Platform/SystemTimer.h"
@@ -56,6 +57,8 @@
 #include "Utils/Random.h"
 
 #include "Base/ObjectFactory.h"
+#include "Base/FixedSizePoolAllocator.h"
+#include "Base/HashMap.h"
 
 // ptrs
 #include "Base/RefPtr.h"
@@ -155,6 +158,8 @@
 
 #include "UI/UIScreenManager.h"
 
+#include "UI/TheoraPlayer.h"
+
 
 // Game object manager / 2D Scene
 #include "Scene2D/GameObject.h"
@@ -202,6 +207,7 @@
 #include "Scene3D/BVHierarchy.h"
 #include "Scene3D/QuadTree.h"
 #include "Scene3D/ImposterNode.h"
+#include "Scene3D/ParticleEmitterNode.h"
 
 
 // Application core 
@@ -213,6 +219,10 @@
 #include "Network/NetworkDelegate.h"
 #include "Network/NetworkPacket.h"
 
+// Entity
+#include "Entity/Entity.h"
+#include "Entity/EntityManager.h"
+#include "Entity/Component.h"
 
 #endif // __DAVAENGINE_H__
 

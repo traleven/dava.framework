@@ -7,8 +7,9 @@
 
 #include "CreateNodesDialog.h"
 
-#include "SceneNodeIDs.h"
 #include "SettingsDialog.h"
+
+#include "../Constants.h"
 
 using namespace DAVA;
 
@@ -18,6 +19,7 @@ class SettingsDialog;
 class TextureTrianglesDialog;
 class TextureConverterDialog;
 class HelpDialog;
+class ParticlesEditorControl;
 class SceneEditorScreenMain: 
     public UIScreen, public UIFileSystemDialogDelegate, public LibraryControlDelegate, 
     public MenuPopupDelegate, public CreateNodesDialogDelegeate,
@@ -30,7 +32,7 @@ class SceneEditorScreenMain:
 
         BODY_Y_OFFSET = 50,
         
-        TAB_BUTTONS_OFFSET = 200,
+        TAB_BUTTONS_OFFSET = 250,
     };
 
     enum DIALOG_OPERATION
@@ -57,15 +59,6 @@ class SceneEditorScreenMain:
         EOMID_OPENLAST_STARTINDEX,
         
         EOMID_COUNT
-    };
-
-    enum eExportToGameMenuIDS
-    {
-        EETGMID_PNG = 0,
-        EETGMID_PVR,
-        EETGMID_DXT,
-        
-        EETGMID_COUNT
     };
 
 public:
@@ -105,6 +98,8 @@ public:
     virtual void DialogClosed(int32 retCode);
 
     void EditMaterial(Material *material);
+
+	void EditParticleEmitter(ParticleEmitterNode * emitter);
     
     void ShowTextureTriangles(PolygonGroup *polygonGroup);
 
@@ -189,6 +184,9 @@ private:
     UIButton *dataGraphButton;
     void OnDataGraphPressed(BaseObject * obj, void *, void *);
 
+	//Entities
+	UIButton *entitiesButton;
+	void OnEntitiesPressed(BaseObject * obj, void *, void *);
     
     //Library
     UIButton *libraryButton;
@@ -201,11 +199,6 @@ private:
     UIButton *sceneInfoButton;
     void OnSceneInfoPressed(BaseObject * obj, void *, void *);
     
-
-    void ExportLandscapeAndMeshLightmaps(SceneNode *node);//expand this methods if you need to expand export functionality
-    void ExportTexture(const String &textureDataSourcePath);
-    void ExportLandscapeFile(const String &fileDataSourcePath);
-    
     // menu
     MenuPopupControl *menuPopup;
 
@@ -213,6 +206,7 @@ private:
     CreateNodesDialog *nodeDialog;
     
     MaterialEditor *materialEditor;
+	ParticlesEditorControl * particlesEditor;
     void InitializeNodeDialogs();
     void ReleaseNodeDialogs();
     
@@ -221,7 +215,6 @@ private:
     //Open menu
     void ShowOpenFileDialog();
     void ShowOpenLastDialog();
-    void OpenFileAtScene(const String &pathToFile);
     
     void OnSettingsPressed(BaseObject * obj, void *, void *);
     SettingsDialog *settingsDialog;
@@ -232,10 +225,29 @@ private:
     // general
     Font *font;
     
-    void ExportToGameAction(int32 actionID);
 	bool useConvertedTextures;
     
     HelpDialog *helpDialog;
+    
+public: //For Qt integration
+    void OpenFileAtScene(const String &pathToFile);
+    void NewScene();
+
+    bool SaveIsAvailable();
+    String CurrentScenePathname();
+    void SaveSceneToFile(const String &pathToFile);
+   
+
+    void ExportAs(ResourceEditor::eExportFormat format);
+    
+    void CreateNode(ResourceEditor::eNodeType nodeType);
+    void SetViewport(ResourceEditor::eViewportType viewportType);
+    
+    void MaterialsTriggered();
+    void TextureConverterTriggered();
+    void HeightmapTriggered();
+    void TilemapTriggered();
+    
 };
 
 #endif // __SCENE_EDITOR_SCREEN_MAIN_H__

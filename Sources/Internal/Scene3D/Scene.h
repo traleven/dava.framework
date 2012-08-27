@@ -57,10 +57,10 @@ class LightNode;
 class ShadowRect;
 class QuadTree;
 class MeshInstanceNode;
-class BVHierarchy;
 class ImposterManager;
 class ImposterNode;
-	
+class EntityManager;
+class BVHierarchy;
 /** 
     \ingroup scene3d
     \brief This class is a code of our 3D Engine scene graph. 
@@ -108,10 +108,6 @@ public:
     
     
 //    DataNode * GetScenes();
-    
-    void SetBVHierarchy(BVHierarchy * bvHierarchy);
-    BVHierarchy * GetBVHierarchy();
-    
     
 	void AddAnimatedMesh(AnimatedMesh * mesh);
 	void RemoveAnimatedMesh(AnimatedMesh * mesh);
@@ -213,7 +209,7 @@ public:
 	void AddDrawTimeShadowVolume(ShadowVolumeNode * shadowVolume);
     
     Set<LightNode*> & GetLights();
-    LightNode * GetNearestLight(LightNode::eType type, Vector3 position);
+	LightNode * GetNearestDynamicLight(LightNode::eType type, Vector3 position);
 
 	/**
 		\brief Enables/disables imposters in scene.
@@ -224,6 +220,11 @@ public:
 
 	void RegisterImposter(ImposterNode * imposter);
 	void UnregisterImposter(ImposterNode * imposter);
+
+	void CreateComponents();
+	void CreateSystems();
+
+	EntityManager * entityManager;
     
 protected:	
     
@@ -253,11 +254,12 @@ protected:
 	Vector<ShadowVolumeNode*> shadowVolumes;
     Set<LightNode*> lights;
 	ShadowRect * shadowRect;
-    
-    BVHierarchy * bvHierarchy;
+	BVHierarchy * bvHierarchy;
 
 	ImposterManager * imposterManager;
 	bool enableImposters;
+
+	
 
     friend class SceneNode;
 };

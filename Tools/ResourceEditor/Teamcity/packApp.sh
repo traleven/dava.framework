@@ -1,3 +1,3 @@
 #!/bin/bash
-cd ./../build/Release/
-zip -r TemplateProjectMacOS.zip TemplateProjectMacOS.app
+cd ./../DerivedData/TemplateProjectMacOS/Build/Products/Release/
+zip -r ResourceEditor_MacOS.zip TemplateProjectMacOS.app

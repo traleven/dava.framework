@@ -60,13 +60,16 @@ public:
 		
 		//! Error messages (critical situations)
 		LEVEL_ERROR,
+        
+        //! Disable logs
+        LEVEL__DISABLE
 	};
 	
 	Logger();
 	virtual ~Logger();
 
 	//! Enables/disables logging to file. Disabled by default.
-	//! \param filename: name of log file. Empty string disables logging to file, 
+	//! \param[in] filename: name of log file. Empty string disables logging to file, 
 	//! non-empty creates log file in working directory.
 	virtual void SetLogFilename(const String & filename);
 	

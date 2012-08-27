@@ -51,7 +51,15 @@
 #include "Scene3D/MeshInstanceNode.h"
 #include "Scene3D/ImposterManager.h"
 #include "Scene3D/ImposterNode.h"
+#include "Scene3D/LandscapeNode.h"
 
+#include "Entity/Entity.h"
+#include "Entity/EntityManager.h"
+#include "Entity/Components.h"
+
+#include "Entity/VisibilityAABBoxSystem.h"
+#include "Entity/MeshInstanceDrawSystem.h"
+#include "Entity/LandscapeGeometrySystem.h"
 
 namespace DAVA 
 {
@@ -66,13 +74,32 @@ Scene::Scene()
 	,	shadowRect(0)
 	,	imposterManager(0)
 	,	enableImposters(true)
+	,	entityManager(0)
 {   
-    bvHierarchy = new BVHierarchy();
-    bvHierarchy->ChangeScene(this);
-    
+	bvHierarchy = new BVHierarchy();
+	bvHierarchy->ChangeScene(this);
+
+	entityManager = new EntityManager();
+	
+	CreateComponents();
+	CreateSystems();
+
     Stats::Instance()->RegisterEvent("Scene", "Time spend in scene processing");
     Stats::Instance()->RegisterEvent("Scene.Update", "Time spend in draw function");
     Stats::Instance()->RegisterEvent("Scene.Draw", "Time spend in draw function");
+}
+
+void Scene::CreateComponents()
+{
+	VisibilityAABBoxComponent::Create();
+	MeshInstanceComponent::Create();
+	LandscapeGeometryComponent::Create();
+	TransformComponent::Create();
+}
+
+void Scene::CreateSystems()
+{
+
 }
 
 Scene::~Scene()
@@ -100,12 +127,15 @@ Scene::~Scene()
     }
     rootNodes.clear();
 
-    // Childrens should be removed first because they should unregister themselves in managers
+    // Children should be removed first because they should unregister themselves in managers
 	RemoveAllChildren();
     
 	SafeRelease(imposterManager);
-    SafeRelease(bvHierarchy);
 	SafeRelease(shadowRect);
+	SafeRelease(bvHierarchy);
+
+	entityManager->Flush();
+	SafeRelease(entityManager);
 }
 
 void Scene::RegisterNode(SceneNode * node)
@@ -123,11 +153,35 @@ void Scene::RegisterNode(SceneNode * node)
 	{
 		RegisterImposter(imposter);
 	}
-    
-    if (bvHierarchy)
+
+	if (bvHierarchy)
 	{
-        bvHierarchy->RegisterNode(node);
+		bvHierarchy->RegisterNode(node);
 	}
+
+	//MeshInstanceNode * meshInstance = dynamic_cast<MeshInstanceNode*>(node);
+	//if(meshInstance)
+	//{
+	//	Entity * entity = entityManager->CreateEntity();
+	//	node->entity = entity;
+	//	node->entity->AddComponent(VisibilityAABBoxComponent::Get());
+	//	node->entity->AddComponent(MeshInstanceComponent::Get());
+	//	node->entity->AddComponent(TransformComponent::Get());
+
+	//	//TODO: move Flush and data init to some Init() function
+	//	entityManager->Flush();
+	//	node->entity->SetData("flags", (uint32)0);
+	//}
+
+	//LandscapeNode * landscapeNode = dynamic_cast<LandscapeNode*>(node);
+	//if(landscapeNode)
+	//{
+	//	Entity * entity = entityManager->CreateEntity();
+	//	node->entity = entity;
+	//	node->entity->AddComponent(LandscapeGeometryComponent::Get());
+	//	entityManager->Flush();
+	//	node->entity->SetData("landscapeNode", landscapeNode);
+	//}
 }
 
 void Scene::UnregisterNode(SceneNode * node)
@@ -143,17 +197,22 @@ void Scene::UnregisterNode(SceneNode * node)
 	{
 		UnregisterImposter(imposter);
 	}
-    
-    if (bvHierarchy)
-        bvHierarchy->UnregisterNode(node);
+
+	if (bvHierarchy)
+	{
+		bvHierarchy->UnregisterNode(node);
+	}
+
+	//if(node->entity)
+	//{
+	//	entityManager->DestroyEntity(node->entity);
+	//}
 }
 
 Scene * Scene::GetScene()
 {
     return this;
 }
-    
-
     
 void Scene::AddAnimatedMesh(AnimatedMesh * mesh)
 {
@@ -321,23 +380,6 @@ void Scene::ReleaseRootNode(SceneNode *nodeToRelease)
 //	}
 }
     
-    
-void Scene::SetBVHierarchy(BVHierarchy * _bvHierarchy)
-{
-    if (bvHierarchy)
-    {
-        bvHierarchy->ChangeScene(0);
-        SafeRelease(bvHierarchy);
-    }
-    bvHierarchy = SafeRetain(_bvHierarchy);
-}
-    
-BVHierarchy * Scene::GetBVHierarchy()
-{
-    return bvHierarchy;
-}
-
-    
 void Scene::SetupTestLighting()
 {
 #ifdef __DAVAENGINE_IPHONE__
@@ -394,6 +436,8 @@ void Scene::Update(float timeElapsed)
     Stats::Instance()->BeginTimeMeasure("Scene.Update", this);
     uint64 time = SystemTimer::Instance()->AbsoluteMS();
 
+	entityManager->Flush();
+
     // lights 
     flags &= ~SCENE_LIGHTS_MODIFIED;
     
@@ -445,8 +489,12 @@ void Scene::Draw()
     {
         currentCamera->Set();
     }
-    if (bvHierarchy)
+    
+	if(bvHierarchy)
         bvHierarchy->Cull();
+	//VisibilityAABBoxSystem::Run(this);
+
+	//entityManager->Dump();
 
 	if(imposterManager)
 	{
@@ -454,8 +502,10 @@ void Scene::Draw()
 	}
 
     SceneNode::Draw();
+	//LandscapeGeometrySystem::Run(this);
+	//MeshInstanceDrawSystem::Run(this);
 
-	if(shadowVolumes.size() > 0)
+	if(RenderManager::Instance()->GetOptions()->IsOptionEnabled(RenderOptions::SHADOWVOLUME_DRAW) && shadowVolumes.size() > 0)
 	{
 		if(!shadowRect)
 		{
@@ -632,7 +682,7 @@ void Scene::UpdateLights()
     
 }
     
-LightNode * Scene::GetNearestLight(LightNode::eType type, Vector3 position)
+LightNode * Scene::GetNearestDynamicLight(LightNode::eType type, Vector3 position)
 {
     switch(type)
     {
@@ -640,7 +690,32 @@ LightNode * Scene::GetNearestLight(LightNode::eType type, Vector3 position)
             
             break;
     };
-    return NULL;
+    
+	float32 squareMinDistance = 10000000.0f;
+	LightNode * nearestLight = 0;
+
+	Set<LightNode*> & lights = GetLights();
+	const Set<LightNode*>::iterator & endIt = lights.end();
+	for (Set<LightNode*>::iterator it = lights.begin(); it != endIt; ++it)
+	{
+		LightNode * node = *it;
+		//TODO: use simple flag for "dynamic" option in non-editor projects
+		bool isDynamic = node->GetCustomProperties()->GetBool("editor.dynamiclight.enable", true);
+		if(isDynamic)
+		{
+			const Vector3 & lightPosition = node->GetPosition();
+
+			float32 squareDistanceToLight = (position - lightPosition).SquareLength();
+			if (squareDistanceToLight < squareMinDistance)
+			{
+				squareMinDistance = squareDistanceToLight;
+				nearestLight = node;
+			}
+		}
+
+	}
+
+	return nearestLight;
 }
 
 Set<LightNode*> & Scene::GetLights()
@@ -682,6 +757,8 @@ bool Scene::IsImposterEnabled()
 {
 	return enableImposters;
 }
+
+
 
 
 /*void Scene::Save(KeyedArchive * archive)

@@ -96,9 +96,9 @@ void SpriteBasicsScreen::WillDisappear()
 
 void SpriteBasicsScreen::Input(UIEvent * touch)
 {
-	//if ((touch->phase == UIEvent::PHASE_ENDED) /*&& (touch->tid == UIEvent::BUTTON_2)*/)
+	if ((touch->phase == UIEvent::PHASE_ENDED) && (touch->tid == UIEvent::BUTTON_2))
 	{
-		//Core::Instance()->ToggleFullscreen();
+		Core::Instance()->ToggleFullscreen();
         
         //UIScreenManager::Instance()->SetScreen(SCREEN_PARTICLE_TEST, holeTransition);
     }
@@ -155,6 +155,7 @@ void SpriteBasicsScreen::Draw(const UIGeometricData &geometricData)
     RenderHelper::Instance()->FillRect(Rect(200, 0, 200, 200));
     
     RenderManager::Instance()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 
 	zebraSprite->Reset();
 	zebraSprite->SetPosition(0.0f, 30.0f);
@@ -246,7 +247,7 @@ void SpriteBasicsScreen::Draw(const UIGeometricData &geometricData)
      
     
     
-    
+
     Polygon2 p;
     p.AddPoint(Vector2(10.0f, 10.0f));
     p.AddPoint(Vector2(100.0f, 10.0f));

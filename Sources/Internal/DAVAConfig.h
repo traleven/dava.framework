@@ -36,7 +36,6 @@
 #define __DAVAENGINE_CONFIG_H__
 
 //#define ENABLE_MEMORY_MANAGER
-//#define CHECK_MEMORY_OVERRUNS 1 // number of 4 byte blocks used to check memory overrun
 
 //#define ENABLE_BASE_OBJECT_CHECKS // separate thing to check if you release BaseObjects properly. Need to be disabled for release configurations 
 
@@ -44,13 +43,15 @@
 
 //#define SHOW_FRAME_TIME	// shows milliseconds per fame
 
-//#define __DAVAENGINE_RENDER_AUTOCONFIG__	// it will use DAVANENGINE_OPENGL for MacOS / iPhone, and 
+#define __DAVAENGINE_RENDER_AUTOCONFIG__	// it will use DAVANENGINE_OPENGL for MacOS / iPhone, and 
 //#define __DAVAENGINE_DIRECTX9__
-#define __DAVAENGINE_OPENGL__
-
+//#define __DAVAENGINE_OPENGL__
 
 // This flag allow to enable debug stats 
 //#define __DAVAENGINE_ENABLE_DEBUG_STATS__
+
+#include "Autotesting/Config.h"
+
 
 #endif // __DAVAENGINE_CONFIG_H__
 
