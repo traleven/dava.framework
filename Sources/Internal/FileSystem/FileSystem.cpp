@@ -482,28 +482,6 @@ bool FileSystem::IsDirectory(const String & pathToCheck)
         SetCurrentDocumentsDirectory(GetUserDocumentsPath() + "DAVAProject/");
 #endif //PLATFORMS
     }
-    
-#if defined(__DAVAENGINE_IPHONE__) || defined(__DAVAENGINE_MACOS__)	
-    const String FileSystem::GetUserDocumentsPath()
-    {
-        NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString * bundlePath = [paths objectAtIndex:0];
-        NSString * filePath = [bundlePath stringByAppendingString: @"/"];
-        return String([filePath cStringUsingEncoding: NSUTF8StringEncoding]);
-    }
-    
-    const String FileSystem::GetPublicDocumentsPath()
-    {
-        return String("/Users/Shared/");
-    }
-
-    const String FileSystem::GetHomePath()
-    {
-        NSString * dirPath = NSHomeDirectory();
-        return String([[dirPath stringByAppendingString: @"/"] cStringUsingEncoding:NSUTF8StringEncoding]);
-    }
-
-#endif //#if defined(__DAVAENGINE_IPHONE__) || defined(__DAVAENGINE_MACOS__)	
 	
 #if defined(__DAVAENGINE_WIN32__)
     const String FileSystem::GetUserDocumentsPath()
