@@ -102,6 +102,15 @@ bool ApplicationCore::OnQuit()
 	return false;
 }
 
+void ApplicationCore::OnEnterFullscreen()
+{
+    
+}
+
+void ApplicationCore::OnExitFullscreen()
+{
+    
+}
 
 
 };

@@ -57,6 +57,8 @@
 - (void)windowWillMiniaturize:(NSNotification *)notification;
 - (void)windowDidDeminiaturize:(NSNotification *)notification;
 
+- (void)windowDidEnterFullScreen:(NSNotification *)notification;
+- (void)windowDidExitFullScreen:(NSNotification *)notification;
 
 - (void)OnSuspend;
 - (void)OnResume;

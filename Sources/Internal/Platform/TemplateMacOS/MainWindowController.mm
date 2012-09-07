@@ -172,8 +172,11 @@ namespace DAVA
 	
 	mainWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect((fullscreenMode.width - width) / 2, 
 																  (fullscreenMode.height - height) / 2, width, height) 
-											 styleMask:NSTitledWindowMask+NSMiniaturizableWindowMask+NSClosableWindowMask
+											 styleMask:NSTitledWindowMask+NSMiniaturizableWindowMask+NSClosableWindowMask+NSResizableWindowMask
 											backing:NSBackingStoreBuffered defer:FALSE];
+    
+    [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+    
 	[mainWindow setDelegate:self];
 	openGLView = [[OpenGLView alloc]initWithFrame: NSMakeRect(0, 0, width, height)];
 	[mainWindow setContentView: openGLView];
@@ -283,6 +286,16 @@ long GetDictionaryLong(CFDictionaryRef theDict, const void* key)
     NSLog(@"[MainWindowController] windowDidDeminiaturize");
     
     [self OnResume];
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification *)notification
+{
+    Core::Instance()->GetApplicationCore()->OnEnterFullscreen();
+}
+
+- (void)windowDidExitFullScreen:(NSNotification *)notification
+{
+    Core::Instance()->GetApplicationCore()->OnExitFullscreen();
 }
 
 // Action method wired up to fire when the user clicks the "Go FullScreen" button.  We remain in this method until the user exits FullScreen mode.
@@ -852,8 +865,10 @@ namespace DAVA
 	
 Core::eScreenMode CoreMacOSPlatform::GetScreenMode()
 {
-        if ([mainWindowController isInFullScreenMode])return Core::MODE_FULLSCREEN;
-	else return Core::MODE_WINDOWED;
+    if ([mainWindowController isInFullScreenMode])
+        return Core::MODE_FULLSCREEN;
+	else 
+        return Core::MODE_WINDOWED;
 }
 	
 void CoreMacOSPlatform::ToggleFullscreen()
@@ -870,14 +885,22 @@ void CoreMacOSPlatform::SwitchScreenToMode(eScreenMode screenMode)
 {
 	if (GetScreenMode() != screenMode) // check if we try to switch mode
 	{
+        if(floor(NSAppKitVersionNumber) >= NSAppKitVersionNumber10_7)
+        {
+            [mainWindowController->mainWindow toggleFullScreen: nil];
+            return;
+        }
+        
 		if (screenMode == Core::MODE_FULLSCREEN)
 		{
 			[NSTimer scheduledTimerWithTimeInterval:0.01 target:mainWindowController selector:@selector(switchFullscreenTimerFired:) userInfo:nil repeats:NO];
-		}else if (screenMode == Core::MODE_WINDOWED)
+		}
+        else if (screenMode == Core::MODE_WINDOWED)
 		{
 			mainWindowController->stayInFullScreenMode = NO;
 		}
-	}else
+	}
+    else
 	{
 		Logger::Debug("[CoreMacOSPlatform::SwitchScreenToMode] Current screen mode is the same as previous. Do nothing");
 	}

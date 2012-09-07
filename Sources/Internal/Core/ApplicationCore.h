@@ -171,7 +171,17 @@ public:
 		\returns true for fast quit, false for normal quit
 	 */
 	virtual bool OnQuit();
-
+    
+    /**
+     \brief Called after entering fullscreen.
+	 */
+	virtual void OnEnterFullscreen();
+    
+    /**
+     \brief Called after exiting fullscreen.
+	 */
+    virtual void OnExitFullscreen();
+    
 protected:
 	/**
 		\brief Called immediately after application initialized and all singletons are created. 
@@ -241,7 +251,7 @@ protected:
 		\brief Called after draw is finished.
 	 */
 	virtual void EndFrame();
-	
+
 private:
 
 	friend class Core;
