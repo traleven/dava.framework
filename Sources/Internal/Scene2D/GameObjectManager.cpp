@@ -98,7 +98,7 @@ void GameObjectManager::ChangeObjectPriority(GameObject * _object)
 	{
 		GameObject * curObject = *currentPos;
 			
-		if ( curObject->GetPriority() > _object->GetPriority())
+		if ( curObject->GetPriority() > _object->GetPriority() && !curObject->priorityChanged)
 		{
 			break;
 		}
